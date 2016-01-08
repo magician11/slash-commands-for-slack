@@ -1,19 +1,21 @@
-//Lets require/import the HTTP module
+// include the required modules for the server
 var http = require('http');
+var dispatch = require('dispatch');
 
-//Lets define a port we want to listen to
+//the port we want to listen to
 const PORT = 8080;
 
-//We need a function which handles requests and send response
-function handleRequest(request, response){
-  response.end('It Works!! Path Hit: ' + request.url);
-}
+// create the server and setup routes
+var server = http.createServer(
+  dispatch({
+    '/bucket/:id': function(req, res, id) {
+      res.end('Looking at bucket with id: ' + id);
+    }
+  })
+);
 
-//Create a server
-var server = http.createServer(handleRequest);
-
-//Lets start our server
+// start the server on the specfied port
 server.listen(PORT, function(){
-  //Callback triggered when server is successfully listening. Hurray!
+  //Callback triggered when server is successfully listening. Hurray!a
   console.log("Server listening on: http://localhost:%s", PORT);
 });
