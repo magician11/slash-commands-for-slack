@@ -19,9 +19,12 @@ app.get('/bucket/:id', function(req, res) {
 
   let projects = new freshbooks.Project();
   projects.get(req.params.id, function(err, project) {
+    console.log(project);
     res.json({
-      bucket_id: req.params.id,
-      name: project.name
+      project_id: project.project_id,
+      name: project.name,
+      client_id: project.client_id,
+      budget: project.budget
     });
   });
 });
