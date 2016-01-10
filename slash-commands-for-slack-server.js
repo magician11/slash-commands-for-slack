@@ -4,6 +4,8 @@ var dispatch = require('dispatch');
 
 //the port we want to listen to
 const PORT = 8080;
+const API_URL = 'https://your-domain.freshbooks.com/api/2.1/xml-in';
+const AUTH_KEY = 'yourkey';
 
 // create the server and setup routes
 var server = http.createServer(
@@ -16,6 +18,12 @@ var server = http.createServer(
 
 // start the server on the specfied port
 server.listen(PORT, function(){
-  //Callback triggered when server is successfully listening. Hurray!a
   console.log("Server listening on: http://localhost:%s", PORT);
+
+  var FreshBooks = require("freshbooks");
+  var freshbooks = new FreshBooks(API_URL, AUTH_KEY);
+  var projects = new freshbooks.Project();
+  projects.list(function(err, list) {
+    console.log(list);
+  });
 });
