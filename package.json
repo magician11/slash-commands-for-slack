@@ -9,7 +9,7 @@
   "author": "Andrew Golightly",
   "license": "ISC",
   "dependencies": {
-    "dispatch": "^1.0.0",
+    "express": "^4.13.3",
     "freshbooks": "^1.0.0"
   }
 }
