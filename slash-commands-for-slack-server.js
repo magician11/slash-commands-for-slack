@@ -13,18 +13,33 @@ const AUTH_KEY = process.env.SUNBOWL_API_TOKEN;
 let freshbooks = new FreshBooks(API_URL, AUTH_KEY);
 let app = express();
 
-
 // routes
+
+// get the hours billed and available for a current bucket
 app.get('/bucket/:id', function(req, res) {
 
+  // get the project details (project_id, name, client_id, budget)
   let projects = new freshbooks.Project();
   projects.get(req.params.id, function(err, project) {
-    console.log(project);
-    res.json({
-      project_id: project.project_id,
-      name: project.name,
-      client_id: project.client_id,
-      budget: project.budget
+
+    // get the tasks for this project
+    let tasks = new freshbooks.Task();
+    tasks.list({project_id: req.params.id}, function(err, tasks) {
+
+      // sum the hours that are billable
+      let billableHours = 0;
+      for(let task of tasks) {
+        billableHours += parseInt(task.billable);
+      }
+
+      // return the JSON for this request
+      res.json({
+        project_id: project.project_id,
+        name: project.name,
+        client_id: project.client_id,
+        budget: parseInt(project.budget),
+        billableHours: billableHours
+      });
     });
   });
 });
