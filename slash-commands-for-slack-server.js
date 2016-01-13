@@ -22,21 +22,20 @@ app.get('/bucket/:id', function(req, res) {
   let projects = new freshbooks.Project();
   projects.get(req.params.id, function(err, project) {
 
-    // get the tasks for this project
-    let tasks = new freshbooks.Task();
-    tasks.list({project_id: req.params.id}, function(err, tasks) {
+    // get the times entered for this project
+    let times = new freshbooks.Time_Entry();
+    times.list({project_id: req.params.id, per_page: 99999}, function(err, times) {
 
       // sum the hours that are billable
       let billableHours = 0;
-      for(let task of tasks) {
-        billableHours += parseInt(task.billable);
+      for(let time of times) {
+        billableHours += parseFloat(time.hours);
       }
 
       // return the JSON for this request
       res.json({
         project_id: project.project_id,
         name: project.name,
-        client_id: project.client_id,
         budget: parseInt(project.budget),
         billableHours: billableHours
       });
