@@ -18,8 +18,6 @@ let app = express();
 // get the hours billed and available for a current bucket
 app.get('/bucket', function(req, res) {
 
-  console.log(req.query);
-
   // get the project details (project_id, name, budget)
   let projects = new freshbooks.Project();
   let projectID = parseInt(req.query.text);
