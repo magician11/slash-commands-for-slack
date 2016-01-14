@@ -37,12 +37,10 @@ app.get('/bucket', function(req, res) {
 
       // return the JSON for this request
       res.json({
-        text: `You have used ${billableHours} hours of your ${parseInt(project.budget)} hour budget.`
-        // 'attachments': []
-        // project_id: project.project_id,
-        // name: project.name,
-        // budget: parseInt(project.budget),
-        // billableHours: billableHours
+        text: `You have used ${billableHours} hours of your ${parseInt(project.budget)} hour budget.`,
+        'attachments': [
+          text: `This is for ${project.name} with ID ${project.project_id}.`
+        ]
       });
     });
   });
