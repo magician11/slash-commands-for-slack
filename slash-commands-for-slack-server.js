@@ -16,7 +16,9 @@ let app = express();
 // routes
 
 // get the hours billed and available for a current bucket
-app.get('/bucket/:id', function(req, res) {
+app.get('/bucket/', function(req, res) {
+
+  console.log(req.params);
 
   // get the project details (project_id, name, client_id, budget)
   let projects = new freshbooks.Project();
@@ -34,10 +36,12 @@ app.get('/bucket/:id', function(req, res) {
 
       // return the JSON for this request
       res.json({
-        project_id: project.project_id,
-        name: project.name,
-        budget: parseInt(project.budget),
-        billableHours: billableHours
+        text: `You have used ${billableHours} of your ${parseInt(project.budget)} budget.`
+        // 'attachments': []
+        // project_id: project.project_id,
+        // name: project.name,
+        // budget: parseInt(project.budget),
+        // billableHours: billableHours
       });
     });
   });
