@@ -35,7 +35,7 @@ app.get('/bucket', function(req, res) {
 
       // return the JSON for this request
       res.json({
-        text: `You have used ${billableHours} hours of your ${parseInt(project.budget)} hour budget.`,
+        text: `You have used ${billableHours.toFixed(1)} hours of your ${parseInt(project.budget)} hour budget.`,
         'attachments': [
           {
             text: `This is for ${project.name} with ID ${project.project_id}.`
