@@ -19,15 +19,15 @@ let app = express();
 app.get('/bucket', function(req, res) {
 
   console.log(req.query);
-  console.log(req.query.hey);
 
-  // get the project details (project_id, name, client_id, budget)
+  // get the project details (project_id, name, budget)
   let projects = new freshbooks.Project();
-  projects.get(req.params.id, function(err, project) {
+  let projectID = parseInt(req.query.text);
+  projects.get(projectID, function(err, project) {
 
     // get the times entered for this project
     let times = new freshbooks.Time_Entry();
-    times.list({project_id: req.params.id, per_page: 99999}, function(err, times) {
+    times.list({project_id: projectID, per_page: 99999}, function(err, times) {
 
       // sum the hours that are billable
       let billableHours = 0;
@@ -37,7 +37,7 @@ app.get('/bucket', function(req, res) {
 
       // return the JSON for this request
       res.json({
-        text: `You have used ${billableHours} of your ${parseInt(project.budget)} budget.`
+        text: `You have used ${billableHours} hours of your ${parseInt(project.budget)} hour budget.`
         // 'attachments': []
         // project_id: project.project_id,
         // name: project.name,
