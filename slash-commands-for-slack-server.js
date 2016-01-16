@@ -27,6 +27,12 @@ app.get('/bucket', function(req, res) {
     let times = new freshbooks.Time_Entry();
     times.list({project_id: projectID, per_page: 99999}, function(err, times) {
 
+      // check whether the project id is a number (or potentially catch another error)
+      if(err) {
+        respondWithError(err, res);
+        return;
+      }
+
       // sum the hours that are billable
       let billableHours = 0;
       for(let time of times) {
@@ -45,6 +51,19 @@ app.get('/bucket', function(req, res) {
     });
   });
 });
+
+// utility functions
+function respondWithError(err, res) {
+  console.log(err);
+  res.json({
+    text: 'There was an error with your request.',
+    'attachments': [
+      {
+        text: err.toString()
+      }
+    ]
+  });
+}
 
 // start the server
 app.listen(PORT, function() {
