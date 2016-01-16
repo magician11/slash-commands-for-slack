@@ -23,7 +23,7 @@ app.get('/bucket', function(req, res) {
   let projectID = parseInt(req.query.text);
   projects.get(projectID, function(err, project) {
 
-    // probably catch if the project ID was not found
+    // catch any project ID errors (e.g. NAN or project ID not found)
     if(err) {
       respondWithError(err, res);
       return;
@@ -32,12 +32,6 @@ app.get('/bucket', function(req, res) {
     // get the times entered for this project
     let times = new freshbooks.Time_Entry();
     times.list({project_id: projectID, per_page: 99999}, function(err, times) {
-
-      // check whether the project id is a number (or potentially catch another error)
-      if(err) {
-        respondWithError(err, res);
-        return;
-      }
 
       // sum the hours that are billable
       let billableHours = 0;
