@@ -23,6 +23,12 @@ app.get('/bucket', function(req, res) {
   let projectID = parseInt(req.query.text);
   projects.get(projectID, function(err, project) {
 
+    // probably catch if the project ID was not found
+    if(err) {
+      respondWithError(err, res);
+      return;
+    }
+
     // get the times entered for this project
     let times = new freshbooks.Time_Entry();
     times.list({project_id: projectID, per_page: 99999}, function(err, times) {
@@ -54,7 +60,6 @@ app.get('/bucket', function(req, res) {
 
 // utility functions
 function respondWithError(err, res) {
-  console.log(err);
   res.json({
     text: 'There was an error with your request.',
     'attachments': [
