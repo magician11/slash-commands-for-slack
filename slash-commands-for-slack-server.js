@@ -3,6 +3,7 @@
 // include the required modules for the server
 let express = require('express');
 let FreshBooks = require("freshbooks");
+let Client = require('node-rest-client').Client;
 
 // constants
 const PORT = 8080;
@@ -12,11 +13,25 @@ const AUTH_KEY = process.env.SUNBOWL_API_TOKEN;
 // objects to use in the app
 let freshbooks = new FreshBooks(API_URL, AUTH_KEY);
 let app = express();
+let client = new Client();
+let channelNameAndFreshBookIDPair = {};
 
 // routes
 
 // get the hours billed and available for a current bucket
 app.get('/bucket', function(req, res) {
+
+  // get the Slack channel name / Freshbook project ID pairs
+  client.get("https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&oauth_token=b9400c279dd0dfcd22dc47c3282c7173", function(data, response){
+
+    let formData = JSON.parse(data.toString('utf8'));
+
+    formData.submissions.forEach(function(submission) {
+      channelNameAndFreshBookIDPair[submission.data[38710905].value] = submission.data[38710988].value;
+    });
+
+    console.log(channelNameAndFreshBookIDPair);
+  });
 
   // get the project details (project_id, name, budget)
   let projects = new freshbooks.Project();
