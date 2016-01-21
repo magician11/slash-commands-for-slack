@@ -7,11 +7,12 @@ let Client = require('node-rest-client').Client;
 
 // constants
 const PORT = 8080;
-const API_URL = process.env.SUNBOWL_URL;
-const AUTH_KEY = process.env.SUNBOWL_API_TOKEN;
+const FRESHBOOKS_API_URL = process.env.SUNBOWL_FRESHBOOKS_URL;
+const FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
+const SLACK_TOKEN = process.env.SUNBOWL_SLACK_TOKEN;
 
 // objects to use in the app
-let freshbooks = new FreshBooks(API_URL, AUTH_KEY);
+let freshbooks = new FreshBooks(FRESHBOOKS_API_URL, FRESHBOOKS_AUTH_KEY);
 let app = express();
 let client = new Client();
 let channelNameAndFreshBookIDPair = {};
@@ -20,6 +21,11 @@ let channelNameAndFreshBookIDPair = {};
 
 // get the hours billed and available for a current bucket
 app.get('/bucket', function(req, res) {
+
+  if(req.query.token !== SLACK_TOKEN) {
+    respondWithError('Access denied.', res);
+    return;
+  }
 
   // get the Slack channel name / Freshbook project ID pairs
   client.get("https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&oauth_token=b9400c279dd0dfcd22dc47c3282c7173", function(data, response){
