@@ -56,20 +56,25 @@ app.get('/bucket', function(req, res) {
           billableHours += parseFloat(time.hours);
         }
 
+        let projectBudget = parseInt(project.budget);
+        let percentBucketUsed = (billableHours / projectBudget) * 100;
+        let timeLeft = projectBudget - billableHours;
+        let progressColour = (percentBucketUsed > 75) ? 'danger' : 'good';
+
         // return the JSON for this request
         res.json({
-          text: `You have used ${billableHours.toFixed(1)} hours of your ${parseInt(project.budget)} hour budget.`,
+          text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${projectBudget} hour\` bucket.`,
           'attachments': [
             {
-              text: `This is for ${project.name} with ID ${project.project_id}.`
+              color: progressColour,
+              text: `\`${timeLeft.toFixed(1)} hours\` left before you will need to top it up.`,
+              mrkdwn_in: ["text"]
             }
           ]
         });
       });
     });
-
   });
-
 });
 
 // utility functions
