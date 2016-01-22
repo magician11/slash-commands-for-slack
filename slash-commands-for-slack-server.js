@@ -55,7 +55,7 @@ app.get('/bucket', function(req, res) {
       });
       break;
 
-      default: respondWithError(`*${req.query.text}* is not a recognised command.`, res);
+      default: respondWithError(`*${req.query.text}* is not a recognised option for the bucket command.`, res);
 
     }
   } else {
