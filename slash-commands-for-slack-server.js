@@ -18,36 +18,46 @@ let app = express();
 let client = new Client();
 let channelNameAndFreshBookIDPair = {};
 
-// get the hours billed and available for a current bucket
+// get information about a bucket with Sunbowl
 app.get('/bucket', function(req, res) {
 
+  // check to see whether this script is being accessed from our slack integration
   if(req.query.token !== SLACK_TOKEN) {
     respondWithError('Access denied.', res);
     return;
   }
 
-  if(req.query.text === 'refill') {
-    res.json({
-      text: `To refill your bucket, click on your bucket choice below...`,
-      'attachments': [
-        {
-          "title": "7 hour bucket",
-          "title_link": "http://www.sunbowl.ca/7hb"
-        },
-        {
-          "title": "21 hour bucket",
-          "title_link": "http://www.sunbowl.ca/21hb"
-        },
-        {
-          "title": "28 hour bucket",
-          "title_link": "http://www.sunbowl.ca/28hb"
-        },
-        {
-          "title": "40 hour bucket",
-          "title_link": "http://www.sunbowl.ca/40hb"
-        }
-      ]
-    });
+  // switch on bucket option
+  if(req.query.text) {
+    switch(req.query.text) {
+      case 'refill':
+
+      res.json({
+        text: `To refill your bucket, click on your bucket choice below...`,
+        'attachments': [
+          {
+            "title": "7 hour bucket",
+            "title_link": "http://www.sunbowl.ca/7hb"
+          },
+          {
+            "title": "21 hour bucket",
+            "title_link": "http://www.sunbowl.ca/21hb"
+          },
+          {
+            "title": "28 hour bucket",
+            "title_link": "http://www.sunbowl.ca/28hb"
+          },
+          {
+            "title": "40 hour bucket",
+            "title_link": "http://www.sunbowl.ca/40hb"
+          }
+        ]
+      });
+      break;
+
+      default: respondWithError(`*${req.query.text}* is not a recognised command.`, res);
+
+    }
   } else {
 
     // get the Slack channel name / Freshbook project ID pairs
@@ -106,7 +116,9 @@ function respondWithError(err, res) {
     text: 'There was an error with your request.',
     'attachments': [
       {
-        text: err.toString()
+        color: 'danger',
+        text: err.toString(),
+        mrkdwn_in: ["text"]
       }
     ]
   });
