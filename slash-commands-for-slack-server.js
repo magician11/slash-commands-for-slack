@@ -18,8 +18,6 @@ let app = express();
 let client = new Client();
 let channelNameAndFreshBookIDPair = {};
 
-// routes
-
 // get the hours billed and available for a current bucket
 app.get('/bucket', function(req, res) {
 
@@ -28,53 +26,78 @@ app.get('/bucket', function(req, res) {
     return;
   }
 
-  // get the Slack channel name / Freshbook project ID pairs
-  client.get(`https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&oauth_token=${FORMSTACK_TOKEN}`, function(data, response){
-
-    data.submissions.forEach(function(submission) {
-      channelNameAndFreshBookIDPair[submission.data[38710905].value] = submission.data[38710988].value;
+  if(req.query.text === 'refill') {
+    res.json({
+      text: `To refill your bucket, click on your bucket choice below...`,
+      'attachments': [
+        {
+          "title": "7 hour bucket",
+          "title_link": "http://www.sunbowl.ca/7hb"
+        },
+        {
+          "title": "21 hour bucket",
+          "title_link": "http://www.sunbowl.ca/21hb"
+        },
+        {
+          "title": "28 hour bucket",
+          "title_link": "http://www.sunbowl.ca/28hb"
+        },
+        {
+          "title": "40 hour bucket",
+          "title_link": "http://www.sunbowl.ca/40hb"
+        }
+      ]
     });
+  } else {
 
-    // then, get the project details (given project_id retrieve name and budget)
-    let projects = new freshbooks.Project();
-    let projectID = channelNameAndFreshBookIDPair[req.query.channel_name];
-    projects.get(projectID, function(err, project) {
+    // get the Slack channel name / Freshbook project ID pairs
+    client.get(`https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&oauth_token=${FORMSTACK_TOKEN}`, function(data, response){
 
-      // catch any project ID errors (e.g. NAN or project ID not found)
-      if(err) {
-        respondWithError(err, res);
-        return;
-      }
+      data.submissions.forEach(function(submission) {
+        channelNameAndFreshBookIDPair[submission.data[38710905].value] = submission.data[38710988].value;
+      });
 
-      // get the times entered for this project
-      let times = new freshbooks.Time_Entry();
-      times.list({project_id: projectID, per_page: 99999}, function(err, times) {
+      // then, get the project details (given project_id retrieve name and budget)
+      let projects = new freshbooks.Project();
+      let projectID = channelNameAndFreshBookIDPair[req.query.channel_name];
+      projects.get(projectID, function(err, project) {
 
-        // sum the hours that are billable
-        let billableHours = 0;
-        for(let time of times) {
-          billableHours += parseFloat(time.hours);
+        // catch any project ID errors (e.g. NAN or project ID not found)
+        if(err) {
+          respondWithError(err, res);
+          return;
         }
 
-        let projectBudget = parseInt(project.budget);
-        let percentBucketUsed = (billableHours / projectBudget) * 100;
-        let timeLeft = projectBudget - billableHours;
-        let progressColour = (percentBucketUsed > 75) ? 'danger' : 'good';
+        // get the times entered for this project
+        let times = new freshbooks.Time_Entry();
+        times.list({project_id: projectID, per_page: 99999}, function(err, times) {
 
-        // return the JSON for this request
-        res.json({
-          text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${projectBudget} hour\` bucket.`,
-          'attachments': [
-            {
-              color: progressColour,
-              text: `\`${timeLeft.toFixed(1)} hours\` left before you will need to top it up.`,
-              mrkdwn_in: ["text"]
-            }
-          ]
+          // sum the hours that are billable
+          let billableHours = 0;
+          for(let time of times) {
+            billableHours += parseFloat(time.hours);
+          }
+
+          let projectBudget = parseInt(project.budget);
+          let percentBucketUsed = (billableHours / projectBudget) * 100;
+          let timeLeft = projectBudget - billableHours;
+          let progressColour = (percentBucketUsed > 75) ? 'danger' : 'good';
+
+          // return the JSON for this request
+          res.json({
+            text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${projectBudget} hour\` bucket.`,
+            'attachments': [
+              {
+                color: progressColour,
+                text: `\`${timeLeft.toFixed(1)} hours\` left before you will need to top it up.`,
+                mrkdwn_in: ["text"]
+              }
+            ]
+          });
         });
       });
     });
-  });
+  }
 });
 
 // utility functions
