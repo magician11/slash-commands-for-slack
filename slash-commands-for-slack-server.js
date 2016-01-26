@@ -12,6 +12,8 @@ const FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
 const SLACK_TOKEN = process.env.SUNBOWL_SLACK_TOKEN;
 const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
 
+console.log(FRESHBOOKS_API_URL, FRESHBOOKS_AUTH_KEY, SLACK_TOKEN, FORMSTACK_TOKEN);
+
 // objects to use in the app
 let freshbooks = new FreshBooks(FRESHBOOKS_API_URL, FRESHBOOKS_AUTH_KEY);
 let app = express();
@@ -61,7 +63,7 @@ app.get('/bucket', function(req, res) {
   } else {
 
     // get the Slack channel name / Freshbook project ID pairs
-    client.get(`https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&oauth_token=${FORMSTACK_TOKEN}`, function(data, response){
+    client.get(`https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`, function(data, response){
 
       data.submissions.forEach(function(submission) {
         channelNameAndFreshBookIDPair[submission.data[38710905].value] = submission.data[38710988].value;
