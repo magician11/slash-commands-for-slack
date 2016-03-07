@@ -11,6 +11,6 @@
   "dependencies": {
     "express": "^4.13.3",
     "freshbooks": "^1.0.0",
-    "node-rest-client": "^1.5.1"
+    "request": "^2.69.0"
   }
 }
