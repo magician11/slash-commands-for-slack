@@ -3,13 +3,20 @@
 module.exports = function(app) {
 
   let request = require('request');
+  let utils = require('../utils');
+
   const TRELLO_APP_KEY = process.env.SUNBOWL_TRELLO_KEY;
   const TRELLO_USER_TOKEN = process.env.SUNBOWL_TRELLO_TOKEN;
+  const DASH_SECURITY_TOKEN = process.env.SUNBOWL_DASH_SECURITY_TOKEN;
 
   // add a task to their trello card
   app.get('/dash', function(req, res) {
 
-    console.log(req);
+    // check to see whether this script is being accessed from our slack integration
+    if(req.query.token !== DASH_SECURITY_TOKEN) {
+      utils.respondWithError('Access denied.', res);
+      return;
+    }
 
     let Trello = require("node-trello");
     let trello = new Trello(TRELLO_APP_KEY, TRELLO_USER_TOKEN);
@@ -22,7 +29,7 @@ module.exports = function(app) {
     Then we can use https://developers.trello.com/advanced-reference/checklist#post-1-checklists-idchecklist-checkitems
 
     */
-    trello.post('/1/checklists/56de0b42541c701599ec3f0d/checkitems', { name: 'do nothing' }, function(err, data){
+    trello.post('/1/checklists/56de0b42541c701599ec3f0d/checkitems', { name: req.query.text }, function(err, data){
       console.log(data);
     });
 

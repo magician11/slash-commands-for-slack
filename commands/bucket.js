@@ -2,10 +2,11 @@
 
 let FreshBooks = require("freshbooks");
 let request = require('request');
+let utils = require('../utils');
 
 const FRESHBOOKS_API_URL = process.env.SUNBOWL_FRESHBOOKS_URL;
 const FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
-const SLACK_TOKEN = process.env.SUNBOWL_SLACK_TOKEN;
+const BUCKET_SECURITY_TOKEN = process.env.SUNBOWL_BUCKET_SECURITY_TOKEN;
 const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
 
 
@@ -15,8 +16,8 @@ module.exports = function(app) {
   app.get('/bucket', function(req, res) {
 
     // check to see whether this script is being accessed from our slack integration
-    if(req.query.token !== SLACK_TOKEN) {
-      respondWithError('Access denied.', res);
+    if(req.query.token !== BUCKET_SECURITY_TOKEN) {
+      utils.respondWithError('Access denied.', res);
       return;
     }
 
@@ -48,7 +49,7 @@ module.exports = function(app) {
         });
         break;
 
-        default: respondWithError(`*${req.query.text}* is not a recognised option for the bucket command.`, res);
+        default: utils.respondWithError(`*${req.query.text}* is not a recognised option for the bucket command.`, res);
 
       }
     } else {
@@ -73,7 +74,7 @@ module.exports = function(app) {
 
             // catch any project ID errors (e.g. NAN or project ID not found)
             if(err) {
-              respondWithError(err, res);
+              utils.respondWithError(err, res);
               return;
             }
 
@@ -107,19 +108,5 @@ module.exports = function(app) {
           });
         });
       }
-    });
-  }
-
-  // utility functions
-  function respondWithError(err, res) {
-    res.json({
-      text: 'There was an error with your request.',
-      'attachments': [
-        {
-          color: 'danger',
-          text: err.toString(),
-          mrkdwn_in: ["text"]
-        }
-      ]
     });
   }
