@@ -8,7 +8,7 @@ let app = express();
 
 // import the routes
 require('./commands/bucket')(app);
-require('./commands/task')(app);
+require('./commands/dash')(app);
 
 // start the server
 app.listen(PORT, function() {
