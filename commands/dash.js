@@ -16,6 +16,9 @@ module.exports = function(app) {
     if(req.query.token !== DASH_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
+    } else if(req.query.text === '') {
+      utils.respondWithError('No task was specified.', res);
+      return;
     }
 
     let Trello = require("node-trello");
