@@ -1,16 +1,15 @@
 'use strict';
 
-let FreshBooks = require("freshbooks");
-let request = require('request');
-let utils = require('../utils');
-
-const FRESHBOOKS_API_URL = process.env.SUNBOWL_FRESHBOOKS_URL;
-const FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
-const BUCKET_SECURITY_TOKEN = process.env.SUNBOWL_BUCKET_SECURITY_TOKEN;
-const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
-
-
 module.exports = function(app) {
+
+  let FreshBooks = require("freshbooks");
+  let request = require('request');
+  let utils = require('../utils');
+
+  const FRESHBOOKS_API_URL = process.env.SUNBOWL_FRESHBOOKS_URL;
+  const FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
+  const BUCKET_SECURITY_TOKEN = process.env.SUNBOWL_BUCKET_SECURITY_TOKEN;
+  const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
 
   // get information about a bucket with Sunbowl
   app.get('/bucket', function(req, res) {

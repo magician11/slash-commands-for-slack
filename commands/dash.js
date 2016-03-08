@@ -31,7 +31,7 @@ module.exports = function(app) {
     */
     trello.post('/1/checklists/56de0b42541c701599ec3f0d/checkitems', { name: req.query.text }, function(err, data){
       res.json({
-        text: `Great! Your task "${ req.query.text }" was added.`
+        text: `Great! Your task *${ req.query.text }* was added.`
       });
     });
   });
