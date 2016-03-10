@@ -47,7 +47,7 @@ module.exports = function(app) {
           ]
         });
         break;
-
+        
         default: utils.respondWithError(`*${req.query.text}* is not a recognised option for the bucket command.`, res);
 
       }
@@ -59,7 +59,7 @@ module.exports = function(app) {
       request.get({
         url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
         json: true },
-        function(error, response, data){
+        function(error, response, data) {
 
           let channelNameAndFreshBookIDPair = {};
           data.submissions.forEach(function(submission) {

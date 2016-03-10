@@ -8,6 +8,7 @@ module.exports = function(app) {
   const TRELLO_APP_KEY = process.env.SUNBOWL_TRELLO_KEY;
   const TRELLO_USER_TOKEN = process.env.SUNBOWL_TRELLO_TOKEN;
   const DASH_SECURITY_TOKEN = process.env.SUNBOWL_DASH_SECURITY_TOKEN;
+  const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
 
   // add a task to their trello card
   app.get('/dash', function(req, res) {
@@ -24,36 +25,48 @@ module.exports = function(app) {
     let Trello = require("node-trello");
     let trello = new Trello(TRELLO_APP_KEY, TRELLO_USER_TOKEN);
 
-    /*
+    // first grab the trello card ID associated with this channel
+    request.get(
+      {
+        url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
+        json: true
+      },
+      function(error, response, data) {
 
-    using the API from https://developers.trello.com/advanced-reference
-
-    Specifically, to add an item to checklist on a card, get the ID of that checklist.
-    Then we can use https://developers.trello.com/advanced-reference/checklist#post-1-checklists-idchecklist-checkitems
-
-    */
-
-    // first find out which checklist is called "Incoming" for the specified card ID
-    trello.get('/1/cards/wIhFjOWZ/checklists', function(err, data) {
-
-      let checklistId;
-      data.forEach(function(checklist) {
-        if(checklist.name === 'Incoming') {
-          checklistId = checklist.id;
-        }
-      });
-
-      // if a checklist with named "Incoming" is found, then add the latest task to this list
-      if(checklistId) {
-        trello.post(`/1/checklists/${checklistId}/checkitems`, { name: req.query.text }, function(err, data) {
-          res.json({
-            'response_type': 'in_channel',
-            text: `Great! Your task *${ req.query.text }* was added.`
-          });
+        let trelloCardId;
+        data.submissions.forEach(function(submission) {
+          if(submission.data[38710905].value === req.query.channel_name) {
+            trelloCardId = submission.data[40296108].value;
+          }
         });
-      } else {
-        utils.respondWithError('The "Incoming" checklist has not been setup for your trello card.', res);
+
+        if(trelloCardId) {
+          // then find out which checklist is called "Incoming" for the specified card ID
+          trello.get(`/1/cards/${trelloCardId}/checklists`, function(err, data) {
+
+            let checklistId;
+            data.forEach(function(checklist) {
+              if(checklist.name === 'Incoming') {
+                checklistId = checklist.id;
+              }
+            });
+
+            // if a checklist with named "Incoming" is found, then add the latest task to this list
+            if(checklistId) {
+              trello.post(`/1/checklists/${checklistId}/checkitems`, { name: req.query.text }, function(err, data) {
+                res.json({
+                  'response_type': 'in_channel',
+                  text: `Great! Your task *${ req.query.text }* was added.`
+                });
+              });
+            } else {
+              utils.respondWithError('The "Incoming" checklist has not been setup for your trello card.', res);
+            }
+          });
+        } else {
+          utils.respondWithError('No trello card was found for this channel.', res);
+        }
       }
-    });
+    );
   });
 }
