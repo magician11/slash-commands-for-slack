@@ -32,11 +32,28 @@ module.exports = function(app) {
     Then we can use https://developers.trello.com/advanced-reference/checklist#post-1-checklists-idchecklist-checkitems
 
     */
-    trello.post('/1/checklists/56de0b42541c701599ec3f0d/checkitems', { name: req.query.text }, function(err, data){
-      res.json({
-        'response_type': 'in_channel',
-        text: `Great! Your task *${ req.query.text }* was added.`
+
+    // first find out which checklist is called "Incoming" for the specified card ID
+    trello.get('/1/cards/wIhFjOWZ/checklists', function(err, data) {
+
+      let checklistId;
+      data.forEach(function(checklist) {
+        if(checklist.name === 'Incoming') {
+          checklistId = checklist.id;
+        }
       });
+
+      // if a checklist with named "Incoming" is found, then add the latest task to this list
+      if(checklistId) {
+        trello.post(`/1/checklists/${checklistId}/checkitems`, { name: req.query.text }, function(err, data) {
+          res.json({
+            'response_type': 'in_channel',
+            text: `Great! Your task *${ req.query.text }* was added.`
+          });
+        });
+      } else {
+        utils.respondWithError('The "Incoming" checklist has not been setup for your trello card.', res);
+      }
     });
   });
 }
