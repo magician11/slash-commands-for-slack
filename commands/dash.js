@@ -40,6 +40,7 @@ module.exports = function(app) {
               trelloCardId = submission.data[40296108].value;
             } else {
               utils.respondWithError('The trello card ID for this channel has not yet been entered in Formstack.', res);
+              return;
             }
           }
         });
