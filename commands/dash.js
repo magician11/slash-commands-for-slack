@@ -36,7 +36,11 @@ module.exports = function(app) {
         let trelloCardId;
         data.submissions.forEach(function(submission) {
           if(submission.data[38710905].value === req.query.channel_name) {
-            trelloCardId = submission.data[40296108].value;
+            if(submission.data[40296108]) {
+              trelloCardId = submission.data[40296108].value;
+            } else {
+              utils.respondWithError('The trello card ID for this channel has not yet been entered in Formstack.', res);
+            }
           }
         });
 
@@ -64,7 +68,7 @@ module.exports = function(app) {
             }
           });
         } else {
-          utils.respondWithError('No trello card was found for this channel.', res);
+          utils.respondWithError('This channel has no Formstack record.', res);
         }
       }
     );
