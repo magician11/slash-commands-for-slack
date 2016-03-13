@@ -81,12 +81,12 @@ module.exports = function(app) {
             let projects = new freshbooks.Project();
             projects.get(projectId, function(err, project) {
               if(err) {
-                console.log(err);
                 reject(err);
+              } else {
+                freshbooksData.projectBudget = parseInt(project.budget);
+                console.log(`Found budget: ${freshbooksData.projectBudget}`);
+                resolve(projectId);
               }
-              freshbooksData.projectBudget = parseInt(project.budget);
-              console.log(`Found budget: ${freshbooksData.projectBudget}`);
-              resolve(projectId);
             });
           });
         };
@@ -97,16 +97,33 @@ module.exports = function(app) {
             let billableHours = 0;
             timeEntries.list({project_id: projectId, per_page: 100}, function(err, times, options) {
 
+              console.log(options);
+
               if(err) {
-                console.log('Error on billable hours');
-                console.log(err);
+                reject(err);
+              } else {
+
+                for(let time of times) {
+                  billableHours += parseFloat(time.hours);
+                }
+
+                // if there are more pages...
+                if(options.pages > 1) {
+                  console.log('Going to get more pages...');
+                  timeEntries.list({project_id: projectId, per_page: 100, page: 2 }, function(err, times, options) {
+                    for(let time of times) {
+                      billableHours += parseFloat(time.hours);
+                    }
+                    freshbooksData.billableHours = billableHours;
+                    resolve(billableHours);
+
+                  });
+                } else {
+                  freshbooksData.billableHours = billableHours;
+                  console.log(`Found billable hours: ${billableHours}`);
+                  resolve(billableHours);
+                }
               }
-              for(let time of times) {
-                billableHours += parseFloat(time.hours);
-              }
-              freshbooksData.billableHours = billableHours;
-              console.log(`Found billable hours: ${billableHours}`);
-              resolve(billableHours);
             });
           });
         };
