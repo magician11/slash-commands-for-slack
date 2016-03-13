@@ -70,7 +70,6 @@ module.exports = function(app) {
                 channelNameAndFreshBookIDPair[submission.data[38710905].value] = submission.data[38710988].value;
               });
               freshbooksData.projectId = channelNameAndFreshBookIDPair[req.query.channel_name];
-              console.log("Found projectID: " + channelNameAndFreshBookIDPair[req.query.channel_name]);
               resolve(channelNameAndFreshBookIDPair[req.query.channel_name]);
             }
           });
@@ -84,7 +83,6 @@ module.exports = function(app) {
                 reject(err);
               } else {
                 freshbooksData.projectBudget = parseInt(project.budget);
-                console.log(`Found budget: ${freshbooksData.projectBudget}`);
                 resolve(projectId);
               }
             });
@@ -92,36 +90,50 @@ module.exports = function(app) {
         };
 
         let getBillableHours = function(projectId) {
+
+          function sumTimes(times) {
+
+            let billableHours = 0;
+            for(let time of times) {
+              billableHours += parseFloat(time.hours);
+            }
+
+            return billableHours;
+          }
+
           return new Promise((resolve, reject) => {
             let timeEntries = new freshbooks.Time_Entry();
             let billableHours = 0;
             timeEntries.list({project_id: projectId, per_page: 100}, function(err, times, options) {
 
-              console.log(options);
-
               if(err) {
                 reject(err);
               } else {
 
-                for(let time of times) {
-                  billableHours += parseFloat(time.hours);
-                }
+                // grab the first page of times
+                billableHours = sumTimes(times);
 
-                // if there are more pages...
+                // if there are more pages to process, get those...
                 if(options.pages > 1) {
-                  console.log('Going to get more pages...');
-                  timeEntries.list({project_id: projectId, per_page: 100, page: 2 }, function(err, times, options) {
-                    for(let time of times) {
-                      billableHours += parseFloat(time.hours);
-                    }
-                    freshbooksData.billableHours = billableHours;
-                    resolve(billableHours);
+                  let pagesToProcess = [];
+                  for(let i = 2; i <= options.pages; i++) {
+                    pagesToProcess.push(new Promise((done, reject) => {
+                      timeEntries.list({project_id: projectId, per_page: 100, page: i }, function(err, times, options) {
+                        let extraHours = sumTimes(times);
 
+                        done(extraHours);
+                      });
+                    }));
+                  }
+
+                  Promise.all(pagesToProcess).then((extraTimes) => {
+
+                    freshbooksData.billableHours = billableHours + extraTimes.reduce(function(a,b) { return a + b; });
+                    resolve(freshbooksData.billableHours);
                   });
                 } else {
                   freshbooksData.billableHours = billableHours;
-                  console.log(`Found billable hours: ${billableHours}`);
-                  resolve(billableHours);
+                  resolve(freshbooksData.billableHours);
                 }
               }
             });
@@ -132,7 +144,6 @@ module.exports = function(app) {
         .then(getProjectBudget)
         .then(getBillableHours)
         .then(() => {
-          console.log(freshbooksData);
 
           let percentBucketUsed = (freshbooksData.billableHours / freshbooksData.projectBudget) * 100;
           let timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
@@ -149,72 +160,10 @@ module.exports = function(app) {
               }
             ]
           });
-          // });
         })
         .catch(function(err){
           console.log(`Error: ${err}`);
         });
-
-        //let getProjectId = function()
-
-        // get the Slack channel name / Freshbook project ID pairs
-        // request.get({
-        //   url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
-        //   json: true },
-        //   function(error, response, data) {
-        //
-        //
-        //
-        //     // then, get the project details (given project_id retrieve name and budget)
-        //     let projects = new freshbooks.Project();
-        //     projects.get(projectID, function(err, project) {
-        //
-        //       // catch any project ID errors (e.g. NAN or project ID not found)
-        //       if(err) {
-        //         utils.respondWithError(err, res);
-        //         return;
-        //       }
-        //
-        //       // get the times entered for this project
-        //       let timeEntries = new freshbooks.Time_Entry();
-        //       let billableHours = 0;
-        //       timeEntries.list({project_id: projectID, per_page: 100}, function(err, timesToNotUse, options) {
-        //
-        //         //console.log(options);
-        //
-        //         for (let i = 1; i <= options.pages; i++) {
-        //           //console.log(`page ${i}\n-----------------`)
-        //           timeEntries.list({project_id: projectID, per_page: 100, page: i }, function(err, times, options) {
-        //
-        //             // console.log(options);
-        //             // console.log(times.length);
-        //
-        //             for(let time of times) {
-        //               billableHours += parseFloat(time.hours);
-        //             }
-        //           });
-        //         }
-        //
-        //         let projectBudget = parseInt(project.budget);
-        //         let percentBucketUsed = (billableHours / projectBudget) * 100;
-        //         let timeLeft = projectBudget - billableHours;
-        //         let progressColour = (percentBucketUsed > 75) ? 'danger' : 'good';
-        //
-        //         // return the JSON for this request
-        //         res.json({
-        //           text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${projectBudget} hour\` bucket.`,
-        //           'attachments': [
-        //             {
-        //               color: progressColour,
-        //               text: `\`${timeLeft.toFixed(1)} hours\` left before you will need to top it up.`,
-        //               mrkdwn_in: ["text"]
-        //             }
-        //           ]
-        //         });
-        //       });
-        //
-        //     });
-        // });
       }
     });
   }
