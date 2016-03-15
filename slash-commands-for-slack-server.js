@@ -1,16 +1,16 @@
 'use strict';
 
-let express = require('express');
+const express = require('express');
 
 const PORT = 8080;
 
-let app = express();
+const app = express();
 
 // import the routes
 require('./commands/bucket')(app);
 require('./commands/dash')(app);
 
 // start the server
-app.listen(PORT, function() {
+app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });

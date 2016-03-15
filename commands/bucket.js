@@ -56,7 +56,7 @@ module.exports = function(app) {
       let freshbooks = new FreshBooks(FRESHBOOKS_API_URL, FRESHBOOKS_AUTH_KEY);
       let freshbooksData = {};
 
-      let getFreshbooksProjectId = new Promise((resolve, reject) => {
+      const getFreshbooksProjectId = new Promise((resolve, reject) => {
         request.get({
           url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
           json: true },
