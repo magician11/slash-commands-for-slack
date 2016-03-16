@@ -84,7 +84,7 @@ module.exports = (app) => {
             let projects = new freshbooks.Project();
             projects.get(projectId, function(err, project) {
               if(err) {
-                reject('This project does not have a trello card.');
+                reject('This channel does not have a trello card associated with it.');
               } else {
                 freshbooksData.projectBudget = parseInt(project.budget);
                 resolve(projectId);

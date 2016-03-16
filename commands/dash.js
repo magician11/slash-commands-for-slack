@@ -16,7 +16,7 @@ module.exports = (app) => {
       utils.respondWithError('Access denied.', res);
       return;
     } else if (req.query.text === '') {
-      utils.respondWithError('No task was specified.', res);
+      utils.respondWithError('No task was specified. Usage: /dash [the task you want to add]', res);
       return;
     }
 
