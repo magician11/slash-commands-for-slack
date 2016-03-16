@@ -8,6 +8,7 @@ const app = express();
 require('./commands/bucket')(app);
 require('./commands/dash')(app);
 require('./commands/review')(app);
+require('./commands/go')(app);
 
 // start the server
 app.listen(PORT, () => {
