@@ -162,7 +162,7 @@ module.exports = (app) => {
           });
         })
         .catch(function(err){
-          utils.respondWithError(`Error: ${err}`);
+          utils.respondWithError(`Error: ${err}`, res);
         });
       }
     });
