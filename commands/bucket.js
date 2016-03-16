@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(app) {
+module.exports = (app) => {
 
   let FreshBooks = require("freshbooks");
   let request = require('request');
