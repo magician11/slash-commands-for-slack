@@ -67,7 +67,7 @@ module.exports = (app) => {
         trello.get(`/1/checklists/${checklistId}/checkitems`, (err, data) => {
           let tasks = [];
           data.forEach((task) => {
-            tasks.push({ title: task.name, text: task.id });
+            tasks.push({ title: task.name, text: `Task ID: ${task.id}` });
           });
 
           res.json({
