@@ -70,7 +70,11 @@ module.exports = (app) => {
                 channelNameAndFreshBookIDPair[submission.data[38710905].value] = submission.data[38710988].value;
               });
               freshbooksData.projectId = channelNameAndFreshBookIDPair[req.query.channel_name];
-              resolve(channelNameAndFreshBookIDPair[req.query.channel_name]);
+              if(freshbooksData.projectId) {
+                resolve(channelNameAndFreshBookIDPair[req.query.channel_name]);
+              } else {
+                reject(`${req.query.channel_name} is not registered with formstack.`);
+              }
             }
           });
         });
