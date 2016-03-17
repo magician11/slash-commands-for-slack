@@ -77,7 +77,7 @@ module.exports = (app) => {
 
       const renameChecklist = (checklistId) => {
         return new Promise((resolve, reject) => {
-          const date = new Date().toString().split(' ').slice(0, 4);
+          const date = new Date().toString().split(' ').slice(0, 4).join(' ');
           const assignee = req.query.text;
           trello.put(`/1/checklists/${ checklistId }/name`, { value: `${ assignee } - ${date}` }, (err, data) => {
             if (err) {
