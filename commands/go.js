@@ -15,7 +15,11 @@ module.exports = (app) => {
     if (req.query.token !== GO_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
+    } else if (req.query.text === '') {
+      utils.respondWithError('No person was assigned this sprint. Usage: /go [person\'s name]', res);
+      return;
     }
+
     const Trello = require('node-trello');
     const trello = new Trello(TRELLO_APP_KEY, TRELLO_USER_TOKEN);
 
@@ -73,8 +77,9 @@ module.exports = (app) => {
 
       const renameChecklist = (checklistId) => {
         return new Promise((resolve, reject) => {
-          const date = new Date();
-          trello.put(`/1/checklists/${ checklistId }/name`, { value: `Sprint - ${date}` }, (err, data) => {
+          const date = new Date().toString().split(' ').slice(0, 4);
+          const assignee = req.query.text;
+          trello.put(`/1/checklists/${ checklistId }/name`, { value: `${ assignee } - ${date}` }, (err, data) => {
             if (err) {
               reject(err);
             } else {

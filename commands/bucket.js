@@ -29,8 +29,8 @@ module.exports = (app) => {
           text: `To refill your bucket, click on your bucket choice below...`,
           'attachments': [
             {
-              "title": "7 hour bucket",
-              "title_link": "http://www.sunbowl.ca/7hb"
+              "title": "14 hour bucket",
+              "title_link": "http://www.sunbowl.ca/14hb"
             },
             {
               "title": "21 hour bucket",
