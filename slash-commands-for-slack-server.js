@@ -6,7 +6,7 @@ const app = express();
 
 // import the routes
 require('./commands/bucket')(app);
-require('./commands/dash')(app);
+require('./commands/todo')(app);
 require('./commands/review')(app);
 require('./commands/go')(app);
 

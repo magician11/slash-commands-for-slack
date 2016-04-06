@@ -6,17 +6,17 @@ module.exports = (app) => {
 
   const TRELLO_APP_KEY = process.env.SUNBOWL_TRELLO_KEY;
   const TRELLO_USER_TOKEN = process.env.SUNBOWL_TRELLO_TOKEN;
-  const DASH_SECURITY_TOKEN = process.env.SUNBOWL_DASH_SECURITY_TOKEN;
+  const TODO_SECURITY_TOKEN = process.env.SUNBOWL_TODO_SECURITY_TOKEN;
   const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
 
   // add a task to their trello card
-  app.get('/dash', (req, res) => {
+  app.get('/todo', (req, res) => {
     // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== DASH_SECURITY_TOKEN) {
+    if (req.query.token !== TODO_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
     } else if (req.query.text === '') {
-      utils.respondWithError('No task was specified. Usage: /dash [the task you want to add]', res);
+      utils.respondWithError('No task was specified. Usage: /todo [the task you want to add]', res);
       return;
     }
 
@@ -78,7 +78,6 @@ module.exports = (app) => {
       .then((checklistId) => {
         trello.post(`/1/checklists/${checklistId}/checkitems`, { name: req.query.text }, function(err, data) {
           res.json({
-            response_type: 'in_channel',
             text: `Great! Your task *${ req.query.text }* was added.`
           });
         });
