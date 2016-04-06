@@ -65,15 +65,12 @@ module.exports = (app) => {
       .then(getChecklistId)
       .then((checklistId) => {
         trello.get(`/1/checklists/${checklistId}/checkitems`, (err, data) => {
-          let tasks = [];
-          data.forEach((task) => {
-            tasks.push({ title: task.name });
-          });
+          const bulletListDelimiter = '\n• ';
+          const tasks = bulletListDelimiter.concat(data.map(function(task) { return task.name; }).join(bulletListDelimiter));
 
           res.json({
             response_type: (req.query.text === 'public') ? 'in_channel' : 'ephemeral',
-            text: 'Here are your current tasks...',
-            attachments: tasks,
+            text: `Here are your current tasks...${tasks}`
           });
       });
     })
