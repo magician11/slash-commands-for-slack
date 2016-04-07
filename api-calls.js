@@ -59,7 +59,13 @@ const getTrelloCardId = (channelName) => {
         if (checklistId) {
           resolve(checklistId);
         } else {
-          reject('No tasks were found.');
+          // if it doesn't exist, create the Incoming checklist and resolve with that ID
+          trello.post(`/1/cards/${trelloCardId}/checklists`, { name: CHECKLIST_NAME }, function(err, data) {
+            if (err) {
+              reject(err);
+            }
+            resolve(data.id);
+          });
         }
       });
     });
