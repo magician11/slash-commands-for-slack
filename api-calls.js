@@ -78,6 +78,33 @@ const getTrelloCardId = (channelName) => {
     });
   };
 
+  const renameTasklist = (taskListId, assignee) => {
+    return new Promise((resolve, reject) => {
+      const date = new Date().toString().split(' ').slice(0, 4).join(' ');
+      trello.put(`/1/checklists/${taskListId}/name`, { value: `${assignee} - ${date}` }, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
+  };
+
+  // move the trello card to the "Pending to be Assigned" list
+  const moveTrelloCard = (trelloCardId) => {
+    return new Promise((resolve, reject) => {
+      const PENDING_TO_BE_ASSIGNED_LIST_ID = '537bc2cec1db170a09078963';
+      trello.put(`/1/cards/${trelloCardId}/idList`, { value: PENDING_TO_BE_ASSIGNED_LIST_ID }, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data.id);
+        }
+      });
+    });
+  };
+
   // fetch the tasks from a specific check list and return it as a bulleted string
   const getTaskListItems = (checklistId) => {
     return new Promise((resolve, reject) => {
@@ -93,5 +120,5 @@ const getTrelloCardId = (channelName) => {
 
   /* export the api functions */
   module.exports = {
-    getTrelloCardId, getTaskListId, getTaskListItems, addTask
+    getTrelloCardId, getTaskListId, getTaskListItems, addTask, moveTrelloCard, renameTasklist
   };
