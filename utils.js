@@ -22,6 +22,12 @@ function dateXdaysFromNow(numberOfDays) {
   return futureDate.toString().split(' ').slice(0, 4).join(' ');
 }
 
+function createBulletListFromArray(data) {
+  const bulletListDelimiter = '\n• ';
+  const tasks = bulletListDelimiter.concat(data.map((task) => { return task.name; }).join(bulletListDelimiter));
+  return tasks;
+}
+
 module.exports = {
-  respondWithError, dateXdaysFromNow
+  respondWithError, dateXdaysFromNow, createBulletListFromArray
 };

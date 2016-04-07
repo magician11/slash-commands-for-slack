@@ -117,11 +117,11 @@ const getTrelloCardId = (channelName) => {
   const getTaskListItems = (checklistId) => {
     return new Promise((resolve, reject) => {
       trello.get(`/1/checklists/${checklistId}/checkitems`, (err, data) => {
-        if (err) { reject(err); }
-
-        const bulletListDelimiter = '\n• ';
-        const tasks = bulletListDelimiter.concat(data.map((task) => { return task.name; }).join(bulletListDelimiter));
-        resolve(tasks);
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
       });
     });
   };

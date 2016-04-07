@@ -17,9 +17,10 @@ module.exports = (app) => {
     .then(apiCalls.getTaskListId)
     .then(apiCalls.getTaskListItems)
     .then((taskList) => {
+      const taskMessage = (taskList.length === 0) ? 'You have no tasks listed.' : `Your current tasks are...${utils.createBulletListFromArray(taskList)}`;
       res.json({
         response_type: (req.query.text === 'public') ? 'in_channel' : 'ephemeral',
-        text: `Here are your current tasks...${taskList}`
+        text: `${taskMessage}`
       });
     })
   .catch((error) => {
