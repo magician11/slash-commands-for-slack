@@ -33,7 +33,8 @@ module.exports = (app) => {
         response_type: 'in_channel',
         text: `*Your latest sprint has been assigned to ${assignee}*
 If we have missed anything please let's us know by sending us a message in the #${channelName} channel.
-Expected date of completion is ${dueDate}
+Expected date of completion is ${dueDate}.
+
 *Sprint details*${utils.createBulletListFromArray(taskList)}`
       });
     })
