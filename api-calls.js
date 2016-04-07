@@ -65,8 +65,21 @@ const getTrelloCardId = (channelName) => {
     });
   };
 
+  // add a task to the tasklist
+  const addTask = (taskListId, task) => {
+    return new Promise((resolve, reject) => {
+      trello.post(`/1/checklists/${taskListId}/checkitems`, { name: task }, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
+  };
+
   // fetch the tasks from a specific check list and return it as a bulleted string
-  function getTaskListItems(checklistId) {
+  const getTaskListItems = (checklistId) => {
     return new Promise((resolve, reject) => {
       trello.get(`/1/checklists/${checklistId}/checkitems`, (err, data) => {
         if (err) { reject(err); }
@@ -76,9 +89,9 @@ const getTrelloCardId = (channelName) => {
         resolve(tasks);
       });
     });
-  }
+  };
 
   /* export the api functions */
   module.exports = {
-    getTrelloCardId, getTaskListId, getTaskListItems
+    getTrelloCardId, getTaskListId, getTaskListItems, addTask
   };
