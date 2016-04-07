@@ -7,11 +7,14 @@ module.exports = (app) => {
 
   // assign the card for this channel to a dev and then move it to the 'pending to be assigned' list
   app.get('/go', (req, res) => {
+
+    const assignee = req.query.text;
+
     // check to see whether this script is being accessed from our slack integration
     if (req.query.token !== GO_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
-    } else if (req.query.text === '') {
+    } else if (assignee === '') {
       utils.respondWithError('No person was assigned this sprint. Usage: /go [person\'s name]', res);
       return;
     }
@@ -21,14 +24,16 @@ module.exports = (app) => {
     apiCalls.getTrelloCardId(channelName)
     .then(apiCalls.moveTrelloCard)
     .then(apiCalls.getTaskListId)
-    .then((taskListId) => { return apiCalls.renameTasklist(taskListId, req.query.text); })
-    .then(() => {
+    .then((taskListId) => { return apiCalls.renameTasklist(taskListId, assignee); })
+    .then((taskListId) => { return apiCalls.getTaskListItems(taskListId); })
+    .then((taskList) => {
       res.json({
         response_type: 'in_channel',
-        text: `*Your latest sprint has been assigned*
+        text: `*Your latest sprint has been assigned to ${assignee}*
         If we have missed anything please let's us know by sending us a message in the #${channelName} channel.
 
-        *Sprint details*`
+        *Sprint details*
+        ${taskList}`
       });
     })
     .catch((error) => {

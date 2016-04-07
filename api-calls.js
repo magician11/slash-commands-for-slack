@@ -78,14 +78,16 @@ const getTrelloCardId = (channelName) => {
     });
   };
 
+  const utils = require('./utils');
+
   const renameTasklist = (taskListId, assignee) => {
     return new Promise((resolve, reject) => {
-      const date = new Date().toString().split(' ').slice(0, 4).join(' ');
+      const date = utils.dateXdaysFromNow(2);
       trello.put(`/1/checklists/${taskListId}/name`, { value: `${assignee} - ${date}` }, (err, data) => {
         if (err) {
           reject(err);
         } else {
-          resolve(data);
+          resolve(data.id);
         }
       });
     });
