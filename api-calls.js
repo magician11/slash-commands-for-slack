@@ -215,8 +215,23 @@ const getTrelloCardId = (channelName) => {
       });
     };
 
+    /* SLACK */
+
+    function postToSlack(message, url) {
+      const options = {
+        uri: url,
+        json: message
+      };
+
+      request.post(options, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          console.log(body.id); // Print the shortened url.
+        }
+      });
+    }
+
     /* export the api functions */
     module.exports = {
-      getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget,
+      getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack,
       addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours
     };

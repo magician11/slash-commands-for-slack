@@ -12,7 +12,7 @@
     "express": "^4.13.3",
     "freshbooks": "^1.0.0",
     "node-trello": "^1.1.2",
-    "request": "^2.69.0"
+    "request": "^2.70.0"
   },
   "devDependencies": {
     "eslint": "^2.4.0",
