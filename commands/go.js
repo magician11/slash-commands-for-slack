@@ -46,12 +46,12 @@ module.exports = (app) => {
         response_type: 'in_channel',
         text: `*Your latest sprint has been assigned to ${assignee}*
 ${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
-If we have missed anything please let's us know by sending us a message in the #${channelName} channel.
+If we have missed anything please let's us know by sending us a message in the <https://sunbowl.slack.com/messages/${channelName}/details/|#${channelName}> channel.
 Expected date of completion is ${dueDate}.
 
 *Sprint details*${utils.createBulletListFromArray(tasks)}
 
-Bucket balance: ${timeLeft.toFixed(1)} hours`
+Bucket balance: \`${timeLeft.toFixed(1)} hours\``
       };
 
       apiCalls.postToSlack(goReviewMessage, req.query.response_url);

@@ -177,7 +177,7 @@ const getTrelloCardId = (channelName) => {
 
     const renameTasklist = (taskListId, assignee) => {
       return new Promise((resolve, reject) => {
-        const date = utils.dateXdaysFromNow(2);
+        const date = utils.dateNow();
         trello.put(`/1/checklists/${taskListId}/name`, { value: `${assignee} - ${date}` }, (err, data) => {
           if (err) {
             reject(err);
