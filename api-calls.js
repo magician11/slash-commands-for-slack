@@ -223,11 +223,7 @@ const getTrelloCardId = (channelName) => {
         json: message
       };
 
-      request.post(options, (error, response, body) => {
-        if (!error && response.statusCode === 200) {
-          console.log(body.id); // Print the shortened url.
-        }
-      });
+      request.post(options);
     }
 
     /* export the api functions */
