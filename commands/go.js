@@ -8,16 +8,21 @@ module.exports = (app) => {
   // assign the card for this channel to a dev and then move it to the 'pending to be assigned' list
   app.get('/go', (req, res) => {
 
-    const assignee = req.query.text;
+    const users = req.query.text;
 
     // check to see whether this script is being accessed from our slack integration
     if (req.query.token !== GO_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
-    } else if (assignee === '') {
+    } else if (users === '') {
       utils.respondWithError('No person was assigned this sprint. Usage: /go [person\'s name]', res);
       return;
     }
+
+    // the dev to assign the task to
+    const assignee = users.split(' ')[0];
+    // the other users to cc in on
+    const ccNotifications = users.split(' ').slice(1).join(' ');
 
     const channelName = req.query.channel_name;
 
@@ -32,6 +37,7 @@ module.exports = (app) => {
       res.json({
         response_type: 'in_channel',
         text: `*Your latest sprint has been assigned to ${assignee}*
+${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
 If we have missed anything please let's us know by sending us a message in the #${channelName} channel.
 Expected date of completion is ${dueDate}.
 
