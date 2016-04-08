@@ -50,13 +50,25 @@ If we have missed anything please let's us know by sending us a message in the #
 Expected date of completion is ${dueDate}.
 
 *Sprint details*${utils.createBulletListFromArray(tasks)}
+
 Bucket balance: ${timeLeft.toFixed(1)} hours`
       };
 
       apiCalls.postToSlack(goReviewMessage, req.query.response_url);
     })
     .catch((error) => {
-      utils.respondWithError(error, res);
+      const errorMessage = {
+        text: 'Whoops.. there was an issue in actioning your task list.',
+        attachments: [
+          {
+            color: 'danger',
+            text: error.toString(),
+            mrkdwn_in: ['text']
+          }
+        ]
+      };
+
+      apiCalls.postToSlack(errorMessage, req.query.response_url);
     });
   });
 };
