@@ -34,6 +34,7 @@ module.exports = (app) => {
     .then(apiCalls.moveTrelloCard)
     .then(apiCalls.setDueDate)
     .then(apiCalls.getTaskListId)
+    .then(apiCalls.moveTaskListToTop)
     .then((taskListId) => { return apiCalls.renameTasklist(taskListId, assignee); })
     .then((taskListId) => { return apiCalls.getTaskListItems(taskListId); })
     .then((taskList) => { tasks = taskList; return apiCalls.getFreshbooksProjectId(channelName); })

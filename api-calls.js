@@ -188,6 +188,18 @@ const getTrelloCardId = (channelName) => {
       });
     };
 
+    const moveTaskListToTop = (taskListId) => {
+      return new Promise((resolve, reject) => {
+        trello.put(`/1/checklists/${taskListId}/pos`, { value: 'top' }, (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data.id);
+          }
+        });
+      });
+    };
+
     const setDueDate = (trelloCardId) => {
       return new Promise((resolve, reject) => {
         const date = utils.dateXdaysFromNow(2);
@@ -241,6 +253,6 @@ const getTrelloCardId = (channelName) => {
 
     /* export the api functions */
     module.exports = {
-      getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack,
+      getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack, moveTaskListToTop,
       addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate
     };
