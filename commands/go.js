@@ -40,7 +40,7 @@ module.exports = (app) => {
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
     .then((billableHours) => {
       const timeLeft = freshbooksData.projectBudget - billableHours;
-      const dueDate = utils.dateXdaysFromNow(3);
+      const dueDate = utils.formatDate(utils.dateXdaysFromNow(3));
 
       const goReviewMessage = {
         response_type: 'in_channel',

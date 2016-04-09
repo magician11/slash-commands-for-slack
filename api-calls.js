@@ -177,8 +177,21 @@ const getTrelloCardId = (channelName) => {
 
     const renameTasklist = (taskListId, assignee) => {
       return new Promise((resolve, reject) => {
-        const date = utils.dateNow();
+        const date = utils.formatDate(new Date());
         trello.put(`/1/checklists/${taskListId}/name`, { value: `${assignee} - ${date}` }, (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data.id);
+          }
+        });
+      });
+    };
+
+    const setDueDate = (trelloCardId) => {
+      return new Promise((resolve, reject) => {
+        const date = utils.dateXdaysFromNow(2);
+        trello.put(`/1/cards/${trelloCardId}/due`, { value: date }, (err, data) => {
           if (err) {
             reject(err);
           } else {
@@ -229,5 +242,5 @@ const getTrelloCardId = (channelName) => {
     /* export the api functions */
     module.exports = {
       getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack,
-      addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours
+      addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate
     };

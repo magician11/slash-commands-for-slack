@@ -19,12 +19,11 @@ function respondWithError(err, res) {
 function dateXdaysFromNow(numberOfDays) {
   const rightNow = new Date();
   const futureDate = new Date(rightNow.setTime(rightNow.getTime() + numberOfDays * 86400000));
-  return futureDate.toString().split(' ').slice(0, 4).join(' ');
+  return futureDate;
 }
 
-// convenience method that wraps the dateXdaysFromNow
-function dateNow() {
-  return dateXdaysFromNow(0);
+function formatDate(date) {
+  return date.toString().split(' ').slice(0, 4).join(' ');
 }
 
 function createBulletListFromArray(data) {
@@ -34,5 +33,5 @@ function createBulletListFromArray(data) {
 }
 
 module.exports = {
-  respondWithError, dateXdaysFromNow, createBulletListFromArray, dateNow
+  respondWithError, dateXdaysFromNow, createBulletListFromArray, formatDate
 };
