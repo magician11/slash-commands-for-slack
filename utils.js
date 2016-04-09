@@ -19,12 +19,10 @@ function respondWithError(err, res) {
 function dateXdaysFromNow(numberOfDays) {
   const rightNow = new Date();
   const futureDate = new Date(rightNow.setTime(rightNow.getTime() + numberOfDays * 86400000));
-  console.log(`date ${numberOfDays} from now is ${futureDate}`);
   return futureDate;
 }
 
 function formatDate(date) {
-  console.log(`formatting date ${date.toString()}`);
   return date.toString().split(' ').slice(0, 4).join(' ');
 }
 
