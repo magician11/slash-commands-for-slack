@@ -225,7 +225,7 @@ const getTrelloCardId = (channelName) => {
                 resolve(list.id);
               }
             }
-            reject(`There was no list called "${listName}" found in trello.`);
+            reject(`We don't seem to have a "${listName}" to assign this to.`);
           }
         });
       });
