@@ -213,6 +213,24 @@ const getTrelloCardId = (channelName) => {
       });
     };
 
+    const findListId = (listName) => {
+      const SUNBOWL_BOARD_ID = 'd9ntWOEO';
+      return new Promise((resolve, reject) => {
+        trello.get(`/1/boards/${SUNBOWL_BOARD_ID}/lists`, (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            for (const list of data) {
+              if (list.name === listName) {
+                resolve(list.id);
+              }
+            }
+            reject(`There was no list called "${listName}" found in trello.`);
+          }
+        });
+      });
+    };
+
     // move the trello card to a particular list
     const moveTrelloCard = (trelloCardId, listId) => {
       return new Promise((resolve, reject) => {
@@ -253,5 +271,5 @@ const getTrelloCardId = (channelName) => {
     /* export the api functions */
     module.exports = {
       getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack, moveTaskListToTop,
-      addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate
+      addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate, findListId
     };

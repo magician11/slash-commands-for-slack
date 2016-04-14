@@ -28,13 +28,12 @@ module.exports = (app) => {
 
     const channelName = req.query.channel_name;
     const freshbooksData = {};
+    const trelloData = {};
     let tasks = [];
 
     apiCalls.getTrelloCardId(channelName)
-    .then((trelloCardId) => {
-      const PENDING_TO_BE_ASSIGNED_LIST_ID = '537bc2cec1db170a09078963';
-      return apiCalls.moveTrelloCard(trelloCardId, PENDING_TO_BE_ASSIGNED_LIST_ID);
-    })
+    .then((trelloCardId) => { trelloData.id = trelloCardId; return apiCalls.findListId(assignee); })
+    .then((trelloListId) => { return apiCalls.moveTrelloCard(trelloData.id, trelloListId); })
     .then(apiCalls.setDueDate)
     .then(apiCalls.getTaskListId)
     .then(apiCalls.moveTaskListToTop)
