@@ -42,7 +42,7 @@ module.exports = (app) => {
     .then((taskList) => { tasks = taskList; return apiCalls.getFreshbooksProjectId(channelName); })
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
-    .then((billableHours) => {freshbooksData.billableHours = billableHours; return apiCalls.getFirstname(assignee);})
+    .then((billableHours) => {freshbooksData.billableHours = billableHours; return apiCalls.getFirstname(assignee.slice(1));})
     .then((firstName) => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
       const dueDate = utils.formatDate(utils.dateXdaysFromNow(3));
