@@ -213,11 +213,10 @@ const getTrelloCardId = (channelName) => {
       });
     };
 
-    // move the trello card to the "Pending to be Assigned" list
-    const moveTrelloCard = (trelloCardId) => {
+    // move the trello card to a particular list
+    const moveTrelloCard = (trelloCardId, listId) => {
       return new Promise((resolve, reject) => {
-        const PENDING_TO_BE_ASSIGNED_LIST_ID = '537bc2cec1db170a09078963';
-        trello.put(`/1/cards/${trelloCardId}/idList`, { value: PENDING_TO_BE_ASSIGNED_LIST_ID }, (err, data) => {
+        trello.put(`/1/cards/${trelloCardId}/idList`, { value: listId }, (err, data) => {
           if (err) {
             reject(err);
           } else {

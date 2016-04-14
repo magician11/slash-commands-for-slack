@@ -31,7 +31,10 @@ module.exports = (app) => {
     let tasks = [];
 
     apiCalls.getTrelloCardId(channelName)
-    .then(apiCalls.moveTrelloCard)
+    .then((trelloCardId) => {
+      const PENDING_TO_BE_ASSIGNED_LIST_ID = '537bc2cec1db170a09078963';
+      return apiCalls.moveTrelloCard(trelloCardId, PENDING_TO_BE_ASSIGNED_LIST_ID);
+    })
     .then(apiCalls.setDueDate)
     .then(apiCalls.getTaskListId)
     .then(apiCalls.moveTaskListToTop)
