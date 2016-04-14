@@ -4,11 +4,9 @@
 The various API calls to freshbooks, trello and formstack
 */
 
-/* GLOBALS FOR API CALLS */
-const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
-
 /* FORMSTACK */
 const request = require('request');
+const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
 
 // grab the trello card ID associated with the passed in channel name
 const getTrelloCardId = (channelName) => {
@@ -259,17 +257,39 @@ const getTrelloCardId = (channelName) => {
 
     /* SLACK */
 
-    function postToSlack(message, url) {
-      const options = {
-        uri: url,
-        json: message
+    const SLACK_TOKEN = process.env.SUNBOWL_SLACK_TOKEN;
+
+    const getFirstname = (userName) => {
+      return new Promise((resolve, reject) => {
+        request.get(
+          {
+            url: `https://slack.com/api/users.list?token=${SLACK_TOKEN}`,
+            json: true,
+          },
+          (error, response, data) => {
+            if (error) { reject(error); }
+            for (const user of data.members) {
+              if(userName === user.name) {
+                resolve(user.profile.first_name);
+                return;
+              }
+            }
+            reject(`Could not find real name for ${userName}.`);
+          });
+        });
       };
 
-      request.post(options);
-    }
+      function postToSlack(message, url) {
+        const options = {
+          uri: url,
+          json: message
+        };
 
-    /* export the api functions */
-    module.exports = {
-      getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack, moveTaskListToTop,
-      addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate, findListId
-    };
+        request.post(options);
+      }
+
+      /* export the api functions */
+      module.exports = {
+        getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack, moveTaskListToTop, getFirstname,
+        addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate, findListId
+      };

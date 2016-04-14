@@ -42,13 +42,14 @@ module.exports = (app) => {
     .then((taskList) => { tasks = taskList; return apiCalls.getFreshbooksProjectId(channelName); })
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
-    .then((billableHours) => {
-      const timeLeft = freshbooksData.projectBudget - billableHours;
+    .then((billableHours) => {freshbooksData.billableHours = billableHours; return apiCalls.getFirstname(assignee);})
+    .then((firstName) => {
+      const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
       const dueDate = utils.formatDate(utils.dateXdaysFromNow(3));
 
       const goReviewMessage = {
         response_type: 'in_channel',
-        text: `*Your sprint has been assigned.*
+        text: `*Your sprint has been assigned to ${firstName}.*
 ${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
 If we have missed anything please let's us know by sending us a message in the <https://sunbowl.slack.com/messages/${channelName}|#${channelName}> channel.
 Expected date of completion is ${dueDate}.
