@@ -28,10 +28,15 @@ function formatDate(date) {
 
 function createBulletListFromArray(data) {
   const bulletListDelimiter = '\n• ';
-  const tasks = bulletListDelimiter.concat(data.map((task) => { return task.name; }).join(bulletListDelimiter));
-  return tasks;
-}
+  const tasks = bulletListDelimiter.concat(data
+    .sort((task1, task2) => {
+      return task1.pos - task2.pos;
+    })
+    .map((task) => { return task.name; })
+    .join(bulletListDelimiter));
+    return tasks;
+  }
 
-module.exports = {
-  respondWithError, dateXdaysFromNow, createBulletListFromArray, formatDate
-};
+  module.exports = {
+    respondWithError, dateXdaysFromNow, createBulletListFromArray, formatDate
+  };

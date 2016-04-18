@@ -57,6 +57,7 @@ module.exports = (app) => {
 
         // return the JSON for this request
         res.json({
+          response_type: (req.query.text === 'public') ? 'in_channel' : 'ephemeral',
           text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${freshbooksData.projectBudget} hour\` bucket.`,
           attachments: [
             {
