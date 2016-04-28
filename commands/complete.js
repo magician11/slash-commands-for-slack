@@ -13,7 +13,7 @@ module.exports = (app) => {
     if (req.query.token !== COMPLETE_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
-    } else if (completeArguments.length < 2) {
+    } else if (completeArguments.length < 3) {
       utils.respondWithError('Usage: /complete [recipient] [time used/time budgeted] [video url]', res);
       return;
     }

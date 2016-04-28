@@ -10,6 +10,7 @@ require('./commands/todo')(app);
 require('./commands/review')(app);
 require('./commands/go')(app);
 require('./commands/complete')(app);
+require('./commands/jobreport')(app);
 
 // start the server
 app.listen(PORT, () => {
