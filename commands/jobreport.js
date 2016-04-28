@@ -24,8 +24,9 @@ module.exports = (app) => {
     .then((trelloCardId) => {
       res.json({
         response_type: 'in_channel',
+        link_names : 1,
         text: `Hey @notnic & @jody,
-  ${req.query.user_name} just finished a sprint for #${channelName}
+  @${req.query.user_name} just finished a sprint for #${channelName}
   Time it took: \`${jobreportArguments[0]} hrs\`
   Video review: ${jobreportArguments[1]}
   Trello card: https://trello.com/c/${trelloCardId}`
