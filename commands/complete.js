@@ -36,10 +36,10 @@ module.exports = (app) => {
         response_type: 'in_channel',
         text: `${recipient} *Your Sprint is Complete!*
 We have completed the most recent changes on your site and we would like you to take a minute to review them.
-${videoUrl ? `For your convenience, and to improve communication, we have made a quick video to show you what the site looks like on our side.: <${videoUrl}|watch video>` : ''}
-Bucket Time Quoted: \`${bucketTimeQuoted}\`
-Bucket Time Used: \`${bucketTimeUsed}\`
-Bucket balance:  You have \`${timeLeft.toFixed(1)} hours\` left.`
+${videoUrl ? `Sprint Review: <${videoUrl}|:arrow_forward: Watch Video>` : ''}
+*Bucket Time Quoted*: \`${bucketTimeQuoted} hrs\`
+*Bucket Time Used*: \`${bucketTimeUsed} hrs\`
+Remaining Bucket Balance:  You have \`${timeLeft.toFixed(1)} hrs\` left.`
       });
     });
   });
