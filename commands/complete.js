@@ -22,7 +22,15 @@ module.exports = (app) => {
     const bucketTimes = completeArguments[1].split('/');
     const bucketTimeUsed = bucketTimes[0];
     const bucketTimeQuoted = bucketTimes[1];
-    const videoUrl = completeArguments[2];
+    let videoUrl;
+    let description;
+
+    if (completeArguments[2].startsWith('http')) {
+      videoUrl = completeArguments[2];
+      description = completeArguments.slice(3).join(' ');
+    } else {
+      description = completeArguments.slice(2).join(' ');
+    }
 
     const freshbooksData = {};
 
@@ -35,11 +43,11 @@ module.exports = (app) => {
       res.json({
         response_type: 'in_channel',
         text: `${recipient} *Your Sprint is Complete!*
-We have completed the most recent changes on your site and we would like you to take a minute to review them.
+${description}
 ${videoUrl ? `Sprint Review: <${videoUrl}|:arrow_forward: Watch Video>` : ''}
 *Bucket Time Quoted*: \`${bucketTimeQuoted} hrs\`
 *Bucket Time Used*: \`${bucketTimeUsed} hrs\`
-Remaining Bucket Balance:  You have \`${timeLeft.toFixed(1)} hrs\` left.`
+Remaining Bucket Balance: \`${timeLeft.toFixed(1)} hrs\``
       });
     });
   });
