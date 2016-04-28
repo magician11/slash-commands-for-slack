@@ -18,12 +18,12 @@ module.exports = (app) => {
       return;
     }
 
-    console.log(req.query);
     const channelName = req.query.channel_name;
 
     apiCalls.getTrelloCardId(channelName)
     .then((trelloCardId) => {
       res.json({
+        response_type: 'in_channel',
         text: `Hey @notnic & @jody,
   ${req.query.user_name} just finished a sprint for #${channelName}
   Time it took: \`${jobreportArguments[0]} hrs\`
