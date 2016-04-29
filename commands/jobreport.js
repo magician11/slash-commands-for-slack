@@ -7,6 +7,9 @@ module.exports = (app) => {
 
   // notify someone that a sprint for a channel is complete
   app.get('/jobreport', (req, res) => {
+    const userName = req.query.user_name;
+    res.json({ text: `Thanks <@${userName}>. Your job report has been submitted.` });
+
     const jobreportArguments = req.query.text.split(' ');
 
     // check to see whether this script is being accessed from our slack integration
@@ -18,15 +21,11 @@ module.exports = (app) => {
       return;
     }
 
-    const channelName = req.query.channel_name;
-
-    apiCalls.getTrelloCardId(channelName)
+    apiCalls.getTrelloCardId(req.query.channel_name)
     .then((trelloCardId) => {
-      res.json({
-        response_type: 'in_channel',
-        link_names : 1,
-        text: `Hey @notnic & @jody,
-  @${req.query.user_name} just finished a sprint for #${channelName}
+      apiCalls.postJobReport({
+        text: `Hey <@notnic> & <@jody>,
+  <@${userName}> just finished a sprint for <#${req.query.channel_id}>
   Time it took: \`${jobreportArguments[0]} hrs\`
   Video review: ${jobreportArguments[1]}
   Trello card: https://trello.com/c/${trelloCardId}`

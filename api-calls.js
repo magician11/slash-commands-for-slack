@@ -269,7 +269,7 @@ const getTrelloCardId = (channelName) => {
           (error, response, data) => {
             if (error) { reject(error); }
             for (const user of data.members) {
-              if(userName === user.name) {
+              if (userName === user.name) {
                 resolve(user.profile.first_name);
                 return;
               }
@@ -288,8 +288,24 @@ const getTrelloCardId = (channelName) => {
         request.post(options);
       }
 
+      function postJobReport(jobReportData) {
+        const dataToSendToSlack = jobReportData;
+        dataToSendToSlack.channel = '#jobreports';
+        dataToSendToSlack.response_type = 'in_channel';
+        dataToSendToSlack.token = SLACK_TOKEN;
+        dataToSendToSlack.username = 'From a Sunbowl dev';
+        dataToSendToSlack.icon_emoji = ':desktop_computer:';
+
+        const options = {
+          url: 'https://slack.com/api/chat.postMessage',
+          form: dataToSendToSlack
+        };
+
+        request.post(options);
+      }
+
       /* export the api functions */
       module.exports = {
         getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack, moveTaskListToTop, getFirstname,
-        addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate, findListId
+        addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate, findListId, postJobReport
       };
