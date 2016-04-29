@@ -8,8 +8,6 @@ module.exports = (app) => {
   // notify someone that a sprint for a channel is complete
   app.get('/jobreport', (req, res) => {
     const userName = req.query.user_name;
-    res.json({ text: `Thanks <@${userName}>. Your job report has been submitted.` });
-
     const jobreportArguments = req.query.text.split(' ');
 
     // check to see whether this script is being accessed from our slack integration
@@ -21,18 +19,31 @@ module.exports = (app) => {
       return;
     }
 
+    res.json({ text: `Thanks <@${userName}>. Your job report has been submitted.` });
+
     apiCalls.getTrelloCardId(req.query.channel_name)
     .then((trelloCardId) => {
       apiCalls.postJobReport({
         text: `Hey <@notnic> & <@jody>,
-  <@${userName}> just finished a sprint for <#${req.query.channel_id}>
-  Time it took: \`${jobreportArguments[0]} hrs\`
-  Video review: ${jobreportArguments[1]}
-  Trello card: https://trello.com/c/${trelloCardId}`
+<@${userName}> just finished a sprint for <#${req.query.channel_id}>
+Time it took: \`${jobreportArguments[0]} hrs\`
+Video review: ${jobreportArguments[1]}
+Trello card: https://trello.com/c/${trelloCardId}`
       });
     })
     .catch((err) => {
-      utils.respondWithError(`Error: ${err}`, res);
+      const errorMessage = {
+        text: 'There was an error in a job report being submitted.',
+        response_type: 'in_channel',
+        attachments: [
+          {
+            color: 'danger',
+            text: err.toString(),
+            mrkdwn_in: ['text']
+          }
+        ]
+      };
+      apiCalls.postToSlack(errorMessage, req.query.response_url);
     });
   });
 };
