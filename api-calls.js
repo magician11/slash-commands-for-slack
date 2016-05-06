@@ -66,6 +66,19 @@ const getTrelloCardId = (channelName) => {
     const FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
     const freshbooks = new FreshBooks(FRESHBOOKS_API_URL, FRESHBOOKS_AUTH_KEY);
 
+    const addTimeEntry = (projectId, hours, notes) => {
+      return new Promise((resolve, reject) => {
+        const timeEntry = new freshbooks.Time_Entry();
+        timeEntry.create({ project_id: projectId, task_id: 1, hours, notes}, (err, time) => {
+          if (err) {
+            reject(`Error adding time entry: ${err}`);
+          } else {
+            resolve(time);
+          }
+        });
+      });
+    };
+
     const getProjectBudget = (projectId) => {
       return new Promise((resolve, reject) => {
         const projects = new freshbooks.Project();
@@ -306,6 +319,6 @@ const getTrelloCardId = (channelName) => {
 
       /* export the api functions */
       module.exports = {
-        getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack, moveTaskListToTop, getFirstname,
+        getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack, moveTaskListToTop, getFirstname, addTimeEntry,
         addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate, findListId, postJobReport
       };
