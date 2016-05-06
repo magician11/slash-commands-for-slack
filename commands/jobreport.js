@@ -21,10 +21,13 @@ module.exports = (app) => {
 
     res.json({ text: `Thanks <@${userName}>. Your job report has been submitted.` });
 
+    const finishedBlockListId = '522e91fe2c1df8cb25008ab2';
+
     apiCalls.getTrelloCardId(req.query.channel_name)
+    .then((trelloCardId) => { return apiCalls.moveTrelloCard(trelloCardId, finishedBlockListId); })
     .then((trelloCardId) => {
       apiCalls.postJobReport({
-        text: `Hey <@notnic> & <@jody>,
+        text: `Hey <@nic> & <@jody>,
 <@${userName}> just finished a sprint for <#${req.query.channel_id}>
 Time it took: \`${jobreportArguments[0]} hrs\`
 Video review: ${jobreportArguments[1]}
