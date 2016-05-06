@@ -24,8 +24,8 @@ function dateXdaysFromNow(numberOfDays) {
   // if the due date (2 days from now) falls on the weekend, shift that due date to Monday
   let weekendOffset;
   switch (rightNow.getDay()) {
-    case 4: weekendOffset = 2; break; // Thursday
-    case 5: weekendOffset = 1; break; // Friday
+    case 4: weekendOffset = 3; break; // Thursday
+    case 5: weekendOffset = 2; break; // Friday
     default: weekendOffset = 0;
   }
 

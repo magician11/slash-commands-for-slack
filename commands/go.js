@@ -50,13 +50,13 @@ module.exports = (app) => {
       const goReviewMessage = {
         response_type: 'in_channel',
         text: `*Your sprint has been assigned to ${firstName}.*
-        ${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
-        If we have missed anything please let's us know by sending us a message in the <https://sunbowl.slack.com/messages/${channelName}|#${channelName}> channel.
-        Expected date of completion is ${dueDate}.
+${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
+If we have missed anything please let's us know by sending us a message in the <https://sunbowl.slack.com/messages/${channelName}|#${channelName}> channel.
+Expected date of completion is ${dueDate}.
 
-        *Sprint details*${utils.createBulletListFromArray(tasks)}
+*Sprint details*${utils.createBulletListFromArray(tasks)}
 
-        Bucket balance: \`${timeLeft.toFixed(1)} hours\``
+Bucket balance: \`${timeLeft.toFixed(1)} hours\``
       };
 
       apiCalls.postToSlack(goReviewMessage, req.query.response_url);
