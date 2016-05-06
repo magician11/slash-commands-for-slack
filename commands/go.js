@@ -7,19 +7,19 @@ module.exports = (app) => {
 
   // assign the card for this channel to a dev and then move it to the 'pending to be assigned' list
   app.get('/go', (req, res) => {
-    res.json({
-      text: 'We\'re processing your request. One moment please...'
-    });
-    const users = req.query.text;
-
     // check to see whether this script is being accessed from our slack integration
+    const users = req.query.text;
     if (req.query.token !== GO_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
     } else if (users === '') {
-      utils.respondWithError('No person was assigned this sprint. Usage: /go [person\'s name]', res);
+      utils.respondWithError('No person was assigned this sprint. Usage: /go [person\'s name] [optional cc]', res);
       return;
     }
+
+    res.json({
+      text: 'We\'re processing your request. One moment please...'
+    });
 
     // the dev to assign the task to
     const assignee = users.split(' ')[0];
@@ -50,13 +50,13 @@ module.exports = (app) => {
       const goReviewMessage = {
         response_type: 'in_channel',
         text: `*Your sprint has been assigned to ${firstName}.*
-${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
-If we have missed anything please let's us know by sending us a message in the <https://sunbowl.slack.com/messages/${channelName}|#${channelName}> channel.
-Expected date of completion is ${dueDate}.
+        ${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
+        If we have missed anything please let's us know by sending us a message in the <https://sunbowl.slack.com/messages/${channelName}|#${channelName}> channel.
+        Expected date of completion is ${dueDate}.
 
-*Sprint details*${utils.createBulletListFromArray(tasks)}
+        *Sprint details*${utils.createBulletListFromArray(tasks)}
 
-Bucket balance: \`${timeLeft.toFixed(1)} hours\``
+        Bucket balance: \`${timeLeft.toFixed(1)} hours\``
       };
 
       apiCalls.postToSlack(goReviewMessage, req.query.response_url);
