@@ -62,14 +62,18 @@ const getTrelloCardId = (channelName) => {
 
     /* FRESHBOOKS */
     const FreshBooks = require('freshbooks');
-    const FRESHBOOKS_API_URL = process.env.SUNBOWL_FRESHBOOKS_URL;
-    const FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
-    const freshbooks = new FreshBooks(FRESHBOOKS_API_URL, FRESHBOOKS_AUTH_KEY);
+    const SUNBOWL_FRESHBOOKS_API_URL = process.env.SUNBOWL_FRESHBOOKS_URL;
+    const SUNBOWL_FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
 
-    const addTimeEntry = (projectId, hours, notes) => {
+    const addTimeEntry = (usersAPIurl, usersAuthKey, projectId, taskId, hours, notes) => {
+      const freshbooks = new FreshBooks(usersAPIurl, usersAuthKey);
       return new Promise((resolve, reject) => {
         const timeEntry = new freshbooks.Time_Entry();
-        timeEntry.create({ project_id: projectId, task_id: 1, hours, notes}, (err, time) => {
+        timeEntry.project_id = projectId;
+        timeEntry.task_id = taskId;
+        timeEntry.hours = hours;
+        timeEntry.notes = notes;
+        timeEntry.create((err, time) => {
           if (err) {
             reject(`Error adding time entry: ${err}`);
           } else {
@@ -80,6 +84,7 @@ const getTrelloCardId = (channelName) => {
     };
 
     const getProjectBudget = (projectId) => {
+      const freshbooks = new FreshBooks(SUNBOWL_FRESHBOOKS_API_URL, SUNBOWL_FRESHBOOKS_AUTH_KEY);
       return new Promise((resolve, reject) => {
         const projects = new freshbooks.Project();
         projects.get(projectId, (err, project) => {
@@ -103,6 +108,7 @@ const getTrelloCardId = (channelName) => {
       }
 
       return new Promise((resolve, reject) => {
+        const freshbooks = new FreshBooks(SUNBOWL_FRESHBOOKS_API_URL, SUNBOWL_FRESHBOOKS_AUTH_KEY);
         const timeEntries = new freshbooks.Time_Entry();
         let billableHours = 0;
         timeEntries.list({ project_id: projectId, per_page: 100 }, (err, times, options) => {
