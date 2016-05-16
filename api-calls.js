@@ -94,9 +94,8 @@ const getTrelloCardId = (channelName) => {
         function findProjectId(projectList, nameOfProject) {
           let foundProjectId = 0;
           projectList.forEach((project) => {
-            console.log(`${project.name} (${project.project_id})`);
+            //console.log(`${project.name} (${project.project_id})`);
             if (project.name.toLowerCase() === nameOfProject.toLowerCase()) {
-              console.log('Found the project ID');
               foundProjectId = project.project_id;
             }
           });
@@ -123,14 +122,17 @@ const getTrelloCardId = (channelName) => {
                   }));
                 }
 
+                let foundProjectId = false;
                 Promise.all(pagesToProcess).then((projectIds) => {
                   projectIds.forEach((projectIdFromExtraPages) => {
                     if (projectIdFromExtraPages > 0) {
-                      console.log('Sweet... found a project ID');
                       resolve(projectIdFromExtraPages);
+                      foundProjectId = true;
                     }
                   });
-                  reject(`Could not find a project Id for ${projectName}`);
+                  if(!foundProjectId) {
+                    reject(`Could not find a project Id in Freshbooks for ${projectName}`);
+                  }
                 });
               }
             }
@@ -146,12 +148,11 @@ const getTrelloCardId = (channelName) => {
           getUsersFreshbooksDetails(userName)
           .then((usersFreshbooksDetails) => {
             freshbooksDetailsForUser = usersFreshbooksDetails;
-            console.log(freshbooksDetailsForUser);
+            // console.log(freshbooksDetailsForUser);
             freshbooks = new FreshBooks(freshbooksDetailsForUser.usersAPIurl, freshbooksDetailsForUser.usersAuthKey);
             return getFreshbooksProjectIdFromFreshbooks(freshbooks, projectName);
           })
           .then((projectId) => {
-            console.log('ok.. adding time entry');
             const timeEntry = new freshbooks.Time_Entry();
             timeEntry.project_id = projectId;
             timeEntry.task_id = freshbooksDetailsForUser.taskId;
@@ -164,7 +165,10 @@ const getTrelloCardId = (channelName) => {
                 resolve(time);
               }
             });
-          });
+          })
+          .catch((error) => {
+            reject(error);
+          })
         });
       };
 

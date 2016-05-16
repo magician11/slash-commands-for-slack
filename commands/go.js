@@ -47,7 +47,7 @@ console.log(req.query);
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
     .then((billableHours) => {freshbooksData.billableHours = billableHours; return apiCalls.getFirstname(assignee.slice(1));})
-    .then((firstName) => {assigneeFirstName = firstName; return apiCalls.addTimeEntry(req.query.user_name, channelName, 0.25, 'Made video for developer, captured changes to trello, sprint initiation, assigned out');})
+    //.then((firstName) => {assigneeFirstName = firstName; return apiCalls.addTimeEntry(req.query.user_name, channelName, 0.25, 'Made video for developer, captured changes to trello, sprint initiation, assigned out');})
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
       const dueDate = utils.formatDate(utils.dateXdaysFromNow(3));
