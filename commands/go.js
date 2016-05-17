@@ -7,11 +7,9 @@ module.exports = (app) => {
 
   // assign the card for this channel to a dev and then move it to the 'pending to be assigned' list
   app.get('/go', (req, res) => {
-    // check to see whether this script is being accessed from our slack integration
-
-console.log(req.query);
-
     const users = req.query.text;
+
+    // check to see whether this script is being accessed from our slack integration
     if (req.query.token !== GO_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
@@ -47,7 +45,7 @@ console.log(req.query);
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
     .then((billableHours) => {freshbooksData.billableHours = billableHours; return apiCalls.getFirstname(assignee.slice(1));})
-    .then((firstName) => {assigneeFirstName = firstName; return apiCalls.addTimeEntry(req.query.user_name, channelName, 0.25, 'Made video for developer, captured changes to trello, sprint initiation, assigned out');})
+    .then((firstName) => {assigneeFirstName = firstName; return apiCalls.addTimeEntry(req.query.user_name, channelName, 0.25, 'Made video for developer, captured changes to trello, sprint initiation, assigned out.');})
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
       const dueDate = utils.formatDate(utils.dateXdaysFromNow(3));
