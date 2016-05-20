@@ -17,14 +17,40 @@ module.exports = (app) => {
     .then(apiCalls.getTaskListId)
     .then(apiCalls.getTaskListItems)
     .then((taskList) => {
-      const taskMessage = (taskList.length === 0) ? 'You have no tasks listed.' : `Your current tasks are...${utils.createBulletListFromArray(taskList)}`;
-      res.json({
-        response_type: (req.query.text === 'public') ? 'in_channel' : 'ephemeral',
-        text: `${taskMessage}`
-      });
+      if (taskList.length === 0) {
+        res.json({
+          response_type: (req.query.text === 'public') ? 'in_channel' : 'ephemeral',
+          text: 'You have no tasks listed.'
+        });
+      } else {
+        let taskMessage = `Your current tasks are...${utils.createBulletListFromArray(taskList)}`;
+        if (req.query.text === 'public') {
+          taskMessage += '\nPlease review the above sprint and let me know if it\'s ready to assign out.';
+          const freshbooksData = {};
+
+          apiCalls.getFreshbooksProjectId(req.query.channel_name)
+          .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
+          .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
+          .then((billableHours) => {
+            const percentBucketUsed = (billableHours / freshbooksData.projectBudget) * 100;
+            const timeLeft = freshbooksData.projectBudget - billableHours;
+
+            taskMessage += `\nYou have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left).`;
+
+            res.json({
+              response_type: 'in_channel',
+              text: `${taskMessage}`
+            });
+          });
+        } else {
+          res.json({
+            text: `${taskMessage}`
+          });
+        }
+      }
     })
-  .catch((error) => {
-    utils.respondWithError(error, res);
+    .catch((error) => {
+      utils.respondWithError(error, res);
+    });
   });
-});
 };
