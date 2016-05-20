@@ -32,13 +32,15 @@ module.exports = (app) => {
       description = completeArguments.slice(2).join(' ');
     }
 
+    const channelName = req.query.channel_name;
     const freshbooksData = {};
 
-    apiCalls.getFreshbooksProjectId(req.query.channel_name)
+    apiCalls.getFreshbooksProjectId(channelName)
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
-    .then((billableHours) => {
-      const timeLeft = freshbooksData.projectBudget - billableHours;
+    .then((billableHours) => {freshbooksData.billableHours = billableHours; return apiCalls.addTimeEntry(req.query.user_name, channelName, 0.25, 'Reviewed developer work, made update video, sprint complete form.');})
+    .then(() => {
+      const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
 
       res.json({
         response_type: 'in_channel',
