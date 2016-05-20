@@ -18,6 +18,10 @@ module.exports = (app) => {
       return;
     }
 
+    res.json({
+      text: 'We\'re processing your request. One moment please...'
+    });
+
     const recipient = completeArguments[0];
     const bucketTimes = completeArguments[1].split('/');
     const bucketTimeQuoted = bucketTimes[0];
@@ -42,7 +46,7 @@ module.exports = (app) => {
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
 
-      res.json({
+      const completeMessage = {
         response_type: 'in_channel',
         text: `${recipient} *Your Sprint is Complete!*
 ${description}
@@ -50,7 +54,9 @@ ${videoUrl ? `Sprint Review: <${videoUrl}|:arrow_forward: Watch Video>` : ''}
 *Bucket Time Quoted*: \`${bucketTimeQuoted} hrs\`
 *Bucket Time Used*: \`${bucketTimeUsed} hrs\`
 Remaining Bucket Balance: \`${timeLeft.toFixed(1)} hrs\``
-      });
+      };
+
+      apiCalls.postToSlack(completeMessage, req.query.response_url);
     });
   });
 };
