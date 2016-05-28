@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (app) => {
   const apiCalls = require('../api-calls');
   const utils = require('../utils');
