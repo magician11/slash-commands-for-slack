@@ -37,17 +37,40 @@ function formatDate(date) {
   return date.toString().split(' ').slice(0, 4).join(' ');
 }
 
+function shortenUrl(urlToShorten) {
+  return new Promise((resolve, reject) => {
+    const request = require('request');
+    const GOOGLE_API_KEY = process.env.SUNBOWL_DEVELOPER_API_KEY;
+    const shortenerUrl = `https://www.googleapis.com/urlshortener/v1/url?key=${GOOGLE_API_KEY}`;
+
+    const options = {
+      uri: shortenerUrl,
+      json: {
+        longUrl: urlToShorten
+      }
+    };
+
+    request.post(options, (error, response, body) => {
+      if (body.error) {
+        reject(body.error);
+      } else if (response.statusCode === 200) {
+        resolve(body);
+      }
+    });
+  });
+}
+
 function createBulletListFromArray(data) {
   const bulletListDelimiter = '\n• ';
   const tasks = bulletListDelimiter.concat(data
-    .sort((task1, task2) => {
-      return task1.pos - task2.pos;
-    })
-    .map((task) => { return task.name; })
+    .sort((task1, task2) =>
+      task1.pos - task2.pos
+    )
+    .map((task) => task.name)
     .join(bulletListDelimiter));
     return tasks;
   }
 
   module.exports = {
-    respondWithError, dateXdaysFromNow, createBulletListFromArray, formatDate
+    respondWithError, dateXdaysFromNow, createBulletListFromArray, formatDate, shortenUrl
   };

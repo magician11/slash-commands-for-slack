@@ -16,16 +16,9 @@ module.exports = (app) => {
     const channelName = req.query.channel_name;
     const parameters = req.query.text.split(' ');
     const timeToBeBilled = parameters[0];
-    let jobNotes;
 
-    if (parameters[1].startsWith('http')) {
-      console.log('todo: shorten URL');
-      jobNotes = parameters[1];
-    } else {
-      jobNotes = parameters.slice(1).join(' ');
-    }
-
-    apiCalls.addTimeEntry(req.query.user_name, channelName, timeToBeBilled, jobNotes)
+    (parameters[1].startsWith('http') ? utils.shortenUrl(parameters[1]) : Promise.resolve(parameters.slice(1).join(' ')))
+    .then((jobNotes) => { apiCalls.addTimeEntry(req.query.user_name, channelName, timeToBeBilled, jobNotes); })
     .then((timeEntry) => {
       res.json({
         text: 'Your time was successfully logged.',
