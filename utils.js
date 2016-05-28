@@ -52,9 +52,9 @@ function shortenUrl(urlToShorten) {
 
     request.post(options, (error, response, body) => {
       if (body.error) {
-        reject(body.error);
+        reject(body.error.errors[0].reason);
       } else if (response.statusCode === 200) {
-        resolve(body);
+        resolve(body.id);
       }
     });
   });
@@ -64,13 +64,13 @@ function createBulletListFromArray(data) {
   const bulletListDelimiter = '\n• ';
   const tasks = bulletListDelimiter.concat(data
     .sort((task1, task2) =>
-      task1.pos - task2.pos
-    )
-    .map((task) => task.name)
-    .join(bulletListDelimiter));
-    return tasks;
-  }
+    task1.pos - task2.pos
+  )
+  .map((task) => task.name)
+  .join(bulletListDelimiter));
+  return tasks;
+}
 
-  module.exports = {
-    respondWithError, dateXdaysFromNow, createBulletListFromArray, formatDate, shortenUrl
-  };
+module.exports = {
+  respondWithError, dateXdaysFromNow, createBulletListFromArray, formatDate, shortenUrl
+};

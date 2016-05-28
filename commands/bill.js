@@ -18,7 +18,7 @@ module.exports = (app) => {
     const timeToBeBilled = parameters[0];
 
     (parameters[1].startsWith('http') ? utils.shortenUrl(parameters[1]) : Promise.resolve(parameters.slice(1).join(' ')))
-    .then((jobNotes) => { apiCalls.addTimeEntry(req.query.user_name, channelName, timeToBeBilled, jobNotes); })
+    .then((jobNotes) => apiCalls.addTimeEntry(req.query.user_name, channelName, timeToBeBilled, jobNotes))
     .then((timeEntry) => {
       res.json({
         text: 'Your time was successfully logged.',
