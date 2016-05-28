@@ -7,17 +7,20 @@ module.exports = (app) => {
 
   // bill Sunbowl for a particular channel with an hour amount and description/URL
   app.get('/bill', (req, res) => {
+    const billParameters = req.query.text.split(' ');
     // check to see whether this script is being accessed from our slack integration
     if (req.query.token !== BILL_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
+    } else if (billParameters.length < 2) {
+      utils.respondWithError('Usage: /bill [hours] [description/video url]', res);
+      return;
     }
 
     const channelName = req.query.channel_name;
-    const parameters = req.query.text.split(' ');
-    const timeToBeBilled = parameters[0];
+    const timeToBeBilled = billParameters[0];
 
-    (parameters[1].startsWith('http') ? utils.shortenUrl(parameters[1]) : Promise.resolve(parameters.slice(1).join(' ')))
+    (billParameters[1].startsWith('http') ? utils.shortenUrl(billParameters[1]) : Promise.resolve(billParameters.slice(1).join(' ')))
     .then((jobNotes) => apiCalls.addTimeEntry(req.query.user_name, channelName, timeToBeBilled, jobNotes))
     .then((timeEntry) => {
       res.json({
