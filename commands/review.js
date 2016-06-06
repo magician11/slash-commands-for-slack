@@ -25,7 +25,7 @@ module.exports = (app) => {
       } else {
         let taskMessage = `Your current tasks are...${utils.createBulletListFromArray(taskList)}`;
         if (req.query.text === 'public') {
-          taskMessage += '\nPlease review the above sprint and let me know if it\'s ready to assign out.';
+          taskMessage += '\n*Please review the above sprint and let me know if it\'s ready to assign out.*';
           const freshbooksData = {};
 
           apiCalls.getFreshbooksProjectId(req.query.channel_name)
@@ -35,7 +35,7 @@ module.exports = (app) => {
             const percentBucketUsed = (billableHours / freshbooksData.projectBudget) * 100;
             const timeLeft = freshbooksData.projectBudget - billableHours;
 
-            taskMessage += `\nYou have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left).`;
+            taskMessage += `\n\`You have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left)\``;
 
             res.json({
               response_type: 'in_channel',
