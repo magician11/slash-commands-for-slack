@@ -15,26 +15,25 @@ module.exports = (app) => {
 
     // switch on bucket option
     if (req.query.text === 'refill') {
-      res.json({
-        text: 'To refill your bucket, click on your bucket choice below...',
-        attachments: [
-          {
-            title: '14 hour bucket',
-            title_link: 'http://www.sunbowl.ca/14hb'
-          },
-          {
-            title: '21 hour bucket',
-            title_link: 'http://www.sunbowl.ca/21hb'
-          },
-          {
-            title: '28 hour bucket',
-            title_link: 'http://www.sunbowl.ca/28hb'
-          },
-          {
-            title: '40 hour bucket',
-            title_link: 'http://www.sunbowl.ca/40hb'
-          }
-        ]
+      apiCalls.getRefillOption(req.query.channel_name)
+      .then((refillOption) => {
+        const refillAmountPlans = {
+          0: [14, 21, 28], // standard
+          1: [40, 120, 210] // plus
+        };
+
+        const refillOptions = [];
+        for (const refillBucketSize of refillAmountPlans[refillOption]) {
+          refillOptions.push({ title: `${refillBucketSize} hour bucket`, title_link: `http://www.sunbowl.ca/${refillBucketSize}hb` });
+        }
+
+        res.json({
+          text: 'To refill your bucket, click on your bucket choice below...',
+          attachments: refillOptions
+        });
+      })
+      .catch((err) => {
+        utils.respondWithError(`Error: ${err}`, res);
       });
     } else {
       const freshbooksData = {};

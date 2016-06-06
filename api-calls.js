@@ -8,6 +8,33 @@ The various API calls to freshbooks, trello and formstack
 const request = require('request');
 const FORMSTACK_TOKEN = process.env.SUNBOWL_FORMSTACK_TOKEN;
 
+// get the refill option for the passed in channel name
+const getRefillOption = (channelName) => {
+  return new Promise((resolve, reject) => {
+    request.get(
+      {
+        url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
+        json: true,
+      },
+      (error, response, data) => {
+        let refillOption;
+        data.submissions.forEach((submission) => {
+          if (submission.data[38710905].value === channelName) {
+            if (submission.data[42868490]) {
+              refillOption = submission.data[42868490].value;
+            }
+          }
+        });
+
+        if (refillOption) {
+          resolve(refillOption);
+        } else {
+          reject(`Could not find the refill option for ${channelName}.`);
+        }
+      });
+    });
+  };
+
 // grab the trello card ID associated with the passed in channel name
 const getTrelloCardId = (channelName) => {
   return new Promise((resolve, reject) => {
@@ -415,5 +442,6 @@ const getTrelloCardId = (channelName) => {
         /* export the api functions */
         module.exports = {
           getTrelloCardId, getTaskListId, getTaskListItems, getProjectBudget, postToSlack, moveTaskListToTop, getFirstname, addTimeEntry,
-          addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate, findListId, postJobReport
+          addTask, moveTrelloCard, renameTasklist, getFreshbooksProjectId, getBillableHours, setDueDate, findListId, postJobReport,
+          getRefillOption
         };
