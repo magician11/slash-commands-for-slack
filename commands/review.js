@@ -13,7 +13,7 @@ module.exports = (app) => {
     if (req.query.token !== REVIEW_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
-    } else if (reviewArguments.length !== 1) {
+    } else if (reviewArguments.length !== 1 || reviewArguments[0] === '') {
       utils.respondWithError('Usage: /review [person to notify e.g. @bob]', res);
       return;
     }
