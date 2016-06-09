@@ -13,7 +13,7 @@ const getRefillOption = (channelName) => {
   return new Promise((resolve, reject) => {
     request.get(
       {
-        url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
+        url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&search_field_0=38710905&search_value_0=${channelName}&oauth_token=${FORMSTACK_TOKEN}`,
         json: true,
       },
       (error, response, data) => {
@@ -40,7 +40,7 @@ const getTrelloCardId = (channelName) => {
   return new Promise((resolve, reject) => {
     request.get(
       {
-        url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
+        url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&search_field_0=38710905&search_value_0=${channelName}&oauth_token=${FORMSTACK_TOKEN}`,
         json: true,
       },
       (error, response, data) => {
@@ -66,7 +66,7 @@ const getTrelloCardId = (channelName) => {
   const getFreshbooksProjectId = (channelName) => {
     return new Promise((resolve, reject) => {
       request.get({
-        url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
+        url: `https://www.formstack.com/api/v2/form/2198788/submission.json?data=true&search_field_0=38710905&search_value_0=${channelName}&oauth_token=${FORMSTACK_TOKEN}`,
         json: true },
         (error, response, data) => {
           if (error) {
@@ -91,7 +91,7 @@ const getTrelloCardId = (channelName) => {
     const getUsersFreshbooksDetails = (userName) => {
       return new Promise((resolve, reject) => {
         request.get({
-          url: `https://www.formstack.com/api/v2/form/2350444/submission.json?data=true&per_page=100&oauth_token=${FORMSTACK_TOKEN}`,
+          url: `https://www.formstack.com/api/v2/form/2350444/submission.json?data=true&search_field_0=41935293&search_value_0=${channelName}&oauth_token=${FORMSTACK_TOKEN}`,
           json: true },
           (error, response, data) => {
             if (error) {
