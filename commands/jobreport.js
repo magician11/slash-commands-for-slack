@@ -1,6 +1,7 @@
 module.exports = (app) => {
   const utils = require('../modules/utils');
   const trelloSunbowl = require('../modules/trello');
+  const formstackSunbowl = require('../modules/trello');
   const slackSunbowl = require('../modules/slack');
   const JOBREPORT_SECURITY_TOKEN = process.env.SUNBOWL_JOBREPORT_SECURITY_TOKEN;
 
@@ -22,7 +23,7 @@ module.exports = (app) => {
 
     const finishedBlockListId = '522e91fe2c1df8cb25008ab2';
 
-    trelloSunbowl.getTrelloCardId(req.query.channel_name)
+    formstackSunbowl.getTrelloCardId(req.query.channel_name)
     .then((trelloCardId) => trelloSunbowl.moveTrelloCard(trelloCardId, finishedBlockListId))
     .then((trelloCardId) => {
       slackSunbowl.postJobReport({
