@@ -2,7 +2,8 @@
 
 module.exports = (app) => {
   const utils = require('../utils');
-  const apiCalls = require('../api-calls');
+  const trelloSunbowl = require('../modules/trello');
+  const slackSunbowl = require('../modules/slack');
   const JOBREPORT_SECURITY_TOKEN = process.env.SUNBOWL_JOBREPORT_SECURITY_TOKEN;
 
   // notify someone that a sprint for a channel is complete
@@ -23,10 +24,10 @@ module.exports = (app) => {
 
     const finishedBlockListId = '522e91fe2c1df8cb25008ab2';
 
-    apiCalls.getTrelloCardId(req.query.channel_name)
-    .then((trelloCardId) => { return apiCalls.moveTrelloCard(trelloCardId, finishedBlockListId); })
+    trelloSunbowl.getTrelloCardId(req.query.channel_name)
+    .then((trelloCardId) => trelloSunbowl.moveTrelloCard(trelloCardId, finishedBlockListId))
     .then((trelloCardId) => {
-      apiCalls.postJobReport({
+      slackSunbowl.postJobReport({
         text: `Hey <@nic> & <@jody>,
 <@${userName}> just finished a sprint for <#${req.query.channel_id}>
 Time it took: \`${jobreportArguments[0]} hrs\`
@@ -46,7 +47,7 @@ Trello card: https://trello.com/c/${trelloCardId}`
           }
         ]
       };
-      apiCalls.postToSlack(errorMessage, req.query.response_url);
+      slackSunbowl.postToSlack(errorMessage, req.query.response_url);
     });
   });
 };

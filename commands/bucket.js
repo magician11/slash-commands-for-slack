@@ -1,7 +1,8 @@
 'use strict';
 
 module.exports = (app) => {
-  const apiCalls = require('../api-calls');
+  const formstackSunbowl = require('../modules/formstack');
+  const freshbooksSunbowl = require('../modules/freshbooks');
   const utils = require('../utils');
   const BUCKET_SECURITY_TOKEN = process.env.SUNBOWL_BUCKET_SECURITY_TOKEN;
 
@@ -15,7 +16,7 @@ module.exports = (app) => {
 
     // switch on bucket option
     if (req.query.text === 'refill') {
-      apiCalls.getRefillOption(req.query.channel_name)
+      formstackSunbowl.getRefillOption(req.query.channel_name)
       .then((refillOption) => {
         const refillAmountPlans = {
           0: [14, 21, 28], // standard
@@ -38,9 +39,9 @@ module.exports = (app) => {
     } else {
       const freshbooksData = {};
 
-      apiCalls.getFreshbooksProjectId(req.query.channel_name)
-      .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
-      .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
+      formstackSunbowl.getFreshbooksProjectId(req.query.channel_name)
+      .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
+      .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
       .then((billableHours) => {
         const percentBucketUsed = (billableHours / freshbooksData.projectBudget) * 100;
         const timeLeft = freshbooksData.projectBudget - billableHours;
