@@ -7,16 +7,17 @@ module.exports = (app) => {
 
   // get all the tasks from this channel's trello card
   app.get('/review', (req, res) => {
-    const reviewArguments = req.query.text.split(' ');
-
     // check to see whether this script is being accessed from our slack integration
     if (req.query.token !== REVIEW_SECURITY_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
-    } else if (reviewArguments.length !== 1 || reviewArguments[0] === '') {
-      utils.respondWithError('Usage: /review [person to notify e.g. @bob]', res);
-      return;
     }
+
+    res.json({
+      text: `Assembling the review now for you ${req.query.user_name}. One moment please...`
+    });
+
+    const reviewArguments = req.query.text.split(' ');
 
     apiCalls.getTrelloCardId(req.query.channel_name)
     .then(apiCalls.getTaskListId)
@@ -26,7 +27,9 @@ module.exports = (app) => {
         utils.respondWithError('No tasks were found.', res);
       } else {
         let taskMessage = `Your current tasks are...${utils.createBulletListFromArray(taskList)}`;
-        taskMessage += `\n*Hey ${reviewArguments[0]}, please review the above sprint and let me know if it's ready to assign out.*`;
+        if (reviewArguments[0] !== '') {
+          taskMessage += `\n*Hey ${reviewArguments[0]}, please review the above sprint and let me know if it's ready to assign out.*`;
+        }
         const freshbooksData = {};
 
         apiCalls.getFreshbooksProjectId(req.query.channel_name)
@@ -38,10 +41,11 @@ module.exports = (app) => {
 
           taskMessage += `\n\`You have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left)\``;
 
-          res.json({
+          const reviewResponse = {
             response_type: 'in_channel',
             text: `${taskMessage}`
-          });
+          };
+          apiCalls.postToSlack(reviewResponse, req.query.response_url);
         });
       }
     })
