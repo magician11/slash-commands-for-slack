@@ -1,7 +1,7 @@
 module.exports = (app) => {
   const utils = require('../modules/utils');
   const trelloSunbowl = require('../modules/trello');
-  const formstackSunbowl = require('../modules/trello');
+  const formstackSunbowl = require('../modules/formstack');
   const slackSunbowl = require('../modules/slack');
   const JOBREPORT_SECURITY_TOKEN = process.env.SUNBOWL_JOBREPORT_SECURITY_TOKEN;
 
