@@ -3,7 +3,7 @@
 module.exports = (app) => {
   const formstackSunbowl = require('../modules/formstack');
   const freshbooksSunbowl = require('../modules/freshbooks');
-  const utils = require('../utils');
+  const utils = require('../modules/utils');
   const BUCKET_SECURITY_TOKEN = process.env.SUNBOWL_BUCKET_SECURITY_TOKEN;
 
   // get information about a bucket with Sunbowl

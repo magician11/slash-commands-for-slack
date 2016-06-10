@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (app) => {
-  const utils = require('../utils');
+  const utils = require('../modules/utils');
   const apiCalls = require('../api-calls');
   const REVIEW_SECURITY_TOKEN = process.env.SUNBOWL_REVIEW_SECURITY_TOKEN;
 

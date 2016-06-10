@@ -306,7 +306,7 @@ const getTrelloCardId = (channelName) => {
         });
       };
 
-      const utils = require('./utils');
+      const utils = require('./modules/utils');
 
       const renameTasklist = (taskListId, assignee) => {
         return new Promise((resolve, reject) => {

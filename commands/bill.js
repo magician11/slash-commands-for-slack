@@ -2,7 +2,7 @@
 
 module.exports = (app) => {
   const apiCalls = require('../api-calls');
-  const utils = require('../utils');
+  const utils = require('../modules/utils');
   const BILL_SECURITY_TOKEN = process.env.SUNBOWL_BILL_SECURITY_TOKEN;
 
   // bill Sunbowl for a particular channel with an hour amount and description/URL

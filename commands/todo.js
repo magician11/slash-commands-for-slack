@@ -2,7 +2,7 @@
 
 module.exports = (app) => {
   const apiCalls = require('../api-calls');
-  const utils = require('../utils');
+  const utils = require('../modules/utils');
   const TODO_SECURITY_TOKEN = process.env.SUNBOWL_TODO_SECURITY_TOKEN;
 
   // add a task to their trello card
