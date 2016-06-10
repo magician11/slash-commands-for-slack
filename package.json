@@ -1,7 +1,7 @@
 {
   "name": "slash-commands-for-slack",
   "version": "1.0.0",
-  "description": "A node server to handle slash commands for slack",
+  "description": "A node server to handle slash commands for Slack.",
   "main": "sunbowl-slack-commands-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,8 +1,9 @@
-'use strict';
-
 module.exports = (app) => {
   const utils = require('../modules/utils');
-  const apiCalls = require('../api-calls');
+  const freshbooksSunbowl = require('../modules/freshbooks');
+  const formstackSunbowl = require('../modules/formstack');
+  const trelloSunbowl = require('../modules/trello');
+  const slackSunbowl = require('../modules/slack');
   const REVIEW_SECURITY_TOKEN = process.env.SUNBOWL_REVIEW_SECURITY_TOKEN;
 
   // get all the tasks from this channel's trello card
@@ -19,9 +20,9 @@ module.exports = (app) => {
 
     const reviewArguments = req.query.text.split(' ');
 
-    apiCalls.getTrelloCardId(req.query.channel_name)
-    .then(apiCalls.getTaskListId)
-    .then(apiCalls.getTaskListItems)
+    formstackSunbowl.getTrelloCardId(req.query.channel_name)
+    .then(trelloSunbowl.getTaskListId)
+    .then(trelloSunbowl.getTaskListItems)
     .then((taskList) => {
       if (taskList.length === 0) {
         utils.respondWithError('No tasks were found.', res);
@@ -32,9 +33,9 @@ module.exports = (app) => {
         }
         const freshbooksData = {};
 
-        apiCalls.getFreshbooksProjectId(req.query.channel_name)
-        .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
-        .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
+        formstackSunbowl.getFreshbooksProjectId(req.query.channel_name)
+        .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
+        .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
         .then((billableHours) => {
           const percentBucketUsed = (billableHours / freshbooksData.projectBudget) * 100;
           const timeLeft = freshbooksData.projectBudget - billableHours;
@@ -45,7 +46,7 @@ module.exports = (app) => {
             response_type: 'in_channel',
             text: `${taskMessage}`
           };
-          apiCalls.postToSlack(reviewResponse, req.query.response_url);
+          slackSunbowl.postToSlack(reviewResponse, req.query.response_url);
         });
       }
     })

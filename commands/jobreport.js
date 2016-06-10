@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = (app) => {
   const utils = require('../modules/utils');
   const trelloSunbowl = require('../modules/trello');

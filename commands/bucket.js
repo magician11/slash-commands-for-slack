@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = (app) => {
   const formstackSunbowl = require('../modules/formstack');
   const freshbooksSunbowl = require('../modules/freshbooks');

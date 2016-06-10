@@ -1,13 +1,11 @@
-'use strict';
-
 module.exports = (app) => {
-  const apiCalls = require('../api-calls');
+  const formstackSunbowl = require('../modules/formstack');
+  const trelloSunbowl = require('../modules/trello');
   const utils = require('../modules/utils');
   const TODO_SECURITY_TOKEN = process.env.SUNBOWL_TODO_SECURITY_TOKEN;
 
   // add a task to their trello card
   app.get('/todo', (req, res) => {
-
     const task = req.query.text;
 
     // check to see whether this script is being accessed from our slack integration
@@ -19,9 +17,9 @@ module.exports = (app) => {
       return;
     }
 
-    apiCalls.getTrelloCardId(req.query.channel_name)
-    .then(apiCalls.getTaskListId)
-    .then((taskListId) => { return apiCalls.addTask(taskListId, task); })
+    formstackSunbowl.getTrelloCardId(req.query.channel_name)
+    .then(trelloSunbowl.getTaskListId)
+    .then((taskListId) => trelloSunbowl.addTask(taskListId, task))
     .then(() => {
       res.json({
         text: `Great! Your task *${task}* was added.`

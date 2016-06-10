@@ -1,8 +1,4 @@
-'use strict';
-
-/*
-utility functions
-*/
+/* utility functions */
 
 class SunbowlUtils {
 

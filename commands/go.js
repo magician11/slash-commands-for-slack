@@ -1,8 +1,9 @@
-'use strict';
-
 module.exports = (app) => {
   const utils = require('../modules/utils');
-  const apiCalls = require('../api-calls');
+  const freshbooksSunbowl = require('../modules/freshbooks');
+  const formstackSunbowl = require('../modules/formstack');
+  const trelloSunbowl = require('../modules/trello');
+  const slackSunbowl = require('../modules/slack');
   const GO_SECURITY_TOKEN = process.env.SUNBOWL_GO_SECURITY_TOKEN;
 
   // assign the card for this channel to a dev and then move it to the 'pending to be assigned' list
@@ -33,19 +34,19 @@ module.exports = (app) => {
     let tasks = [];
     let assigneeFirstName = '';
 
-    apiCalls.getTrelloCardId(channelName)
-    .then((trelloCardId) => { trelloData.id = trelloCardId; return apiCalls.findListId(assignee); })
-    .then((trelloListId) => { return apiCalls.moveTrelloCard(trelloData.id, trelloListId); })
-    .then(apiCalls.setDueDate)
-    .then(apiCalls.getTaskListId)
-    .then(apiCalls.moveTaskListToTop)
-    .then((taskListId) => { return apiCalls.renameTasklist(taskListId, assignee); })
-    .then((taskListId) => { return apiCalls.getTaskListItems(taskListId); })
-    .then((taskList) => { tasks = taskList; return apiCalls.getFreshbooksProjectId(channelName); })
-    .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
-    .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
-    .then((billableHours) => {freshbooksData.billableHours = billableHours; return apiCalls.getFirstname(assignee.slice(1));})
-    .then((firstName) => {assigneeFirstName = firstName; return apiCalls.addTimeEntry(req.query.user_name, channelName, 0.25, 'Made video for developer, captured changes to trello, sprint initiation, assigned out.');})
+    formstackSunbowl.getTrelloCardId(channelName)
+    .then((trelloCardId) => { trelloData.id = trelloCardId; return trelloSunbowl.findListId(assignee); })
+    .then((trelloListId) => trelloSunbowl.moveTrelloCard(trelloData.id, trelloListId))
+    .then(trelloSunbowl.setDueDate)
+    .then(trelloSunbowl.getTaskListId)
+    .then(trelloSunbowl.moveTaskListToTop)
+    .then((taskListId) => trelloSunbowl.renameTasklist(taskListId, assignee))
+    .then((taskListId) => trelloSunbowl.getTaskListItems(taskListId))
+    .then((taskList) => { tasks = taskList; return formstackSunbowl.getFreshbooksProjectId(channelName); })
+    .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
+    .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
+    .then((billableHours) => {freshbooksData.billableHours = billableHours; return slackSunbowl.getFirstname(assignee.slice(1));})
+    .then((firstName) => {assigneeFirstName = firstName; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, 0.25, 'Made video for developer, captured changes to trello, sprint initiation, assigned out.');})
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
       const dueDate = utils.formatDate(utils.dateXdaysFromNow(3));
@@ -62,7 +63,7 @@ Expected date of completion is ${dueDate}.
 Bucket balance: \`${timeLeft.toFixed(1)} hours\``
       };
 
-      apiCalls.postToSlack(goReviewMessage, req.query.response_url);
+      slackSunbowl.postToSlack(goReviewMessage, req.query.response_url);
     })
     .catch((error) => {
       const errorMessage = {
@@ -76,7 +77,7 @@ Bucket balance: \`${timeLeft.toFixed(1)} hours\``
         ]
       };
 
-      apiCalls.postToSlack(errorMessage, req.query.response_url);
+      slackSunbowl.postToSlack(errorMessage, req.query.response_url);
     });
   });
 };

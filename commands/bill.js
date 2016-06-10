@@ -1,7 +1,6 @@
-'use strict';
-
 module.exports = (app) => {
-  const apiCalls = require('../api-calls');
+  // const apiCalls = require('../api-calls');
+  const freshbooksSunbowl = require('../modules/freshbooks');
   const utils = require('../modules/utils');
   const BILL_SECURITY_TOKEN = process.env.SUNBOWL_BILL_SECURITY_TOKEN;
 
@@ -21,7 +20,7 @@ module.exports = (app) => {
     const timeToBeBilled = billParameters[0];
 
     (billParameters[1].startsWith('http') ? utils.shortenUrl(billParameters[1]) : Promise.resolve(billParameters.slice(1).join(' ')))
-    .then((jobNotes) => apiCalls.addTimeEntry(req.query.user_name, channelName, timeToBeBilled, jobNotes))
+    .then((jobNotes) => freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, timeToBeBilled, jobNotes))
     .then((timeEntry) => {
       res.json({
         text: 'Your time was successfully logged.',

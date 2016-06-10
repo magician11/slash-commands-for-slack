@@ -1,8 +1,8 @@
-'use strict';
-
 module.exports = (app) => {
   const utils = require('../modules/utils');
-  const apiCalls = require('../api-calls');
+  const freshbooksSunbowl = require('../modules/freshbooks');
+  const formstackSunbowl = require('../modules/formstack');
+  const slackSunbowl = require('../modules/slack');
   const COMPLETE_SECURITY_TOKEN = process.env.SUNBOWL_COMPLETE_SECURITY_TOKEN;
 
   // notify someone that a sprint for a channel is complete
@@ -39,24 +39,24 @@ module.exports = (app) => {
     const channelName = req.query.channel_name;
     const freshbooksData = {};
 
-    apiCalls.getFreshbooksProjectId(channelName)
-    .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return apiCalls.getProjectBudget(freshbooksProjectId); })
-    .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return apiCalls.getBillableHours(freshbooksData.projectId);})
-    .then((billableHours) => {freshbooksData.billableHours = billableHours; return apiCalls.addTimeEntry(req.query.user_name, channelName, 0.25, 'Reviewed developer work, made update video, sprint update post.');})
+    formstackSunbowl.getFreshbooksProjectId(channelName)
+    .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
+    .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
+    .then((billableHours) => {freshbooksData.billableHours = billableHours; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, 0.25, 'Reviewed developer work, made update video, sprint update post.');})
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
 
       const completeMessage = {
         response_type: 'in_channel',
         text: `${recipient} *Your Sprint is Complete!*
-${description}
-${videoUrl ? `Sprint Review: <${videoUrl}|:arrow_forward: Watch Video>` : ''}
-*Bucket Time Quoted*: \`${bucketTimeQuoted} hrs\`
-*Bucket Time Used*: \`${bucketTimeUsed} hrs\`
-Remaining Bucket Balance: \`${timeLeft.toFixed(1)} hrs\``
+        ${description}
+        ${videoUrl ? `Sprint Review: <${videoUrl}|:arrow_forward: Watch Video>` : ''}
+        *Bucket Time Quoted*: \`${bucketTimeQuoted} hrs\`
+        *Bucket Time Used*: \`${bucketTimeUsed} hrs\`
+        Remaining Bucket Balance: \`${timeLeft.toFixed(1)} hrs\``
       };
 
-      apiCalls.postToSlack(completeMessage, req.query.response_url);
+      slackSunbowl.postToSlack(completeMessage, req.query.response_url);
     });
   });
 };
