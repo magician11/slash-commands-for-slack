@@ -43,7 +43,7 @@ module.exports = (app) => {
           taskMessage += `\n\`You have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left)\``;
 
           const reviewResponse = {
-            response_type: 'in_channel',
+            response_type: (reviewArguments[0] === '') ? 'ephemeral' : 'in_channel',
             text: `${taskMessage}`
           };
           slackSunbowl.postToSlack(reviewResponse, req.query.response_url);
