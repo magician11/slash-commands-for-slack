@@ -24,8 +24,8 @@ module.exports = (app) => {
 
     const recipient = completeArguments[0];
     const bucketTimes = completeArguments[1].split('/');
-    const bucketTimeQuoted = bucketTimes[0];
-    const bucketTimeUsed = bucketTimes[1];
+    const bucketTimeUsed = bucketTimes[0];
+    const bucketTimeQuoted = bucketTimes[1];
     let videoUrl;
     let description;
 
