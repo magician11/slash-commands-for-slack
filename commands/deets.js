@@ -17,11 +17,19 @@ module.exports = (app) => {
       text: `Fetching those deets for you now ${req.query.user_name}. One moment please...`
     });
 
-    formstackSunbowl.getTrelloCardId(req.query.channel_name)
-    .then(trelloSunbowl.getCardDescription)
+    const channelName = req.query.channel_name;
+    let projectsTrelloCardId;
+
+    formstackSunbowl.getTrelloCardId(channelName)
+    .then((trelloCardId) => { projectsTrelloCardId = trelloCardId; return trelloSunbowl.getCardDescription(projectsTrelloCardId); })
     .then((descriptionData) => {
       const deetsResponse = {
-        text: `${descriptionData}`
+        text: `${descriptionData}`,
+        attachments: [
+          {
+            title: `Direct link to Trello card for ${channelName}`,
+            title_link: `https://trello.com/c/${projectsTrelloCardId}`
+          }]
       };
       slackSunbowl.postToSlack(deetsResponse, req.query.response_url);
     })
