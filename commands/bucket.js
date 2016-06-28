@@ -38,8 +38,12 @@ module.exports = (app) => {
       const freshbooksData = {};
 
       formstackSunbowl.getFreshbooksProjectId(req.query.channel_name)
-      .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
-      .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
+      .then((freshbooksProjectId) => {
+        freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId);
+      })
+      .then((projectBudget) => {
+        freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);
+      })
       .then((billableHours) => {
         const percentBucketUsed = (billableHours / freshbooksData.projectBudget) * 100;
         const timeLeft = freshbooksData.projectBudget - billableHours;

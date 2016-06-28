@@ -18,7 +18,7 @@ module.exports = (app) => {
     }
 
     res.json({
-      text: 'We\'re processing your request. One moment please...'
+      text: 'We are counting our chickens... standby'
     });
 
     const channelName = req.query.channel_name;

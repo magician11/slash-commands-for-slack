@@ -128,6 +128,18 @@ class SunbowlTrello {
       });
     });
   }
+
+  getCardDescription(trelloCardId) {
+    return new Promise((resolve, reject) => {
+      trello.get(`/1/cards/${trelloCardId}/desc`, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data._value);
+        }
+      });
+    });
+  }
 }
 
 module.exports = new SunbowlTrello();

@@ -2,9 +2,9 @@
 
 class SunbowlUtils {
 
-  respondWithError(err, res) {
-    res.json({
-      text: 'There was an error with your request.',
+  constructErrorForSlack(err) {
+    const error = {
+      text: 'Whoops... looks like there was a problem.',
       attachments: [
         {
           color: 'danger',
@@ -12,7 +12,13 @@ class SunbowlUtils {
           mrkdwn_in: ['text']
         }
       ]
-    });
+    };
+
+    return error;
+  }
+
+  respondWithError(err, res) {
+    res.json(this.constructErrorForSlack(err));
   }
 
   // returns a string date in the format e.g. Sat Apr 09 2016
