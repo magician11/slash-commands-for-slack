@@ -4,7 +4,7 @@
     "react"
   ],
   "rules": {
-    "max-len": [2, 122],
+    "max-len": [2, 138],
     "comma-dangle": [0],
     "react/jsx-closing-bracket-location": [1, "tag-aligned"]
   },
