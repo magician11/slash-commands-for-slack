@@ -13,6 +13,7 @@ require('./commands/complete')(app);
 require('./commands/jobreport')(app);
 require('./commands/bill')(app);
 require('./commands/deets')(app);
+require('./commands/que')(app);
 
 // start the server
 app.listen(PORT, () => {

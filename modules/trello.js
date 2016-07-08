@@ -1,6 +1,7 @@
 /* TRELLO */
 
 const Trello = require('node-trello');
+const SUNBOWL_BOARD_ID = 'd9ntWOEO';
 const TRELLO_APP_KEY = process.env.SUNBOWL_TRELLO_KEY;
 const TRELLO_USER_TOKEN = process.env.SUNBOWL_TRELLO_TOKEN;
 const trello = new Trello(TRELLO_APP_KEY, TRELLO_USER_TOKEN);
@@ -86,7 +87,6 @@ class SunbowlTrello {
   }
 
   findListId(listName) {
-    const SUNBOWL_BOARD_ID = 'd9ntWOEO';
     return new Promise((resolve, reject) => {
       trello.get(`/1/boards/${SUNBOWL_BOARD_ID}/lists`, (err, data) => {
         if (err) {
@@ -124,6 +124,35 @@ class SunbowlTrello {
           reject(err);
         } else {
           resolve(data);
+        }
+      });
+    });
+  }
+
+  // return an array of objects of the form {developer: numberOfCards}
+  getDeveloperWorkloads() {
+    return new Promise((resolve, reject) => {
+      trello.get(`/1/boards/${SUNBOWL_BOARD_ID}/lists`, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          const developers = [];
+          for (const list of data) {
+            if (list.name.startsWith('@')) {
+              developers.push(new Promise((done) => {
+                trello.get(`/1/lists/${list.id}/cards`, (cardDataError, cardData) => {
+                  done({
+                    name: list.name,
+                    numberOfCards: cardData.length
+                  });
+                });
+              }));
+            }
+          }
+
+          Promise.all(developers).then((developerWorkloads) => {
+            resolve(developerWorkloads);
+          });
         }
       });
     });
