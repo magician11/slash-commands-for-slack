@@ -97,7 +97,7 @@ class SunbowlTrello {
               resolve(list.id);
             }
           }
-          reject(`We don't seem to have a "${listName}" to assign this to.`);
+          reject(`Sorry, I couldn't find the list ${listName} on the Sunbowl board.`);
         }
       });
     });
@@ -125,6 +125,25 @@ class SunbowlTrello {
         } else {
           resolve(data);
         }
+      });
+    });
+  }
+
+  // get the list of card names for this developer
+  getDeveloperWorkload(developer) {
+    return new Promise((resolve, reject) => {
+      this.findListId(developer)
+      .then((listId) => {
+        trello.get(`/1/lists/${listId}/cards`, (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data.map((card) => card.name));
+          }
+        });
+      })
+      .catch((err) => {
+        reject(err);
       });
     });
   }

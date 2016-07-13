@@ -12,22 +12,47 @@ module.exports = (app) => {
       return;
     }
 
-    res.json({
-      text: `Hey ${req.query.user_name}, compiling the developers' workloads now...`
-    });
+    /*
+    If a developer name is added as an argument, then just get the workload for that person
+    otherwise return a summary of developers' workloads.
+    */
+    const developerName = req.query.text;
+    if (developerName) {
+      res.json({
+        text: `Hey ${req.query.user_name}, let's see what we can find for ${developerName}...`
+      });
 
-    trelloSunbowl.getDeveloperWorkloads()
-    .then((developerWorkloads) => {
-      const developerSummary = {
-        text: 'Current developer workload.',
-        attachments: developerWorkloads.map((developer) => {
-          return { text: `${developer.name}: ${developer.numberOfCards}` };
-        })
-      };
-      slackSunbowl.postToSlack(developerSummary, req.query.response_url);
-    })
-    .catch((error) => {
-      slackSunbowl.postToSlack(utils.constructErrorForSlack(error), req.query.response_url);
-    });
+      trelloSunbowl.getDeveloperWorkload(developerName)
+      .then((developerWorkload) => {
+        const developerSummary = {
+          text: `Current projects for ${developerName}`,
+          attachments: developerWorkload.map((projectTitle) => {
+            return { text: projectTitle };
+          })
+        };
+        slackSunbowl.postToSlack(developerSummary, req.query.response_url);
+      })
+      .catch((error) => {
+        slackSunbowl.postToSlack(utils.constructErrorForSlack(error), req.query.response_url);
+      });
+    } else {
+      res.json({
+        text: `Hey ${req.query.user_name}, compiling the developers' workloads now...`
+      });
+
+      trelloSunbowl.getDeveloperWorkloads()
+      .then((developerWorkloads) => {
+        const developersSummary = {
+          text: 'Current developer workload.',
+          attachments: developerWorkloads.map((developer) => {
+            return { text: `${developer.name}: ${developer.numberOfCards}` };
+          })
+        };
+        slackSunbowl.postToSlack(developersSummary, req.query.response_url);
+      })
+      .catch((error) => {
+        slackSunbowl.postToSlack(utils.constructErrorForSlack(error), req.query.response_url);
+      });
+    }
   });
 };
