@@ -3,6 +3,7 @@ module.exports = (app) => {
   const freshbooksSunbowl = require('../modules/freshbooks');
   const formstackSunbowl = require('../modules/formstack');
   const slackSunbowl = require('../modules/slack');
+  const trelloSunbowl = require('../modules/trello');
   const COMPLETE_SECURITY_TOKEN = process.env.SUNBOWL_COMPLETE_SECURITY_TOKEN;
 
   // notify someone that a sprint for a channel is complete
@@ -43,6 +44,8 @@ module.exports = (app) => {
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
     .then((billableHours) => {freshbooksData.billableHours = billableHours; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, 0.25, 'Reviewed developer work, made update video, sprint update post.');})
+    .then(formstackSunbowl.getTrelloCardId(channelName))
+    .then((trelloCardId) => trelloSunbowl.moveTrelloCard(trelloCardId, '54d100b15e38c58f717dd930')) // move to Archive list
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
 
