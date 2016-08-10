@@ -52,14 +52,17 @@ module.exports = (app) => {
       const completeMessage = {
         response_type: 'in_channel',
         text: `${recipient} *Your Sprint is Complete!*
-        ${description}
-        ${videoUrl ? `Sprint Review: <${videoUrl}|:arrow_forward: Watch Video>` : ''}
-        *Bucket Time Quoted*: \`${bucketTimeQuoted} hrs\`
-        *Bucket Time Used*: \`${bucketTimeUsed} hrs\`
-        Remaining Bucket Balance: \`${timeLeft.toFixed(1)} hrs\``
+${description}
+${videoUrl ? `Sprint Review: <${videoUrl}|:arrow_forward: Watch Video>` : ''}
+*Bucket Time Quoted*: \`${bucketTimeQuoted} hrs\`
+*Bucket Time Used*: \`${bucketTimeUsed} hrs\`
+Remaining Bucket Balance: \`${timeLeft.toFixed(1)} hrs\``
       };
 
       slackSunbowl.postToSlack(completeMessage, req.query.response_url);
+    })
+    .catch((err) => {
+      slackSunbowl.postToSlack(utils.constructErrorForSlack(err), req.query.response_url);
     });
   });
 };
