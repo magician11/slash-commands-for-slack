@@ -34,6 +34,8 @@ Video review: ${jobreportArguments[1]}
 Trello card: https://trello.com/c/${trelloCardId}`
       });
     })
+    .then(formstackSunbowl.getTrelloCardId(req.query.channel_name))
+    .then((trelloCardId) => trelloSunbowl.moveTrelloCard(trelloCardId, '522e91fe2c1df8cb25008ab2')) // move to Finish Block list
     .catch((err) => {
       const errorMessage = {
         text: 'There was an error in a job report being submitted.',
