@@ -45,7 +45,7 @@ module.exports = (app) => {
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
     .then((billableHours) => {freshbooksData.billableHours = billableHours; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, 0.25, 'Reviewed developer work, made update video, sprint update post.');})
     .then(formstackSunbowl.getTrelloCardId(channelName))
-    .then((trelloCardId) => trelloSunbowl.moveTrelloCard(trelloCardId, '54d100b15e38c58f717dd930')) // move to Archive list
+    .then((trelloCardId) => { console.log('trelloCardId', trelloCardId); trelloSunbowl.moveTrelloCard(trelloCardId, '54d100b15e38c58f717dd930'); }) // move to Archive list
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
 
