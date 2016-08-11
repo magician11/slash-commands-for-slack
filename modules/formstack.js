@@ -9,7 +9,6 @@ function constructEndpointUrl(formId, searchFieldId, searchFieldValue) {
 
 // generic function to fetch data from a Formstack form
 function getDataFromSlackForm(channelName, fieldId) {
-  console.log(`getting data from ${channelName}`);
   return new Promise((resolve, reject) => {
     request.get(
       {
@@ -20,7 +19,6 @@ function getDataFromSlackForm(channelName, fieldId) {
         data.submissions.forEach((submission) => {
           if (submission.data[38710905].value === channelName) {
             if (submission.data[fieldId]) {
-              console.log(`found ${submission.data[fieldId].value}`);
               resolve(submission.data[fieldId].value);
             }
           }
