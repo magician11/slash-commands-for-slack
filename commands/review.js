@@ -25,7 +25,7 @@ module.exports = (app) => {
     .then(trelloSunbowl.getTaskListItems)
     .then((taskList) => {
       if (taskList.length === 0) {
-        utils.respondWithError('No tasks were found.', res);
+        slackSunbowl.postToSlack(utils.constructErrorForSlack('No tasks were found.'), req.query.response_url);
       } else {
         let taskMessage = `Your current tasks are...${utils.createBulletListFromArray(taskList)}`;
         if (reviewArguments[0] !== '') {
