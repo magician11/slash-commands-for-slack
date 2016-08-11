@@ -44,8 +44,6 @@ module.exports = (app) => {
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
     .then((billableHours) => {freshbooksData.billableHours = billableHours; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, 0.25, 'Reviewed developer work, made update video, sprint update post.');})
-    .then(formstackSunbowl.getTrelloCardId(channelName))
-    .then((trelloCardId) => { console.log('trelloCardId', trelloCardId); trelloSunbowl.moveTrelloCard(trelloCardId, '54d100b15e38c58f717dd930'); }) // move to Archive list
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
 
@@ -61,6 +59,8 @@ Remaining Bucket Balance: \`${timeLeft.toFixed(1)} hrs\``
 
       slackSunbowl.postToSlack(completeMessage, req.query.response_url);
     })
+    .then(formstackSunbowl.getTrelloCardId(channelName))
+    .then((trelloCardId) => trelloSunbowl.moveTrelloCard(trelloCardId, '54d100b15e38c58f717dd930')) // move to Archive list
     .catch((err) => {
       slackSunbowl.postToSlack(utils.constructErrorForSlack(err), req.query.response_url);
     });

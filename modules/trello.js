@@ -105,19 +105,13 @@ class SunbowlTrello {
 
   // move the trello card to a particular list
   moveTrelloCard(trelloCardId, listId) {
-    console.log(trelloCardId, listId);
     return new Promise((resolve, reject) => {
       trello.put(`/1/cards/${trelloCardId}/idList`, { value: listId }, (err, data) => {
-        console.log('error');
-        console.log(err);
-        console.log('data');
-        console.log(data);
         if (err) {
           reject(err);
         } else {
           resolve(data.id);
         }
-        //resolve(data);
       });
     });
   }
