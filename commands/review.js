@@ -54,7 +54,7 @@ module.exports = (app) => {
         });
       }
     })
-    .then(formstackSunbowl.getTrelloCardId(req.query.channel_name))
+    .then(() => formstackSunbowl.getTrelloCardId(req.query.channel_name))
     .then((trelloCardId) => { console.log('trelloCardId for review command: ', trelloCardId); trelloSunbowl.moveTrelloCard(trelloCardId, '537bc2cec1db170a09078963'); }) // move to Pending to be assigned list
     .catch((error) => {
       utils.respondWithError(error, res);
