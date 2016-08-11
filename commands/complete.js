@@ -59,7 +59,7 @@ Remaining Bucket Balance: \`${timeLeft.toFixed(1)} hrs\``
 
       slackSunbowl.postToSlack(completeMessage, req.query.response_url);
     })
-    .then(formstackSunbowl.getTrelloCardId(channelName))
+    .then(() => formstackSunbowl.getTrelloCardId(channelName))
     .then((trelloCardId) => trelloSunbowl.moveTrelloCard(trelloCardId, '54d100b15e38c58f717dd930')) // move to Archive list
     .catch((err) => {
       slackSunbowl.postToSlack(utils.constructErrorForSlack(err), req.query.response_url);
