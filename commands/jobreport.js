@@ -35,18 +35,7 @@ Trello card: https://trello.com/c/${trelloCardId}`
       });
     })
     .catch((err) => {
-      const errorMessage = {
-        text: 'There was an error in a job report being submitted.',
-        response_type: 'in_channel',
-        attachments: [
-          {
-            color: 'danger',
-            text: err.toString(),
-            mrkdwn_in: ['text']
-          }
-        ]
-      };
-      slackSunbowl.postToSlack(errorMessage, req.query.response_url);
+      slackSunbowl.postToSlack(utils.constructErrorForSlack(err), req.query.response_url);
     });
   });
 };

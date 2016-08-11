@@ -42,7 +42,7 @@ module.exports = (app) => {
       slackSunbowl.postToSlack(billMessage, req.query.response_url);
     })
     .catch((err) => {
-      utils.respondWithError(`Error: ${err}`, res);
+      slackSunbowl.postToSlack(utils.constructErrorForSlack(err), req.query.response_url);
     });
   });
 };

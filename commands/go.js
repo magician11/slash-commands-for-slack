@@ -66,18 +66,7 @@ Bucket balance: \`${timeLeft.toFixed(1)} hours\``
       slackSunbowl.postToSlack(goReviewMessage, req.query.response_url);
     })
     .catch((error) => {
-      const errorMessage = {
-        text: 'Whoops.. there was an issue in actioning your task list.',
-        attachments: [
-          {
-            color: 'danger',
-            text: error.toString(),
-            mrkdwn_in: ['text']
-          }
-        ]
-      };
-
-      slackSunbowl.postToSlack(errorMessage, req.query.response_url);
+      slackSunbowl.postToSlack(utils.constructErrorForSlack(error), req.query.response_url);
     });
   });
 };
