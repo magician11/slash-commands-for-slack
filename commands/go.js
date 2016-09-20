@@ -55,7 +55,7 @@ module.exports = (app) => {
         text: `*Your sprint has been assigned to ${assigneeFirstName}.*
 ${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
 If we have missed anything please let's us know by sending us a message in the <https://sunbowl.slack.com/messages/${channelName}|#${channelName}> channel.
-Your project has been placed in the queue and will be worked on by the next available developer.
+Your sprint has been placed in queue and will be worked on as soon as possible.
 
 *Sprint details*${utils.createBulletListFromArray(tasks)}
 
