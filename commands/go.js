@@ -58,7 +58,7 @@ module.exports = (app) => {
         text: `*${assigneeFirstName} has been assigned your next cycle.*
 ${(ccNotifications.length > 0) ? `*cc: ${ccNotifications}*` : ''}
 If we have missed anything please let's us know by sending us a message in the <https://sunbowl.slack.com/messages/${channelName}|#${channelName}> channel.
-Your sprint has been placed in the queue and will be worked on as soon as possible.
+Your cycle has been placed in the queue and will be worked on as soon as possible.
 
 *Cycle details*${utils.createBulletListFromArray(tasks)}
 
