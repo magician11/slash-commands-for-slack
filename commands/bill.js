@@ -3,16 +3,17 @@ module.exports = (app) => {
   const freshbooksSunbowl = require('../modules/freshbooks');
   const slackSunbowl = require('../modules/slack');
   const utils = require('../modules/utils');
-  const BILL_SECURITY_TOKEN = process.env.SUNBOWL_BILL_SECURITY_TOKEN;
+  // const BILL_SECURITY_TOKEN = process.env.SUNBOWL_BILL_SECURITY_TOKEN;
 
   // bill Sunbowl for a particular channel with an hour amount and description/URL
   app.get('/bill', (req, res) => {
     const billParameters = req.query.text.split(' ');
     // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== BILL_SECURITY_TOKEN) {
-      utils.respondWithError('Access denied.', res);
-      return;
-    } else if (billParameters.length < 2) {
+    // if (req.query.token !== BILL_SECURITY_TOKEN) {
+    //   utils.respondWithError('Access denied.', res);
+    //   return;
+    // } else
+    if (billParameters.length < 2) {
       utils.respondWithError('Usage: /bill [hours] [description/video url]', res);
       return;
     }
@@ -29,6 +30,7 @@ module.exports = (app) => {
     .then((timeEntry) => {
       const billMessage = {
         text: 'Your time was successfully logged.',
+        response_type: 'in_channel',
         attachments: [
           {
             title: channelName,
