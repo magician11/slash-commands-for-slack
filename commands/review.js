@@ -4,15 +4,15 @@ module.exports = (app) => {
   const formstackSunbowl = require('../modules/formstack');
   const trelloSunbowl = require('../modules/trello');
   const slackSunbowl = require('../modules/slack');
-  const REVIEW_SECURITY_TOKEN = process.env.SUNBOWL_REVIEW_SECURITY_TOKEN;
+  // const REVIEW_SECURITY_TOKEN = process.env.SUNBOWL_REVIEW_SECURITY_TOKEN;
 
   // get all the tasks from this channel's trello card
   app.get('/review', (req, res) => {
     // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== REVIEW_SECURITY_TOKEN) {
-      utils.respondWithError('Access denied.', res);
-      return;
-    }
+    // if (req.query.token !== REVIEW_SECURITY_TOKEN) {
+    //   utils.respondWithError('Access denied.', res);
+    //   return;
+    // }
 
     res.json({
       text: `Assembling the review now for you ${req.query.user_name}. One moment please...`

@@ -3,7 +3,7 @@ module.exports = (app) => {
   const trelloSunbowl = require('../modules/trello');
   const formstackSunbowl = require('../modules/formstack');
   const slackSunbowl = require('../modules/slack');
-  const JOBREPORT_SECURITY_TOKEN = process.env.SUNBOWL_JOBREPORT_SECURITY_TOKEN;
+  // const JOBREPORT_SECURITY_TOKEN = process.env.SUNBOWL_JOBREPORT_SECURITY_TOKEN;
 
   // notify someone that a sprint for a channel is complete
   app.get('/jobreport', (req, res) => {
@@ -11,10 +11,11 @@ module.exports = (app) => {
     const jobreportArguments = req.query.text.split(' ');
 
     // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== JOBREPORT_SECURITY_TOKEN) {
-      utils.respondWithError('Access denied.', res);
-      return;
-    } else if (jobreportArguments.length !== 2) {
+    // if (req.query.token !== JOBREPORT_SECURITY_TOKEN) {
+    //   utils.respondWithError('Access denied.', res);
+    //   return;
+    // } else
+    if (jobreportArguments.length !== 2) {
       utils.respondWithError('Usage: /jobreport [time taken] [video url]', res);
       return;
     }

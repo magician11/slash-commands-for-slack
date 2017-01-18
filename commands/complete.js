@@ -4,17 +4,21 @@ module.exports = (app) => {
   const formstackSunbowl = require('../modules/formstack');
   const slackSunbowl = require('../modules/slack');
   const trelloSunbowl = require('../modules/trello');
-  const COMPLETE_SECURITY_TOKEN = process.env.SUNBOWL_COMPLETE_SECURITY_TOKEN;
+  // const COMPLETE_SECURITY_TOKEN = process.env.SUNBOWL_COMPLETE_SECURITY_TOKEN;
+
+/* eslint-disable max-len */
 
   // notify someone that a sprint for a channel is complete
   app.get('/complete', (req, res) => {
     const completeArguments = req.query.text.split(' ');
 
     // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== COMPLETE_SECURITY_TOKEN) {
-      utils.respondWithError('Access denied.', res);
-      return;
-    } else if (completeArguments.length < 3) {
+    // if (req.query.token !== COMPLETE_SECURITY_TOKEN) {
+    //   utils.respondWithError('Access denied.', res);
+    //   return;
+    // } else
+
+    if (completeArguments.length < 3) {
       utils.respondWithError('Usage: /complete [recipient] [time used/time budgeted] [video url]', res);
       return;
     }
