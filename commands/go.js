@@ -10,15 +10,25 @@ module.exports = (app) => {
 
   // assign the card for this channel to a dev and then move it to the 'pending to be assigned' list
   app.get('/go', (req, res) => {
-    const users = req.query.text;
+    const parameters = req.query.text;
 
     // check to see whether this script is being accessed from our slack integration
     // if (req.query.token !== GO_SECURITY_TOKEN) {
     //   utils.respondWithError('Access denied.', res);
     //   return;
     // } else
-    if (users === '') {
-      utils.respondWithError('No person was assigned this sprint. Usage: /go [person\'s name] [optional cc]', res);
+
+    const usage = 'Usage: /go [time taken to assign] [person\'s name] [optional cc]';
+
+    if (parameters === '') {
+      utils.respondWithError(`No parameters entered. ${usage}`, res);
+      return;
+    }
+
+    const individualParams = parameters.split(' ');
+
+    if (individualParams.length <= 1) {
+      utils.respondWithError(`Something is missing. ${usage}`, res);
       return;
     }
 
@@ -26,10 +36,11 @@ module.exports = (app) => {
       text: 'We\'re processing your request. One moment please...'
     });
 
+    const timeTakenToAssign = individualParams[0];
     // the dev to assign the task to
-    const assignee = users.split(' ')[0];
+    const assignee = individualParams[1];
     // the other users to cc in on
-    const ccNotifications = users.split(' ').slice(1).join(' ');
+    const ccNotifications = individualParams.slice(2).join(' ');
 
     const channelName = req.query.channel_name;
     const freshbooksData = {};
@@ -49,7 +60,7 @@ module.exports = (app) => {
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
     .then((billableHours) => {freshbooksData.billableHours = billableHours; return slackSunbowl.getFirstname(assignee.slice(1));})
-    .then((firstName) => {assigneeFirstName = firstName; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, 0.25, 'Made video for developer, captured changes to trello, sprint initiation, assigned out.');})
+    .then((firstName) => {assigneeFirstName = firstName; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, parseFloat(timeTakenToAssign), 'Made video for developer, captured changes to trello, sprint initiation, assigned out.');})
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
 
