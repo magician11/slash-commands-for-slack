@@ -4,6 +4,8 @@ module.exports = (app) => {
   const slackSunbowl = require('../modules/slack');
   const QUE_SECURITY_TOKEN = process.env.SUNBOWL_QUE_SECURITY_TOKEN;
 
+  /* eslint-disable arrow-body-style */
+
   // get the current workload for developers
   app.get('/que', (req, res) => {
     // check to see whether this script is being accessed from our slack integration

@@ -17,5 +17,6 @@ require('./commands/que')(app);
 
 // start the server
 app.listen(PORT, () => {
+  // eslint-disable-next-line
   console.log(`Listening on port ${PORT}`);
 });

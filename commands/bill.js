@@ -29,6 +29,7 @@ module.exports = (app) => {
     .then((timeEntry) => {
       const billMessage = {
         text: 'Your time was successfully logged.',
+        response_type: 'in_channel',
         attachments: [
           {
             title: channelName,
