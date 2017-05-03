@@ -4,7 +4,7 @@ module.exports = (app) => {
   const formstackSunbowl = require('../modules/formstack');
   const trelloSunbowl = require('../modules/trello');
   const slackSunbowl = require('../modules/slack');
-  // const GO_SECURITY_TOKEN = process.env.SUNBOWL_GO_SECURITY_TOKEN;
+  const GO_SECURITY_TOKEN = process.env.SUNBOWL_GO_SECURITY_TOKEN;
 
   /* eslint-disable max-len */
 
@@ -13,10 +13,10 @@ module.exports = (app) => {
     const parameters = req.query.text;
 
     // check to see whether this script is being accessed from our slack integration
-    // if (req.query.token !== GO_SECURITY_TOKEN) {
-    //   utils.respondWithError('Access denied.', res);
-    //   return;
-    // } else
+    if (req.query.token !== GO_SECURITY_TOKEN) {
+      utils.respondWithError('Access denied.', res);
+      return;
+    }
 
     const usage = 'Usage: /go [time taken to assign] [person\'s name] [optional cc]';
 

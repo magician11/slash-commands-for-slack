@@ -2,17 +2,17 @@ module.exports = (app) => {
   const utils = require('../modules/utils');
   const trelloSunbowl = require('../modules/trello');
   const slackSunbowl = require('../modules/slack');
-  // const QUE_SECURITY_TOKEN = process.env.SUNBOWL_QUE_SECURITY_TOKEN;
+  const QUE_SECURITY_TOKEN = process.env.SUNBOWL_QUE_SECURITY_TOKEN;
 
   /* eslint-disable arrow-body-style */
 
   // get the current workload for developers
   app.get('/que', (req, res) => {
     // check to see whether this script is being accessed from our slack integration
-    // if (req.query.token !== QUE_SECURITY_TOKEN) {
-    //   utils.respondWithError('Access denied.', res);
-    //   return;
-    // }
+    if (req.query.token !== QUE_SECURITY_TOKEN) {
+      utils.respondWithError('Access denied.', res);
+      return;
+    }
 
     /*
     If a developer name is added as an argument, then just get the workload for that person

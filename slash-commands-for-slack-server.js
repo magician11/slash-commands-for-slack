@@ -2,7 +2,7 @@ const express = require('express');
 
 
 // changed port for dev setup
-const PORT = 7777;
+const PORT = 5555;
 
 const app = express();
 

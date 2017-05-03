@@ -2,15 +2,15 @@ module.exports = (app) => {
   const formstackSunbowl = require('../modules/formstack');
   const freshbooksSunbowl = require('../modules/freshbooks');
   const utils = require('../modules/utils');
-  // const BUCKET_SECURITY_TOKEN = process.env.SUNBOWL_BUCKET_SECURITY_TOKEN;
+  const BUCKET_SECURITY_TOKEN = process.env.SUNBOWL_BUCKET_SECURITY_TOKEN;
 
   // get information about a bucket with Sunbowl
   app.get('/bucket', (req, res) => {
     // check to see whether this script is being accessed from our slack integration
-    // if (req.query.token !== BUCKET_SECURITY_TOKEN) {
-    //   utils.respondWithError('Access denied.', res);
-    //   return;
-    // }
+    if (req.query.token !== BUCKET_SECURITY_TOKEN) {
+      utils.respondWithError('Access denied.', res);
+      return;
+    }
 
     // switch on bucket option
     if (req.query.text === 'refill') {
