@@ -28,7 +28,7 @@ module.exports = (app) => {
     .then((jobNotes) => freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, timeToBeBilled, jobNotes))
     .then((timeEntry) => {
       const billMessage = {
-        text: 'Your time was successfully logged.',
+        text: 'Admin Time Logged.',
         response_type: 'in_channel',
         attachments: [
           {
