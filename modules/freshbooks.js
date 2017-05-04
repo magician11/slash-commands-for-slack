@@ -74,7 +74,7 @@ class SunbowlFreshbooks {
         timeEntry.project_id = projectId;
         timeEntry.task_id = freshbooksDetailsForUser.taskId;
         timeEntry.hours = hours;
-        timeEntry.notes = notes;
+        timeEntry.notes = notes.replace("'", "\'");
         timeEntry.create((err, time) => {
           if (err) {
             reject(`Error adding time entry: ${err}`);
