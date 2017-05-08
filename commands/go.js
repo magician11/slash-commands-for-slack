@@ -72,7 +72,7 @@ If we have missed anything please let's us know by sending us a message in the <
 Your cycle has been placed in the queue and will be worked on as soon as possible.
 
 *Cycle details*${utils.createBulletListFromArray(tasks)}
-This cycle took \`${timeTakenToAssign}\` to assign out.
+This cycle took \`${timeTakenToAssign} hours\` to assign out.
 Bucket balance: \`${timeLeft.toFixed(1)} hours\``
       };
 
