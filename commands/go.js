@@ -60,7 +60,7 @@ module.exports = (app) => {
     .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
     .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
     .then((billableHours) => {freshbooksData.billableHours = billableHours; return slackSunbowl.getFirstname(assignee.slice(1));})
-    .then((firstName) => {assigneeFirstName = firstName; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, parseFloat(timeTakenToAssign), 'Made video for developer, captured changes to trello, sprint initiation, assigned out.');})
+    .then((firstName) => {assigneeFirstName = firstName; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, parseFloat(timeTakenToAssign), 'Discussions with client about cycle details. Made video for developer, organized cycle and assigned out.');})
     .then(() => {
       const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
 
@@ -72,7 +72,7 @@ If we have missed anything please let's us know by sending us a message in the <
 Your cycle has been placed in the queue and will be worked on as soon as possible.
 
 *Cycle details*${utils.createBulletListFromArray(tasks)}
-
+This cycle took \`${timeTakenToAssign}\` to assign out.
 Bucket balance: \`${timeLeft.toFixed(1)} hours\``
       };
 
