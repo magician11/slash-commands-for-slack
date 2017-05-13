@@ -27,7 +27,7 @@ module.exports = (app) => {
       if (taskList.length === 0) {
         slackSunbowl.postToSlack(utils.constructErrorForSlack('No tasks were found.'), req.query.response_url);
       } else {
-        let taskMessage = `Your current tasks are...${utils.createBulletListFromArray(taskList)}`;
+        let taskMessage = `Tasks awaiting your approval...${utils.createBulletListFromArray(taskList)}`;
         if (reviewArguments[0] !== '') {
           taskMessage += `\n*Hey ${reviewArguments[0]}, please review the above sprint and let me know if it's ready to assign out.*`;
         }
