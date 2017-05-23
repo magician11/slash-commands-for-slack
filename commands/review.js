@@ -29,7 +29,7 @@ module.exports = (app) => {
       } else {
         let taskMessage = `Tasks awaiting your approval...${utils.createBulletListFromArray(taskList)}`;
         if (reviewArguments[0] !== '') {
-          taskMessage += `\n*Hey ${reviewArguments[0]}, please review the above sprint and let me know if it's ready to assign out.*`;
+          taskMessage += `\n*Hey ${reviewArguments[0]}, please review the above cycle and let me know if it's ready to assign out.*`;
         }
         const freshbooksData = {};
 
