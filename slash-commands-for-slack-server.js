@@ -19,7 +19,7 @@ const PORT = 8888;
 
 // Connections are encrypted
 const sslOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/nodesrvr.com/privkey.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/privkey.pem'),
   cert: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/fullchain.pem'),
   ca: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/chain.pem')
 };
