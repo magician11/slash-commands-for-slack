@@ -6,17 +6,19 @@ module.exports = app => {
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
 
   // get information about a bucket with Sunbowl
-  app.get('/bucket', (req, res) => {
-    // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== SUNBOWL_AI_VERIFICATION_TOKEN) {
+  app.post('/bucket', (req, res) => {
+    const { text, channel_name, token } = req.body;
+
+    // check to see whether this script is being accessed from our slack app
+    if (token !== SUNBOWL_AI_VERIFICATION_TOKEN) {
       utils.respondWithError('Access denied.', res);
       return;
     }
 
     // switch on bucket option
-    if (req.query.text === 'refill') {
+    if (text === 'refill') {
       formstackSunbowl
-        .getRefillOption(req.query.channel_name)
+        .getRefillOption(channel_name)
         .then(refillOption => {
           const refillAmountPlans = {
             0: [14, 21, 28], // standard
@@ -43,7 +45,7 @@ module.exports = app => {
       const freshbooksData = {};
 
       formstackSunbowl
-        .getFreshbooksProjectId(req.query.channel_name)
+        .getFreshbooksProjectId(channel_name)
         .then(freshbooksProjectId => {
           freshbooksData.projectId = freshbooksProjectId;
           return freshbooksSunbowl.getProjectBudget(freshbooksProjectId);
@@ -60,9 +62,7 @@ module.exports = app => {
 
           // return the JSON for this request
           res.json({
-            response_type: req.query.text === 'public'
-              ? 'in_channel'
-              : 'ephemeral',
+            response_type: text === 'public' ? 'in_channel' : 'ephemeral',
             text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${freshbooksData.projectBudget} hour\` bucket.`,
             attachments: [
               {

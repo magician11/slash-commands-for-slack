@@ -1,8 +1,11 @@
 const express = require('express');
 const https = require('https');
 const fs = require('fs');
+const bodyParser = require('body-parser');
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // import the routes
 require('./commands/bucket')(app);

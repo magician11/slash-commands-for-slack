@@ -9,6 +9,7 @@
   "author": "Andrew Golightly",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "express": "^4.13.3",
     "freshbooks": "^1.0.0",
     "fs": "^0.0.1-security",
