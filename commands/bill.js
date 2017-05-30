@@ -26,8 +26,9 @@ module.exports = app => {
     const taskType = billParameters[1];
     const jobDetails = billParameters[2];
 
+    // the task type has to be one of these...
     const taskOptions = ['admin', 'coding', 'research'];
-    if (taskOptions.includes(taskType)) {
+    if (!taskOptions.includes(taskType)) {
       utils.respondWithError(
         `For the task option, it needs to be one of: ${taskOptions.join(', ')}`,
         res
