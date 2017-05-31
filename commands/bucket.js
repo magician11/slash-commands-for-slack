@@ -35,7 +35,12 @@ module.exports = app => {
 
           res.json({
             text: 'To refill your bucket, click on your bucket choice below...',
-            attachments: refillOptions
+            attachments: [
+              ...refillOptions,
+              {
+                image_url: 'https://cdn.shopify.com/s/files/1/0359/6033/files/hero-bucket1-110.jpg'
+              }
+            ]
           });
         })
         .catch(err => {
@@ -58,7 +63,18 @@ module.exports = app => {
           const percentBucketUsed =
             billableHours / freshbooksData.projectBudget * 100;
           const timeLeft = freshbooksData.projectBudget - billableHours;
-          const progressColour = percentBucketUsed > 75 ? 'danger' : 'good';
+
+          let progressColour;
+          let bucketImage;
+          if (percentBucketUsed < 75) {
+            progressColour = 'good';
+            bucketImage =
+              'https://cdn.shopify.com/s/files/1/0359/6033/files/full-bucket1-110.jpg';
+          } else {
+            progressColour = 'danger';
+            bucketImage =
+              'https://cdn.shopify.com/s/files/1/0359/6033/files/low-bucket1-110.jpg';
+          }
 
           // return the JSON for this request
           res.json({
@@ -66,8 +82,10 @@ module.exports = app => {
             text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${freshbooksData.projectBudget} hour\` bucket.`,
             attachments: [
               {
+                title: 'Bucket Status',
                 color: progressColour,
                 text: `\`${timeLeft.toFixed(1)} hours\` left before you will need to top it up.`,
+                image_url: bucketImage,
                 mrkdwn_in: ['text']
               }
             ]
