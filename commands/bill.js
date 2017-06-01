@@ -1,16 +1,25 @@
+/*
+ Slash command to:
+ Bill Sunbowl for a particular channel with an hour amount, task type and description/URL.
+*/
+
 module.exports = app => {
-  // const apiCalls = require('../api-calls');
   const freshbooksSunbowl = require('../modules/freshbooks');
   const slackSunbowl = require('../modules/slack');
   const utils = require('../modules/utils');
   const BILL_SECURITY_TOKEN = process.env.SUNBOWL_BILL_SECURITY_TOKEN;
+  const SUNBOWL_AI_VERIFICATION_TOKEN =
+    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
 
-  // bill Sunbowl for a particular channel with an hour amount and description/URL
-  app.get('/bill', (req, res) => {
-    const billParameters = req.query.text.split(' ');
+  app.post('/bill', (req, res) => {
+    const { token, channel_name, user_name, text, response_url } = req.body;
+    const billParameters = text.split(' ');
 
     // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== BILL_SECURITY_TOKEN) {
+    if (
+      token !== BILL_SECURITY_TOKEN ||
+      token !== SUNBOWL_AI_VERIFICATION_TOKEN
+    ) {
       utils.respondWithError('Access denied.', res);
       return;
     } else if (billParameters.length < 3) {
@@ -21,7 +30,7 @@ module.exports = app => {
       return;
     }
 
-    const channelName = req.query.channel_name;
+    // const channelName = req.query.channel_name;
     const timeToBeBilled = billParameters[0];
     const taskType = billParameters[1];
     const jobDetails = billParameters[2];
@@ -46,8 +55,8 @@ module.exports = app => {
       : Promise.resolve(billParameters.slice(2).join(' ')))
       .then(jobNotes =>
         freshbooksSunbowl.addTimeEntry(
-          req.query.user_name,
-          channelName,
+          user_name,
+          channel_name,
           timeToBeBilled,
           jobNotes
         )
@@ -61,7 +70,7 @@ module.exports = app => {
           response_type: 'in_channel',
           attachments: [
             {
-              title: channelName,
+              title: channel_name,
               color: 'good',
               text: `\`${timeEntry.hours} hours\` logged for \`${timeEntry.notes}\``,
               mrkdwn_in: ['text']
@@ -69,12 +78,12 @@ module.exports = app => {
           ]
         };
 
-        slackSunbowl.postToSlack(billMessage, req.query.response_url);
+        slackSunbowl.postToSlack(billMessage, response_url);
       })
       .catch(err => {
         slackSunbowl.postToSlack(
           utils.constructErrorForSlack(err),
-          req.query.response_url
+          response_url
         );
       });
   });
