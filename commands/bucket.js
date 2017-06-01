@@ -35,12 +35,7 @@ module.exports = app => {
 
           res.json({
             text: 'To refill your bucket, click on your bucket choice below...',
-            attachments: [
-              ...refillOptions,
-              {
-                image_url: 'https://cdn.shopify.com/s/files/1/0359/6033/files/hero-bucket1-110.jpg'
-              }
-            ]
+            attachments: refillOptions
           });
         })
         .catch(err => {
