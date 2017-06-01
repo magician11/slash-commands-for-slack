@@ -1,3 +1,8 @@
+/*
+Slash command for Sunbowl
+Notify someone that a sprint for a channel is complete
+*/
+
 module.exports = app => {
   const utils = require('../modules/utils');
   const trelloSunbowl = require('../modules/trello');
@@ -5,19 +10,26 @@ module.exports = app => {
   const formstackSunbowl = require('../modules/formstack');
   const slackSunbowl = require('../modules/slack');
   const JOBREPORT_SECURITY_TOKEN = process.env.SUNBOWL_JOBREPORT_SECURITY_TOKEN;
+  const SUNBOWL_AI_VERIFICATION_TOKEN =
+    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
 
-  /* eslint-disable max-len */
+  app.post('/jobreport', (req, res) => {
+    const {
+      token,
+      user_name,
+      text,
+      channel_name,
+      channel_id,
+      response_url
+    } = req.body;
 
-  // notify someone that a sprint for a channel is complete
-  app.get('/jobreport', (req, res) => {
-    const userName = req.query.user_name;
-    const channelName = req.query.channel_name;
-    const jobreportArguments = req.query.text.split(' ');
-    const timeTaken = jobreportArguments[0];
-    const videoUrl = jobreportArguments[1];
+    const jobreportArguments = text.split(' ');
 
-    // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== JOBREPORT_SECURITY_TOKEN) {
+    // check to see whether this script is being accessed from our slack app
+    if (
+      token !== JOBREPORT_SECURITY_TOKEN &&
+      token !== SUNBOWL_AI_VERIFICATION_TOKEN
+    ) {
       utils.respondWithError('Access denied.', res);
       return;
     } else if (jobreportArguments.length !== 2) {
@@ -26,23 +38,26 @@ module.exports = app => {
     }
 
     res.json({
-      text: `Thanks <@${userName}>. Your job report has been submitted.`
+      text: `Thanks <@${user_name}>. Your job report has been submitted.`
     });
 
     const finishedBlockListId = '522e91fe2c1df8cb25008ab2';
 
+    const timeTaken = jobreportArguments[0];
+    const videoUrl = jobreportArguments[1];
+
     freshbooksSunbowl
-      .addTimeEntry(userName, channelName, parseFloat(timeTaken), videoUrl)
-      .then(() => formstackSunbowl.getTrelloCardId(req.query.channel_name))
+      .addTimeEntry(user_name, channel_name, parseFloat(timeTaken), videoUrl)
+      .then(() => formstackSunbowl.getTrelloCardId(channel_name))
       .then(trelloCardId =>
         trelloSunbowl.moveTrelloCard(trelloCardId, finishedBlockListId)
       )
       .then(trelloCardId => {
         slackSunbowl.postJobReport({
           text: `Hey <@nic> & <@jody>,
-<@${userName}> just finished a sprint for <#${req.query.channel_id}>
-Time it took: \`${jobreportArguments[0]} hrs\`
-Video review: ${jobreportArguments[1]}
+<@${user_name}> just finished a sprint for <#${channel_id}>
+Time it took: \`${timeTaken} hrs\`
+Video review: ${videoUrl}
 Trello card: https://trello.com/c/${trelloCardId}`
         });
         slackSunbowl.postToSlack(
@@ -50,13 +65,13 @@ Trello card: https://trello.com/c/${trelloCardId}`
             text: 'A job report has been submitted and your project is now in the review stage. We will update you as soon as possible when we are ready for your feedback.',
             response_type: 'in_channel'
           },
-          req.query.response_url
+          response_url
         );
       })
       .catch(err => {
         slackSunbowl.postToSlack(
           utils.constructErrorForSlack(err),
-          req.query.response_url
+          response_url
         );
       });
   });
