@@ -10,10 +10,10 @@ module.exports = app => {
     const { text, channel_name, token } = req.body;
 
     // check to see whether this script is being accessed from our slack app
-    if (token !== SUNBOWL_AI_VERIFICATION_TOKEN) {
-      utils.respondWithError('Access denied.', res);
-      return;
-    }
+    // if (token !== SUNBOWL_AI_VERIFICATION_TOKEN) {
+    //   utils.respondWithError('Access denied.', res);
+    //   return;
+    // }
 
     // switch on bucket option
     if (text === 'refill') {
