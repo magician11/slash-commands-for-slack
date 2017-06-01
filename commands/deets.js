@@ -38,10 +38,10 @@ module.exports = app => {
       })
       .then(descriptionData => {
         const deetsResponse = {
-          text: `*Trello Card Description for ${channel_name}*\n\`\`\`${descriptionData}\`\`\``,
+          text: `*Project Card Details*\n\`\`\`${descriptionData}\`\`\``,
           attachments: [
             {
-              title: 'Click here to go direct to this card in Trello',
+              title: 'Project Details',
               title_link: `https://trello.com/c/${projectsTrelloCardId}`
             }
           ]
