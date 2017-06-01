@@ -1,28 +1,38 @@
-module.exports = (app) => {
+/*
+Slash command for Sunbowl
+Notify someone that a cycle for a channel is complete
+*/
+module.exports = app => {
   const utils = require('../modules/utils');
   const freshbooksSunbowl = require('../modules/freshbooks');
   const formstackSunbowl = require('../modules/formstack');
   const slackSunbowl = require('../modules/slack');
   const trelloSunbowl = require('../modules/trello');
   const COMPLETE_SECURITY_TOKEN = process.env.SUNBOWL_COMPLETE_SECURITY_TOKEN;
+  const SUNBOWL_AI_VERIFICATION_TOKEN =
+    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
 
-  /* eslint-disable max-len */
-
-  // notify someone that a sprint for a channel is complete
-  app.get('/complete', (req, res) => {
+  app.post('/complete', (req, res) => {
     const completeArguments = req.query.text.split(' ');
+    const { token, channel_name, user_name, response_url } = req.body;
 
-    // check to see whether this script is being accessed from our slack integration
-    if (req.query.token !== COMPLETE_SECURITY_TOKEN) {
+    // check to see whether this script is being accessed from our slack app
+    if (
+      token !== COMPLETE_SECURITY_TOKEN &&
+      token !== SUNBOWL_AI_VERIFICATION_TOKEN
+    ) {
       utils.respondWithError('Access denied.', res);
       return;
     } else if (completeArguments.length < 3) {
-      utils.respondWithError('Usage: /complete [recipient] [time used/time budgeted] [video url]', res);
+      utils.respondWithError(
+        'Usage: /complete [recipient] [time used/time budgeted] [video url]',
+        res
+      );
       return;
     }
 
     res.json({
-      text: 'We\'re processing your request. One moment please...'
+      text: "We're processing your request. One moment please..."
     });
 
     const recipient = completeArguments[0];
@@ -39,33 +49,53 @@ module.exports = (app) => {
       description = completeArguments.slice(2).join(' ');
     }
 
-    const channelName = req.query.channel_name;
     const freshbooksData = {};
 
-    formstackSunbowl.getFreshbooksProjectId(channelName)
-    .then((freshbooksProjectId) => {freshbooksData.projectId = freshbooksProjectId; return freshbooksSunbowl.getProjectBudget(freshbooksProjectId); })
-    .then((projectBudget) => {freshbooksData.projectBudget = projectBudget; return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);})
-    .then((billableHours) => {freshbooksData.billableHours = billableHours; return freshbooksSunbowl.addTimeEntry(req.query.user_name, channelName, 0.25, 'Reviewed developer work, made update video, sprint update post.');})
-    .then(() => {
-      const timeLeft = freshbooksData.projectBudget - freshbooksData.billableHours;
+    formstackSunbowl
+      .getFreshbooksProjectId(channel_name)
+      .then(freshbooksProjectId => {
+        freshbooksData.projectId = freshbooksProjectId;
+        return freshbooksSunbowl.getProjectBudget(freshbooksProjectId);
+      })
+      .then(projectBudget => {
+        freshbooksData.projectBudget = projectBudget;
+        return freshbooksSunbowl.getBillableHours(freshbooksData.projectId);
+      })
+      .then(billableHours => {
+        freshbooksData.billableHours = billableHours;
+        return freshbooksSunbowl.addTimeEntry(
+          user_name,
+          channel_name,
+          0.25,
+          'Reviewed developer work, made update video, sprint update post.'
+        );
+      })
+      .then(() => {
+        const timeLeft =
+          freshbooksData.projectBudget - freshbooksData.billableHours;
 
-      const completeMessage = {
-        response_type: 'in_channel',
-        text: `${recipient} *Your Cycle is Complete!*
+        const completeMessage = {
+          response_type: 'in_channel',
+          text: `${recipient} *Your Cycle is Complete!*
 ${description}
 ${videoUrl ? `*Cycle Review*: <${videoUrl}|:arrow_forward: Watch Video>` : ''}
 *Bucket Time Quoted*: \`${bucketTimeQuoted} hrs\`
 *Bucket Time Used*: \`${bucketTimeUsed} hrs\`
 
 *Remaining Bucket Balance*: \`${timeLeft.toFixed(1)} hrs\``
-      };
+        };
 
-      slackSunbowl.postToSlack(completeMessage, req.query.response_url);
-    })
-    .then(() => formstackSunbowl.getTrelloCardId(channelName))
-    .then((trelloCardId) => trelloSunbowl.moveTrelloCard(trelloCardId, '54d100b15e38c58f717dd930')) // move to Archive list
-    .catch((err) => {
-      slackSunbowl.postToSlack(utils.constructErrorForSlack(err), req.query.response_url);
-    });
+        slackSunbowl.postToSlack(completeMessage, response_url);
+      })
+      .then(() => formstackSunbowl.getTrelloCardId(channel_name))
+      .then(trelloCardId =>
+        trelloSunbowl.moveTrelloCard(trelloCardId, '54d100b15e38c58f717dd930')
+      ) // move to Archive list
+      .catch(err => {
+        slackSunbowl.postToSlack(
+          utils.constructErrorForSlack(err),
+          response_url
+        );
+      });
   });
 };

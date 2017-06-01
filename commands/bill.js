@@ -15,7 +15,7 @@ module.exports = app => {
     const { token, channel_name, user_name, text, response_url } = req.body;
     const billParameters = text.split(' ');
 
-    // check to see whether this script is being accessed from our slack integration
+    // check to see whether this script is being accessed from our slack app
     if (
       token !== BILL_SECURITY_TOKEN &&
       token !== SUNBOWL_AI_VERIFICATION_TOKEN
