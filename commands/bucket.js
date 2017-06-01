@@ -13,7 +13,7 @@ module.exports = app => {
 
     // check to see whether this script is being accessed from our slack app
     if (
-      token !== SUNBOWL_AI_VERIFICATION_TOKEN ||
+      token !== SUNBOWL_AI_VERIFICATION_TOKEN &&
       token !== SUNBOWL_BUCKET_SECURITY_TOKEN
     ) {
       utils.respondWithError('Access denied.', res);
