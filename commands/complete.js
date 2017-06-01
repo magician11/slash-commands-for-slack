@@ -13,8 +13,8 @@ module.exports = app => {
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
 
   app.post('/complete', (req, res) => {
-    const completeArguments = req.query.text.split(' ');
-    const { token, channel_name, user_name, response_url } = req.body;
+    const { token, channel_name, user_name, response_url, text } = req.body;
+    const completeArguments = text.split(' ');
 
     // check to see whether this script is being accessed from our slack app
     if (
