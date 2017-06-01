@@ -4,16 +4,21 @@ module.exports = app => {
   const utils = require('../modules/utils');
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
+  const SUNBOWL_BUCKET_SECURITY_TOKEN =
+    process.env.SUNBOWL_BUCKET_SECURITY_TOKEN;
 
   // get information about a bucket with Sunbowl
   app.post('/bucket', (req, res) => {
     const { text, channel_name, token } = req.body;
 
     // check to see whether this script is being accessed from our slack app
-    // if (token !== SUNBOWL_AI_VERIFICATION_TOKEN) {
-    //   utils.respondWithError('Access denied.', res);
-    //   return;
-    // }
+    if (
+      token !== SUNBOWL_AI_VERIFICATION_TOKEN ||
+      token !== SUNBOWL_BUCKET_SECURITY_TOKEN
+    ) {
+      utils.respondWithError('Access denied.', res);
+      return;
+    }
 
     // switch on bucket option
     if (text === 'refill') {
