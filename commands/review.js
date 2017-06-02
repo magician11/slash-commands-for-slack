@@ -18,10 +18,11 @@ module.exports = app => {
     const reviewArguments = text.split(' ');
 
     // check to see whether this script is being accessed from our slack app
-    if (token !== SUNBOWL_AI_VERIFICATION_TOKEN) {
-      utils.respondWithError('Access denied.', res);
-      return;
-    } else if (reviewArguments.length !== 0 || reviewArguments.length < 3) {
+    // if (token !== SUNBOWL_AI_VERIFICATION_TOKEN) {
+    //   utils.respondWithError('Access denied.', res);
+    //   return;
+    // } else
+if (reviewArguments.length !== 0 || reviewArguments.length < 3) {
       utils.respondWithError(
         'Usage: /review [time taken to assign] [dev name] [client name] [optional cc]',
         res
