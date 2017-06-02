@@ -18,7 +18,7 @@ require('./commands/bill')(app);
 require('./commands/deets')(app);
 require('./commands/que')(app);
 
-const PORT = 8888;
+const PORT = 9999;
 
 // Connections are encrypted
 const sslOptions = {
