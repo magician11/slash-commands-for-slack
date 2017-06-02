@@ -22,7 +22,7 @@ module.exports = app => {
     //   utils.respondWithError('Access denied.', res);
     //   return;
     // } else
-if (reviewArguments.length !== 0 || reviewArguments.length < 3) {
+    if (reviewArguments.length !== 0 && reviewArguments.length < 3) {
       utils.respondWithError(
         'Usage: /review [time taken to assign] [dev name] [client name] [optional cc]',
         res
