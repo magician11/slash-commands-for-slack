@@ -22,7 +22,7 @@ module.exports = app => {
     //   utils.respondWithError('Access denied.', res);
     //   return;
     // } else
-    if (reviewArguments.length !== 0 && reviewArguments.length < 3) {
+    if (reviewArguments[0] === '' && reviewArguments.length !== 1) {
       utils.respondWithError(
         'Usage: /review [time taken to assign] [dev name] [client name] [optional cc]',
         res
@@ -45,11 +45,6 @@ module.exports = app => {
           response_url
         );
       } else {
-        let taskMessage = `Tasks awaiting your approval...${utils.createBulletListFromArray(taskList)}`;
-        if (reviewArguments[0] !== '') {
-          taskMessage += `\n*Hey ${reviewArguments[0]}, please review the above cycle and let me know if it's ready to assign out.*`;
-        }
-
         const freshbooksProjectId = await formstackSunbowl.getFreshbooksProjectId(
           channel_name
         );
@@ -63,12 +58,41 @@ module.exports = app => {
         const percentBucketUsed = billableHours / projectBudget * 100;
         const timeLeft = projectBudget - billableHours;
 
-        taskMessage += `\n\`You have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left)\``;
+        const reviewResponse = {};
 
-        const reviewResponse = {
-          response_type: reviewArguments[0] === '' ? 'ephemeral' : 'in_channel',
-          text: `${taskMessage}`
-        };
+        if (reviewArguments[0] === '') {
+          reviewResponse.text = `${utils.createBulletListFromArray(taskList)}`;
+        } else {
+          reviewResponse.text = `*Tasks awaiting your approval <${reviewArguments[0]}>...*${utils.createBulletListFromArray(taskList)}`;
+          reviewResponse.response_type = 'in_channel';
+          reviewResponse.attachments = [
+            {
+              text: `You have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left)`
+            },
+            {
+              text: `*Please review the above cycle. Ready to proceed?*`,
+              mrkdwn_in: ['text'],
+              callback_id: 'review_tasks',
+              actions: [
+                {
+                  name: 'review',
+                  text: 'Confirm',
+                  type: 'button',
+                  value: 'confirm',
+                  style: 'good'
+                },
+                {
+                  name: 'review',
+                  text: 'I have some changes',
+                  type: 'button',
+                  value: 'cancel',
+                  style: 'danger'
+                }
+              ]
+            }
+          ];
+        }
+
         slackSunbowl.postToSlack(reviewResponse, response_url);
 
         // and finally move the card to the pending to be assigned list
