@@ -11,7 +11,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 require('./commands/bucket')(app);
 require('./commands/todo')(app);
 require('./commands/review')(app);
-require('./commands/go')(app);
 require('./commands/complete')(app);
 require('./commands/jobreport')(app);
 require('./commands/bill')(app);

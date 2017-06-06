@@ -1,7 +1,7 @@
 /*
 Slash command for Sunbowl
-Get all the tasks from this channel's trello card, and present them optionally to
-a user. If presented to a user, add buttons for them to confirm this cycle.
+Get all the tasks from this channel's trello card, and present them to a client to review.
+Buttons are added for them to confirm this cycle.
 */
 
 module.exports = app => {
@@ -22,7 +22,7 @@ module.exports = app => {
     //   utils.respondWithError('Access denied.', res);
     //   return;
     // } else
-    if (reviewArguments[0] === '' && reviewArguments.length !== 1) {
+    if (reviewArguments[0] !== '' && reviewArguments.length < 3) {
       utils.respondWithError(
         'Usage: /review [time taken to assign] [dev name] [client name] [optional cc]',
         res
@@ -33,6 +33,11 @@ module.exports = app => {
     res.json({
       text: `Assembling the review now for you ${user_name}. One moment please...`
     });
+
+    const timeTakenToAssign = reviewArguments[0];
+    const devName = reviewArguments[1];
+    const clientName = reviewArguments[2];
+    const ccField = reviewArguments.length === 4 ? ` (cc: <${reviewArguments[3]}>)` : '';
 
     try {
       const trelloCardId = await formstackSunbowl.getTrelloCardId(channel_name);
@@ -63,11 +68,25 @@ module.exports = app => {
         if (reviewArguments[0] === '') {
           reviewResponse.text = `${utils.createBulletListFromArray(taskList)}`;
         } else {
-          reviewResponse.text = `*Tasks awaiting your approval <${reviewArguments[0]}>...*${utils.createBulletListFromArray(taskList)}`;
+          reviewResponse.text = `*Tasks awaiting your approval <${clientName}>${ccField}...*${utils.createBulletListFromArray(taskList)}`;
           reviewResponse.response_type = 'in_channel';
           reviewResponse.attachments = [
             {
               text: `You have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left)`
+            },
+            {
+              fields: [
+                {
+                  title: 'Time Taken To Assign (hrs)',
+                  value: timeTakenToAssign,
+                  short: true
+                },
+                {
+                  title: 'Cycle Assigned To',
+                  value: devName,
+                  short: true
+                }
+              ]
             },
             {
               text: `*Please review the above cycle. Ready to proceed?*`,
@@ -79,14 +98,13 @@ module.exports = app => {
                   text: 'Confirm',
                   type: 'button',
                   value: 'confirm',
-                  style: 'good'
+                  style: 'primary'
                 },
                 {
                   name: 'review',
                   text: 'I have some changes',
                   type: 'button',
-                  value: 'cancel',
-                  style: 'danger'
+                  value: 'cancel'
                 }
               ]
             }
