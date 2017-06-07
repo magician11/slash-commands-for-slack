@@ -37,7 +37,9 @@ module.exports = app => {
     const timeTakenToAssign = reviewArguments[0];
     const devName = reviewArguments[1];
     const clientName = reviewArguments[2];
-    const ccField = reviewArguments.length === 4 ? ` (cc: <${reviewArguments[3]}>)` : '';
+    const ccField = reviewArguments.length === 4
+      ? ` (cc: <${reviewArguments[3]}>)`
+      : '';
 
     try {
       const trelloCardId = await formstackSunbowl.getTrelloCardId(channel_name);
@@ -78,13 +80,11 @@ module.exports = app => {
               fields: [
                 {
                   title: 'Time Taken To Assign (hrs)',
-                  value: timeTakenToAssign,
-                  short: true
+                  value: timeTakenToAssign
                 },
                 {
                   title: 'Cycle Assigned To',
-                  value: devName,
-                  short: true
+                  value: devName
                 }
               ]
             },
