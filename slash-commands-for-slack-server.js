@@ -21,22 +21,22 @@ require('./actions')(app);
 const PORT = 9999;
 
 // Connections are encrypted
-// const sslOptions = {
-//   key: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/privkey.pem'),
-//   cert: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/fullchain.pem'),
-//   ca: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/chain.pem')
-// };
+const sslOptions = {
+  key: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/fullchain.pem'),
+  ca: fs.readFileSync('/etc/letsencrypt/live/nodesrvr.com/chain.pem')
+};
 
 // startup the https server
-// https.createServer(sslOptions, app).listen(PORT, () => {
-//   // eslint-disable-next-line no-console
-//   console.log(
-//     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
-//   );
-// });
-
-app.listen(PORT, () => {
+https.createServer(sslOptions, app).listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(
     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
   );
 });
+// 
+// app.listen(PORT, () => {
+//   console.log(
+//     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
+//   );
+// });
