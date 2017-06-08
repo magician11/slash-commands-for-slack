@@ -7,17 +7,18 @@ module.exports = app => {
   const freshbooksSunbowl = require('../modules/freshbooks');
   const slackSunbowl = require('../modules/slack');
   const utils = require('../modules/utils');
-  const BILL_SECURITY_TOKEN = process.env.SUNBOWL_BILL_SECURITY_TOKEN;
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
+  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
+    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   app.post('/bill', (req, res) => {
     const { token, channel_name, user_name, text, response_url } = req.body;
     const billParameters = text.split(' ');
 
-    // check to see whether this script is being accessed from our slack app
+    // check to see whether this script is being accessed from our slack apps
     if (
-      token !== BILL_SECURITY_TOKEN &&
+      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
       token !== SUNBOWL_AI_VERIFICATION_TOKEN
     ) {
       utils.respondWithError('Access denied.', res);

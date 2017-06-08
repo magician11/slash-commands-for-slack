@@ -8,17 +8,18 @@ module.exports = app => {
   const formstackSunbowl = require('../modules/formstack');
   const slackSunbowl = require('../modules/slack');
   const trelloSunbowl = require('../modules/trello');
-  const COMPLETE_SECURITY_TOKEN = process.env.SUNBOWL_COMPLETE_SECURITY_TOKEN;
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
+  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
+    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   app.post('/complete', (req, res) => {
     const { token, channel_name, user_name, response_url, text } = req.body;
     const completeArguments = text.split(' ');
 
-    // check to see whether this script is being accessed from our slack app
+    // check to see whether this script is being accessed from our slack apps
     if (
-      token !== COMPLETE_SECURITY_TOKEN &&
+      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
       token !== SUNBOWL_AI_VERIFICATION_TOKEN
     ) {
       utils.respondWithError('Access denied.', res);

@@ -9,9 +9,10 @@ module.exports = app => {
   const freshbooksSunbowl = require('../modules/freshbooks');
   const formstackSunbowl = require('../modules/formstack');
   const slackSunbowl = require('../modules/slack');
-  const JOBREPORT_SECURITY_TOKEN = process.env.SUNBOWL_JOBREPORT_SECURITY_TOKEN;
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
+  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
+    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   app.post('/jobreport', (req, res) => {
     const {
@@ -25,9 +26,9 @@ module.exports = app => {
 
     const jobreportArguments = text.split(' ');
 
-    // check to see whether this script is being accessed from our slack app
+    // check to see whether this script is being accessed from our slack apps
     if (
-      token !== JOBREPORT_SECURITY_TOKEN &&
+      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
       token !== SUNBOWL_AI_VERIFICATION_TOKEN
     ) {
       utils.respondWithError('Access denied.', res);

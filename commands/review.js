@@ -12,17 +12,21 @@ module.exports = app => {
   const slackSunbowl = require('../modules/slack');
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
+  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
+    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   app.post('/review', async (req, res) => {
     const { text, token, channel_name, user_name, response_url } = req.body;
     const reviewArguments = text.split(' ');
 
-    // check to see whether this script is being accessed from our slack app
-    // if (token !== SUNBOWL_AI_VERIFICATION_TOKEN) {
-    //   utils.respondWithError('Access denied.', res);
-    //   return;
-    // } else
-    if (reviewArguments[0] !== '' && reviewArguments.length < 3) {
+    // check to see whether this script is being accessed from our slack apps
+    if (
+      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
+      token !== SUNBOWL_AI_VERIFICATION_TOKEN
+    ) {
+      utils.respondWithError('Access denied.', res);
+      return;
+    } else if (reviewArguments[0] !== '' && reviewArguments.length < 3) {
       utils.respondWithError(
         'Usage: /review [time taken to assign] [dev name] [client name] [optional cc]',
         res

@@ -7,15 +7,17 @@ module.exports = app => {
   const utils = require('../modules/utils');
   const trelloSunbowl = require('../modules/trello');
   const slackSunbowl = require('../modules/slack');
-  const QUE_SECURITY_TOKEN = process.env.SUNBOWL_QUE_SECURITY_TOKEN;
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
+  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
+    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   app.post('/que', (req, res) => {
     const { token, text, user_name, response_url } = req.body;
-    // check to see whether this script is being accessed from our slack app
+
+    // check to see whether this script is being accessed from our slack apps
     if (
-      token !== QUE_SECURITY_TOKEN &&
+      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
       token !== SUNBOWL_AI_VERIFICATION_TOKEN
     ) {
       utils.respondWithError('Access denied.', res);

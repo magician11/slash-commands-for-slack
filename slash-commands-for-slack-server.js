@@ -34,7 +34,7 @@ https.createServer(sslOptions, app).listen(PORT, () => {
     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
   );
 });
-// 
+//
 // app.listen(PORT, () => {
 //   console.log(
 //     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
