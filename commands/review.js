@@ -78,19 +78,20 @@ module.exports = app => {
           reviewResponse.response_type = 'in_channel';
           reviewResponse.attachments = [
             {
-              text: `You have used ${percentBucketUsed.toFixed(0)}% of your bucket (${timeLeft.toFixed(1)} hours left)`
-            },
-            {
+              color: '#00bfff',
               fields: [
                 {
                   title: 'Time Taken To Assign (hrs)',
-                  value: timeTakenToAssign
+                  value: timeTakenToAssign,
+                  short: true
                 },
                 {
                   title: 'Cycle Assigned To',
-                  value: devName
+                  value: devName,
+                  short: true
                 }
-              ]
+              ],
+              footer: `*Your currently have ${timeLeft.toFixed(1)} hours left of your bucket balance.*`
             },
             {
               text: `*Please review the above cycle. Ready to proceed?*`,
