@@ -41,6 +41,10 @@ module.exports = app => {
           }
 
           res.json({
+            response_type: bucketParameters[bucketParameters.length - 1] ===
+              'public'
+              ? 'in_channel'
+              : 'ephemeral',
             text: 'To refill your bucket, click on your bucket choice below...',
             attachments: refillOptions
           });
