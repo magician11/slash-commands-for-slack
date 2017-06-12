@@ -47,6 +47,7 @@ module.exports = app => {
           //   slackMessage.channel.name,
           //   slackMessage.response_url
           // );
+          console.log(JSON.stringify(slackMessage.original_message, null, 2));
           assignCycle(
             slackMessage.original_message.attachments[1].fields[0].value,
             slackMessage.original_message.attachments[1].fields[1].value,
