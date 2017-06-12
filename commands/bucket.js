@@ -20,8 +20,10 @@ module.exports = app => {
       return;
     }
 
+    const bucketParameters = text.split(' ');
+
     // switch on bucket option
-    if (text === 'refill') {
+    if (bucketParameters[0] === 'refill') {
       formstackSunbowl
         .getRefillOption(channel_name)
         .then(refillOption => {
@@ -78,7 +80,10 @@ module.exports = app => {
 
           // return the JSON for this request
           res.json({
-            response_type: text === 'public' ? 'in_channel' : 'ephemeral',
+            response_type: bucketParameters[bucketParameters.length - 1] ===
+              'public'
+              ? 'in_channel'
+              : 'ephemeral',
             text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${freshbooksData.projectBudget} hour\` bucket.`,
             attachments: [
               {
