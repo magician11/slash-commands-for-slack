@@ -29,7 +29,6 @@ module.exports = app => {
           text: slackMessage.original_message.text,
           attachments: [
             slackMessage.original_message.attachments[0],
-            slackMessage.original_message.attachments[1],
             {
               text: actionCycle
                 ? 'Ok, great. We will action this cycle now for you.'
@@ -49,8 +48,8 @@ module.exports = app => {
           // );
           console.log(JSON.stringify(slackMessage.original_message, null, 2));
           assignCycle(
-            slackMessage.original_message.attachments[1].fields[0].value,
-            slackMessage.original_message.attachments[1].fields[1].value,
+            slackMessage.original_message.attachments[0].fields[0].value,
+            slackMessage.original_message.attachments[0].fields[1].value,
             slackMessage.user.name,
             slackMessage.channel.name,
             slackMessage.response_url
