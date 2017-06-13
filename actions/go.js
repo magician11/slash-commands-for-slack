@@ -16,33 +16,25 @@ module.exports = async (
 
   try {
     const trelloCardId = await formstackSunbowl.getTrelloCardId(channelName);
-    console.log('trelloCardId', trelloCardId);
     const trelloListId = await trelloSunbowl.findListId(assignee);
-    console.log('trelloListId', trelloListId);
     await trelloSunbowl.moveTrelloCard(trelloCardId, trelloListId);
     await trelloSunbowl.setDueDate(trelloCardId);
     const taskListId = await trelloSunbowl.getTaskListId(trelloCardId);
-    console.log('taskListId', taskListId);
     await trelloSunbowl.moveTaskListToTop(taskListId);
     await trelloSunbowl.renameTasklist(taskListId, assignee);
     const tasks = await trelloSunbowl.getTaskListItems(taskListId);
-    console.log('tasks', tasks);
     const freshbooksProjectId = await formstackSunbowl.getFreshbooksProjectId(
       channelName
     );
-    console.log('freshbooksProjectId', freshbooksProjectId);
     const projectBudget = await freshbooksSunbowl.getProjectBudget(
       freshbooksProjectId
     );
-    console.log('projectBudget', projectBudget);
     const billableHours = await freshbooksSunbowl.getBillableHours(
       freshbooksProjectId
     );
-    console.log('billableHours', billableHours);
     const assigneeFirstName = await slackSunbowl.getFirstname(
       assignee.slice(1)
     );
-    console.log('assigneeFirstName', assigneeFirstName);
     await freshbooksSunbowl.addTimeEntry(
       userName,
       channelName,
