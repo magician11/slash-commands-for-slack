@@ -18,7 +18,7 @@ require('./commands/deets')(app);
 require('./commands/que')(app);
 require('./actions')(app);
 
-const PORT = 9999;
+const PORT = 8888;
 
 // Connections are encrypted
 const sslOptions = {
@@ -34,9 +34,3 @@ https.createServer(sslOptions, app).listen(PORT, () => {
     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
   );
 });
-//
-// app.listen(PORT, () => {
-//   console.log(
-//     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
-//   );
-// });
