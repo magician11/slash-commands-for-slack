@@ -11,14 +11,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 require('./commands/bucket')(app);
 require('./commands/todo')(app);
 require('./commands/review')(app);
-require('./commands/go')(app);
 require('./commands/complete')(app);
 require('./commands/jobreport')(app);
 require('./commands/bill')(app);
 require('./commands/deets')(app);
 require('./commands/que')(app);
+require('./actions')(app);
 
-const PORT = 8888;
+const PORT = 9999;
 
 // Connections are encrypted
 const sslOptions = {
@@ -34,3 +34,9 @@ https.createServer(sslOptions, app).listen(PORT, () => {
     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
   );
 });
+//
+// app.listen(PORT, () => {
+//   console.log(
+//     `Slash commands for Sunbowl AI started listening on port ${PORT} at ${new Date().toString()}.`
+//   );
+// });
