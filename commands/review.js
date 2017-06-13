@@ -86,7 +86,7 @@ module.exports = app => {
                   short: true
                 },
                 {
-                  title: 'Cycle Assigned To',
+                  title: 'Cycle will be assigned to:',
                   value: devName,
                   short: true
                 }
