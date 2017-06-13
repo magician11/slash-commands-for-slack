@@ -39,10 +39,14 @@ module.exports = app => {
         });
 
         if (actionCycle) {
+          // split something like 'nic: 0.3'
+          const assignedOutDetails = slackMessage.original_message.attachments[0].fields[0].value.split(
+            ': '
+          );
           assignCycle(
-            slackMessage.original_message.attachments[0].fields[0].value,
+            assignedOutDetails[0],
+            assignedOutDetails[1],
             slackMessage.original_message.attachments[0].fields[1].value,
-            slackMessage.user.name,
             slackMessage.channel.name,
             slackMessage.response_url
           );

@@ -81,8 +81,8 @@ module.exports = app => {
               color: '#00bfff',
               fields: [
                 {
-                  title: 'Time Taken To Assign (hrs)',
-                  value: timeTakenToAssign,
+                  title: 'Time Taken To Assign',
+                  value: `${user_name}: ${timeTakenToAssign}`,
                   short: true
                 },
                 {
