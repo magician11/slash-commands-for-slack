@@ -74,7 +74,9 @@ module.exports = app => {
         if (reviewArguments[0] === '') {
           reviewResponse.text = `${utils.createBulletListFromArray(taskList)}`;
         } else {
-          reviewResponse.text = `*Tasks awaiting your approval <${clientName}>${ccField}...*${utils.createBulletListFromArray(taskList)}`;
+          reviewResponse.text = `*Tasks awaiting your approval <${clientName}>${ccField}...*${utils.createBulletListFromArray(
+            taskList
+          )}`;
           reviewResponse.response_type = 'in_channel';
           reviewResponse.attachments = [
             {
@@ -91,7 +93,9 @@ module.exports = app => {
                   short: true
                 }
               ],
-              footer: `*Your currently have ${timeLeft.toFixed(1)} hours left of your bucket balance.*`
+              footer: `*Your currently have ${timeLeft.toFixed(
+                1
+              )} hours left of your bucket balance.*`
             },
             {
               text: `*Please review the above cycle. Ready to proceed?*`,

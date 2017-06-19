@@ -2,6 +2,7 @@
 Process incoming interactions from the slack channel, like buttons
 */
 const assignCycle = require('./go');
+const slackSunbowl = require('../modules/slack');
 const utils = require('../modules/utils');
 
 module.exports = app => {
@@ -10,7 +11,7 @@ module.exports = app => {
   const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
-  app.post('/action', (req, res) => {
+  app.post('/action', async (req, res) => {
     const slackMessage = JSON.parse(req.body.payload);
 
     // check to see whether this script is being accessed from our slack apps
@@ -21,6 +22,8 @@ module.exports = app => {
       utils.respondWithError('Access denied.', res);
       return;
     }
+
+    // console.log(JSON.stringify(slackMessage, null, 2));
 
     switch (slackMessage.callback_id) {
       case 'review_tasks': {
@@ -43,13 +46,31 @@ module.exports = app => {
           const assignedOutDetails = slackMessage.original_message.attachments[0].fields[0].value.split(
             ': '
           );
-          assignCycle(
-            assignedOutDetails[0],
-            assignedOutDetails[1],
-            slackMessage.original_message.attachments[0].fields[1].value,
-            slackMessage.channel.name,
-            slackMessage.response_url
-          );
+          // assignCycle(
+          //   assignedOutDetails[0],
+          //   assignedOutDetails[1],
+          //   slackMessage.original_message.attachments[0].fields[1].value,
+          //   slackMessage.channel.name,
+          //   slackMessage.response_url
+          // );
+          const recipients = slackMessage.original_message.text
+            .match(/<@(.+?)\>/g)
+            .map(str => str.substring(2, str.length - 1));
+
+          try {
+            const recipientProfile = await slackSunbowl.getUserProfile(
+              recipients[0]
+            );
+            // set notification timer and then send out email
+            const emailResponse = await utils.sendEmail(
+              recipientProfile.email,
+              'An Action is Required in Slack',
+              'Just a friendly reminder, we know you are busy, but there is a cycle waiting your approval in slack.'
+            );
+            console.log(emailResponse);
+          } catch (err) {
+            console.log(`Error in assigning out cycle: ${err}`);
+          }
         }
         break;
       }
