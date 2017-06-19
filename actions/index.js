@@ -2,7 +2,6 @@
 Process incoming interactions from the slack channel, like buttons
 */
 const assignCycle = require('./go');
-const slackSunbowl = require('../modules/slack');
 const utils = require('../modules/utils');
 
 module.exports = app => {
@@ -46,31 +45,13 @@ module.exports = app => {
           const assignedOutDetails = slackMessage.original_message.attachments[0].fields[0].value.split(
             ': '
           );
-          // assignCycle(
-          //   assignedOutDetails[0],
-          //   assignedOutDetails[1],
-          //   slackMessage.original_message.attachments[0].fields[1].value,
-          //   slackMessage.channel.name,
-          //   slackMessage.response_url
-          // );
-          const recipients = slackMessage.original_message.text
-            .match(/<@(.+?)\>/g)
-            .map(str => str.substring(2, str.length - 1));
-
-          try {
-            const recipientProfile = await slackSunbowl.getUserProfile(
-              recipients[0]
-            );
-            // set notification timer and then send out email
-            const emailResponse = await utils.sendEmail(
-              recipientProfile.email,
-              'An Action is Required in Slack',
-              'Just a friendly reminder, we know you are busy, but there is a cycle waiting your approval in slack.'
-            );
-            console.log(emailResponse);
-          } catch (err) {
-            console.log(`Error in assigning out cycle: ${err}`);
-          }
+          assignCycle(
+            assignedOutDetails[0],
+            assignedOutDetails[1],
+            slackMessage.original_message.attachments[0].fields[1].value,
+            slackMessage.channel.name,
+            slackMessage.response_url
+          );
         }
         break;
       }

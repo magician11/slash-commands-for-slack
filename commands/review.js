@@ -122,8 +122,18 @@ module.exports = app => {
 
         slackSunbowl.postToSlack(reviewResponse, response_url);
 
-        // and finally move the card to the pending to be assigned list
+        // move the card to the pending to be assigned list
         trelloSunbowl.moveTrelloCard(trelloCardId, '537bc2cec1db170a09078963');
+
+        // now email the client (TODO set flag only that review tasks was executed)
+        const recipientProfile = await slackSunbowl.getUserProfile(
+          clientName.substring(1)
+        );
+        const emailResponse = await utils.sendEmail(
+          recipientProfile.email,
+          'An Action is Required in Slack',
+          `<p>Hi ${recipientProfile.first_name},</p><p>Just a friendly reminder, we know you are busy, but there is a cycle waiting your approval in slack.</p><p>Sunbowl AI</p>`
+        );
       }
     } catch (error) {
       slackSunbowl.postToSlack(
