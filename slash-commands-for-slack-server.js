@@ -17,6 +17,7 @@ require('./commands/bill')(app);
 require('./commands/deets')(app);
 require('./commands/que')(app);
 require('./actions')(app);
+require('./actions/cron')();
 
 const PORT = 8888;
 

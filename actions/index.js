@@ -2,6 +2,7 @@
 Process incoming interactions from the slack channel, like buttons
 */
 const assignCycle = require('./go');
+const sunbowlFirebase = require('../modules/firebase');
 const utils = require('../modules/utils');
 
 module.exports = app => {
@@ -53,6 +54,11 @@ module.exports = app => {
             slackMessage.response_url
           );
         }
+        // remove entry from Firebase as they're responded.
+        sunbowlFirebase.deleteNode(
+          `slash-commands/review/${slackMessage.channel.name}`
+        );
+
         break;
       }
       default: {
