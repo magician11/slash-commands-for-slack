@@ -5,11 +5,13 @@ Buttons are added for them to confirm this cycle.
 */
 
 module.exports = app => {
+  const firebaseAdmin = require('firebase-admin');
   const utils = require('../modules/utils');
   const freshbooksSunbowl = require('../modules/freshbooks');
   const formstackSunbowl = require('../modules/formstack');
   const trelloSunbowl = require('../modules/trello');
   const slackSunbowl = require('../modules/slack');
+  const firebasePrivateKey = require('../sunbowl-ai-firebase-adminsdk-n05vi-72b612beb0.json');
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
   const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
@@ -126,14 +128,29 @@ module.exports = app => {
         trelloSunbowl.moveTrelloCard(trelloCardId, '537bc2cec1db170a09078963');
 
         // now email the client (TODO set flag only that review tasks was executed)
+
+        firebaseAdmin.initializeApp({
+          credential: firebaseAdmin.credential.cert(firebasePrivateKey),
+          databaseURL: 'https://sunbowl-ai.firebaseio.com/'
+        });
+
         const recipientProfile = await slackSunbowl.getUserProfile(
           clientName.substring(1)
         );
-        const emailResponse = await utils.sendEmail(
-          recipientProfile.email,
-          'An Action is Required in Slack',
-          `<p>Hi ${recipientProfile.first_name},</p><p>Just a friendly reminder, we know you are busy, but there is a cycle waiting your approval in slack.</p><p>Sunbowl AI</p>`
-        );
+
+        const db = firebaseAdmin.database();
+        const ref = db.ref('slash-commands/review');
+        ref.child(channel_name).set({
+          first_name: recipientProfile.first_name,
+          email: recipientProfile.email,
+          review_requested_at: new Date().toString()
+        });
+
+        // const emailResponse = await utils.sendEmail(
+        //   recipientProfile.email,
+        //   'An Action is Required in Slack',
+        //   `<p>Hi ${recipientProfile.first_name},</p><p>Just a friendly reminder, we know you are busy, but there is a cycle waiting your approval in slack.</p><p>Sunbowl AI</p>`
+        // );
       }
     } catch (error) {
       slackSunbowl.postToSlack(
