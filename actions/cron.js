@@ -16,7 +16,7 @@ module.exports = () => {
           const reviewRequested = moment(
             firebaseData[channel].review_requested_at
           );
-          if (moment().diff(reviewRequested, 'hours') >= 0) {
+          if (moment().diff(reviewRequested, 'hours') >= 4) {
             console.log(
               `Sending out reminder email to ${firebaseData[channel]
                 .first_name} (${firebaseData[channel].email})...`
@@ -31,6 +31,8 @@ module.exports = () => {
 <p>Sunbowl AI</p></p>`
             );
             console.log(emailResponse);
+            // remove entry from Firebase as they've been emailed.
+            sunbowlFirebase.deleteNode(`slash-commands/review/${channel}`);
           }
         }
       }
