@@ -5,7 +5,9 @@ Buttons are added for them to confirm this cycle.
 */
 
 module.exports = app => {
+  const moment = require('moment');
   const utils = require('../modules/utils');
+  const sunbowlFirebase = require('../modules/firebase');
   const freshbooksSunbowl = require('../modules/freshbooks');
   const formstackSunbowl = require('../modules/formstack');
   const trelloSunbowl = require('../modules/trello');
@@ -16,7 +18,15 @@ module.exports = app => {
     process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   app.post('/review', async (req, res) => {
-    const { text, token, channel_name, user_name, response_url } = req.body;
+    const {
+      text,
+      token,
+      channel_name,
+      user_name,
+      response_url,
+      channel_id,
+      team_domain
+    } = req.body;
     const reviewArguments = text.split(' ');
 
     // check to see whether this script is being accessed from our slack apps
@@ -74,7 +84,9 @@ module.exports = app => {
         if (reviewArguments[0] === '') {
           reviewResponse.text = `${utils.createBulletListFromArray(taskList)}`;
         } else {
-          reviewResponse.text = `*Tasks awaiting your approval <${clientName}>${ccField}...*${utils.createBulletListFromArray(taskList)}`;
+          reviewResponse.text = `*Tasks awaiting your approval <${clientName}>${ccField}...*${utils.createBulletListFromArray(
+            taskList
+          )}`;
           reviewResponse.response_type = 'in_channel';
           reviewResponse.attachments = [
             {
@@ -91,7 +103,9 @@ module.exports = app => {
                   short: true
                 }
               ],
-              footer: `*Your currently have ${timeLeft.toFixed(1)} hours left of your bucket balance.*`
+              footer: `*Your currently have ${timeLeft.toFixed(
+                1
+              )} hours left of your bucket balance.*`
             },
             {
               text: `*Please review the above cycle. Ready to proceed?*`,
@@ -114,12 +128,25 @@ module.exports = app => {
               ]
             }
           ];
+
+          // move the card to the pending to be assigned list
+          trelloSunbowl.moveTrelloCard(
+            trelloCardId,
+            '537bc2cec1db170a09078963'
+          );
+
+          // set a flag that a review command was made
+          const recipientProfile = await slackSunbowl.getUserProfile(
+            clientName.substring(1)
+          );
+          sunbowlFirebase.writeObject('slash-commands/review', channel_name, {
+            first_name: recipientProfile.first_name,
+            email: recipientProfile.email,
+            review_requested_at: moment().valueOf(),
+            channel_link: `https://${team_domain}.slack.com/messages/${channel_id}/`
+          });
         }
-
         slackSunbowl.postToSlack(reviewResponse, response_url);
-
-        // and finally move the card to the pending to be assigned list
-        trelloSunbowl.moveTrelloCard(trelloCardId, '537bc2cec1db170a09078963');
       }
     } catch (error) {
       slackSunbowl.postToSlack(

@@ -2,6 +2,7 @@
 Process incoming interactions from the slack channel, like buttons
 */
 const assignCycle = require('./go');
+const sunbowlFirebase = require('../modules/firebase');
 const utils = require('../modules/utils');
 
 module.exports = app => {
@@ -10,7 +11,7 @@ module.exports = app => {
   const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
-  app.post('/action', (req, res) => {
+  app.post('/action', async (req, res) => {
     const slackMessage = JSON.parse(req.body.payload);
 
     // check to see whether this script is being accessed from our slack apps
@@ -21,6 +22,8 @@ module.exports = app => {
       utils.respondWithError('Access denied.', res);
       return;
     }
+
+    // console.log(JSON.stringify(slackMessage, null, 2));
 
     switch (slackMessage.callback_id) {
       case 'review_tasks': {
@@ -51,6 +54,11 @@ module.exports = app => {
             slackMessage.response_url
           );
         }
+        // remove entry from Firebase as they're responded.
+        sunbowlFirebase.deleteNode(
+          `slash-commands/review/${slackMessage.channel.name}`
+        );
+
         break;
       }
       default: {

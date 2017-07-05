@@ -11,11 +11,15 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.13.3",
+    "firebase-admin": "^5.0.0",
     "freshbooks": "^1.0.0",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
+    "moment": "^2.18.1",
     "node-trello": "^1.1.2",
-    "request": "^2.70.0"
+    "nodemailer": "^4.0.1",
+    "request": "^2.70.0",
+    "request-promise-native": "^1.0.4"
   },
   "devDependencies": {
     "eslint": "^2.4.0",
