@@ -19,7 +19,7 @@ require('./commands/que')(app);
 require('./actions')(app);
 require('./actions/cron')();
 
-const PORT = 9999;
+const PORT = 8888;
 
 // Connections are encrypted
 const sslOptions = {

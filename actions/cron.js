@@ -16,7 +16,7 @@ module.exports = () => {
           const reviewRequested = moment(
             firebaseData[channel].review_requested_at
           );
-          if (moment().diff(reviewRequested, 'minutes') >= 5) {
+          if (moment().diff(reviewRequested, 'hours') >= 4) {
             console.log(
               `Sending out reminder email to ${firebaseData[channel]
                 .first_name} (${firebaseData[channel].email})...`
