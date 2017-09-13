@@ -6,6 +6,7 @@ Get an overview of various jobs
 module.exports = app => {
   const utils = require("../modules/utils");
   const trelloSunbowl = require("../modules/trello");
+  const formstackSunbowl = require("../modules/formstack");
   const slackSunbowl = require("../modules/slack");
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
@@ -13,7 +14,7 @@ module.exports = app => {
     process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   app.post("/que", async (req, res) => {
-    const { token, text, user_name, response_url } = req.body;
+    const { token, text, user_name, response_url, channel_name } = req.body;
     const queParameters = text.split(" ");
 
     // check to see whether this script is being accessed from our slack apps
@@ -75,6 +76,19 @@ module.exports = app => {
         // else if the argument start is specified, then move this channel's card to the pending to be assigned list
       } else if (queParameters[0] === "start") {
         // but check that this is a channel and not a user so that it has a valid channel.
+        const trelloCardId = await formstackSunbowl.getTrelloCardId(
+          channel_name
+        );
+        await trelloSunbowl.moveTrelloCard(
+          trelloCardId,
+          pendingToBeAssignedListId
+        );
+        slackSunbowl.postToSlack(
+          {
+            text: `${channel_name} card moved to the Pending To Be Assigned list.`
+          },
+          response_url
+        );
       }
     } catch (err) {
       slackSunbowl.postToSlack(utils.constructErrorForSlack(err), response_url);
