@@ -26,7 +26,7 @@ module.exports = app => {
       return;
     }
 
-    res.json(`Let me look into this for you ${user_name}...`);
+    res.json({ text: `Let me look into this for you ${user_name}...` });
 
     try {
       const pendingToBeAssignedListId = "537bc2cec1db170a09078963";
@@ -75,17 +75,23 @@ module.exports = app => {
 
         // else if the argument start is specified, then move this channel's card to the pending to be assigned list
       } else if (queParameters[0] === "start") {
-        // but check that this is a channel and not a user so that it has a valid channel.
+        // find the id of the card associated with this channel
         const trelloCardId = await formstackSunbowl.getTrelloCardId(
           channel_name
         );
+
+        // find the list the card is currently on
+        const listName = await trelloSunbowl.getListNameForCard(trelloCardId);
+        if (listName.startsWith("@"))
+          throw `The ${channel_name} card is currently being worked on by ${listName}. So leaving it.`;
+
         await trelloSunbowl.moveTrelloCard(
           trelloCardId,
           pendingToBeAssignedListId
         );
         slackSunbowl.postToSlack(
           {
-            text: `${channel_name} card moved to the Pending To Be Assigned list.`
+            text: `The ${channel_name} card has been moved to the Pending To Be Assigned list.`
           },
           response_url
         );

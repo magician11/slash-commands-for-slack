@@ -142,7 +142,7 @@ class SunbowlTrello {
     });
   }
 
-  // fetch the tasks from a specific check list and return it as a bulleted string
+  // fetch the tasks from a specific check list
   getTaskListItems(checklistId) {
     return new Promise((resolve, reject) => {
       trello.get(`/1/checklists/${checklistId}/checkitems`, (err, data) => {
@@ -215,6 +215,25 @@ class SunbowlTrello {
 
           Promise.all(developers).then(developerWorkloads => {
             resolve(developerWorkloads);
+          });
+        }
+      });
+    });
+  }
+
+  // for a card ID, find the list ID it's on and then get the list name
+  getListNameForCard(trelloCardId) {
+    return new Promise((resolve, reject) => {
+      trello.get(`/1/cards/${trelloCardId}/idList`, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          trello.get(`/1/lists/${data._value}/name`, (error, listData) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(listData._value);
+            }
           });
         }
       });
