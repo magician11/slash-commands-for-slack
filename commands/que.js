@@ -109,7 +109,7 @@ module.exports = app => {
 
         const thisMoment = new moment();
 
-        sunbowlFirebase.updateObject(
+        sunbowlFirebase.writeObject(
           `logs/${user_name}/${thisMoment.format("DDMMYYYY")}`,
           channel_name,
           { timeWhenQueued: thisMoment.valueOf() }
@@ -128,7 +128,7 @@ module.exports = app => {
             if (cyclesAssignedOut === null) {
               slackSunbowl.postToSlack(
                 {
-                  text: `No cycles were queued or assigned out from you ${user_name} on ${dateToQuery.format(
+                  text: `No cycles were queued from you ${user_name} on ${dateToQuery.format(
                     "Do MMM YYYY"
                   )}`
                 },
@@ -145,9 +145,12 @@ module.exports = app => {
                 const timeWhenQueued = new moment(value.timeWhenQueued);
                 const timeAssigned = new moment(value.timeAssigned);
 
-                const timeTakenToAssign = moment
-                  .duration(timeAssigned.diff(timeWhenQueued))
-                  .humanize();
+                const timeTakenToAssign =
+                  value.timeAssigned === undefined
+                    ? "not complete yet"
+                    : moment
+                        .duration(timeAssigned.diff(timeWhenQueued))
+                        .humanize();
 
                 cyclesReport.attachments.push({
                   title: key,
@@ -160,12 +163,16 @@ module.exports = app => {
                     },
                     {
                       title: "Time assigned at",
-                      value: timeAssigned.format("LTS"),
+                      value:
+                        value.timeAssigned === undefined
+                          ? "not assigned out yet"
+                          : timeAssigned.format("LTS"),
                       short: true
                     }
                   ]
                 });
               }
+
               slackSunbowl.postToSlack(cyclesReport, response_url);
             }
           }

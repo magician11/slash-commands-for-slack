@@ -1,29 +1,34 @@
 module.exports = app => {
-  const formstackSunbowl = require('../modules/formstack');
-  const freshbooksSunbowl = require('../modules/freshbooks');
-  const utils = require('../modules/utils');
+  const formstackSunbowl = require("../modules/formstack");
+  const freshbooksSunbowl = require("../modules/freshbooks");
+  const slackSunbowl = require("../modules/slack");
+  const utils = require("../modules/utils");
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
   const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   // get information about a bucket with Sunbowl
-  app.post('/bucket', (req, res) => {
-    const { text, channel_name, token } = req.body;
+  app.post("/bucket", (req, res) => {
+    const { text, channel_name, token, response_url } = req.body;
 
     // check to see whether this script is being accessed from our slack apps
     if (
       token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
       token !== SUNBOWL_AI_VERIFICATION_TOKEN
     ) {
-      utils.respondWithError('Access denied.', res);
+      utils.respondWithError("Access denied.", res);
       return;
     }
 
-    const bucketParameters = text.split(' ');
+    res.json({
+      text: "Ok, calculating that balance for you now..."
+    });
+
+    const bucketParameters = text.split(" ");
 
     // switch on bucket option
-    if (bucketParameters[0] === 'refill') {
+    if (bucketParameters[0] === "refill") {
       formstackSunbowl
         .getRefillOption(channel_name)
         .then(refillOption => {
@@ -40,14 +45,18 @@ module.exports = app => {
             });
           }
 
-          res.json({
-            response_type: bucketParameters[bucketParameters.length - 1] ===
-              'public'
-              ? 'in_channel'
-              : 'ephemeral',
-            text: 'To refill your bucket, click on your bucket choice below...',
-            attachments: refillOptions
-          });
+          slackSunbowl.postToSlack(
+            {
+              response_type:
+                bucketParameters[bucketParameters.length - 1] === "public"
+                  ? "in_channel"
+                  : "ephemeral",
+              text:
+                "To refill your bucket, click on your bucket choice below...",
+              attachments: refillOptions
+            },
+            response_url
+          );
         })
         .catch(err => {
           utils.respondWithError(`Error: ${err}`, res);
@@ -73,32 +82,37 @@ module.exports = app => {
           let progressColour;
           let bucketImage;
           if (percentBucketUsed < 75) {
-            progressColour = 'good';
+            progressColour = "good";
             bucketImage =
-              'https://cdn.shopify.com/s/files/1/0359/6033/files/full-bucket1-110.jpg';
+              "https://cdn.shopify.com/s/files/1/0359/6033/files/full-bucket1-110.jpg";
           } else {
-            progressColour = 'danger';
+            progressColour = "danger";
             bucketImage =
-              'https://cdn.shopify.com/s/files/1/0359/6033/files/low-bucket1-110.jpg';
+              "https://cdn.shopify.com/s/files/1/0359/6033/files/low-bucket1-110.jpg";
           }
 
           // return the JSON for this request
-          res.json({
-            response_type: bucketParameters[bucketParameters.length - 1] ===
-              'public'
-              ? 'in_channel'
-              : 'ephemeral',
-            text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${freshbooksData.projectBudget} hour\` bucket.`,
-            attachments: [
-              {
-                title: 'Bucket Status',
-                color: progressColour,
-                text: `\`${timeLeft.toFixed(1)} hours\` left before you will need to top it up.`,
-                image_url: bucketImage,
-                mrkdwn_in: ['text']
-              }
-            ]
-          });
+          slackSunbowl.postToSlack(
+            {
+              response_type:
+                bucketParameters[bucketParameters.length - 1] === "public"
+                  ? "in_channel"
+                  : "ephemeral",
+              text: `You have used \`${percentBucketUsed.toFixed()}%\` of your \`${freshbooksData.projectBudget} hour\` bucket.`,
+              attachments: [
+                {
+                  title: "Bucket Status",
+                  color: progressColour,
+                  text: `\`${timeLeft.toFixed(
+                    1
+                  )} hours\` left before you will need to top it up.`,
+                  image_url: bucketImage,
+                  mrkdwn_in: ["text"]
+                }
+              ]
+            },
+            response_url
+          );
         })
         .catch(err => {
           utils.respondWithError(`Error: ${err}`, res);
