@@ -27,7 +27,7 @@ class SunbowlFirebase {
   readNode(rootNode) {
     return new Promise(resolve => {
       this.db.ref(rootNode).once("value", data => {
-        resolve(data);
+        resolve(data.val());
       });
     });
   }
