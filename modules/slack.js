@@ -1,6 +1,6 @@
 const SLACK_TOKEN = process.env.SUNBOWL_SLACK_TOKEN;
-const request = require('request');
-const rpn = require('request-promise-native');
+const request = require("request");
+const rpn = require("request-promise-native");
 
 class SunbowlSlack {
   getFirstname(userName) {
@@ -58,14 +58,14 @@ class SunbowlSlack {
 
   postJobReport(jobReportData) {
     const dataToSendToSlack = jobReportData;
-    dataToSendToSlack.channel = '#jobreports';
-    dataToSendToSlack.response_type = 'in_channel';
+    dataToSendToSlack.channel = "#jobreports";
+    dataToSendToSlack.response_type = "in_channel";
     dataToSendToSlack.token = SLACK_TOKEN;
-    dataToSendToSlack.username = 'From a Sunbowl dev';
-    dataToSendToSlack.icon_emoji = ':desktop_computer:';
+    dataToSendToSlack.username = "From a Sunbowl dev";
+    dataToSendToSlack.icon_emoji = ":desktop_computer:";
 
     const options = {
-      url: 'https://slack.com/api/chat.postMessage',
+      url: "https://slack.com/api/chat.postMessage",
       form: dataToSendToSlack
     };
 

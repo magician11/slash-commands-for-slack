@@ -4,8 +4,10 @@ Get an overview of various jobs
 */
 
 module.exports = app => {
+  const moment = require("moment");
   const utils = require("../modules/utils");
   const trelloSunbowl = require("../modules/trello");
+  const sunbowlFirebase = require("../modules/firebase");
   const formstackSunbowl = require("../modules/formstack");
   const slackSunbowl = require("../modules/slack");
   const SUNBOWL_AI_VERIFICATION_TOKEN =
@@ -94,6 +96,23 @@ module.exports = app => {
             text: `The ${channel_name} card has been moved to the Pending To Be Assigned list.`
           },
           response_url
+        );
+
+        /*
+         Log this action of moving a card to the pending to be assigned list.
+         And store in Firebase at the location
+          logs/user_name/YYYYMMDD/channel_name/
+
+          with the object
+          startTime - new moment.valueOf() // https://momentjs.com/docs/#/displaying/unix-timestamp-milliseconds/
+         */
+
+        const thisMoment = new moment();
+
+        sunbowlFirebase.updateObject(
+          `logs/${user_name}/${thisMoment.format("DDMMYYYY")}`,
+          channel_name,
+          { timeWhenQueued: thisMoment.valueOf() }
         );
       }
     } catch (err) {
