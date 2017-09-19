@@ -136,9 +136,9 @@ module.exports = app => {
               );
             } else {
               const cyclesReport = {
-                text: `Cycles assigned out today (${dateToQuery.format(
+                text: `Cycles assigned out on ${dateToQuery.format(
                   "Do MMMM YYYY"
-                )})`,
+                )}`,
                 attachments: []
               };
               for (const [key, value] of Object.entries(cyclesAssignedOut)) {
