@@ -3,7 +3,7 @@ const request = require("request");
 const rpn = require("request-promise-native");
 
 class SunbowlSlack {
-  getFirstname(userName) {
+  getName(userName) {
     return new Promise((resolve, reject) => {
       request.get(
         {
@@ -16,7 +16,7 @@ class SunbowlSlack {
           }
           for (const user of data.members) {
             if (userName === user.name) {
-              resolve(user.profile.first_name);
+              resolve(user.profile.real_name);
               return;
             }
           }

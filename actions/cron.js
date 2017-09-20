@@ -18,12 +18,12 @@ module.exports = () => {
           if (moment().diff(reviewRequested, 'hours') >= 4) {
             console.log(
               `Sending out reminder email to ${firebaseData[channel]
-                .first_name} (${firebaseData[channel].email})...`
+                .real_name} (${firebaseData[channel].email})...`
             );
             const emailResponse = await utils.sendEmail(
               firebaseData[channel].email,
               'An Action is Required in Slack',
-              `<p>Hi ${firebaseData[channel].first_name},</p>
+              `<p>Hi ${firebaseData[channel].real_name},</p>
 <p>There is a message from Sunbowl waiting for your approval in the <a href="${firebaseData[
                 channel
               ].channel_link}">${channel} channel</a> in Slack.
