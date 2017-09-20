@@ -9,8 +9,7 @@ module.exports = () => {
   // check review commands executed
   try {
     setInterval(async () => {
-      const data = await sunbowlFirebase.readNode('slash-commands/review');
-      const firebaseData = data.val();
+      const firebaseData = await sunbowlFirebase.readNode('slash-commands/review');
       if (firebaseData !== null) {
         for (let channel of Object.keys(firebaseData)) {
           const reviewRequested = moment(

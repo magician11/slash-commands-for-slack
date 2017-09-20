@@ -8,11 +8,13 @@ module.exports = async (
   channelName,
   responseUrl
 ) => {
-  const utils = require('../modules/utils');
-  const freshbooksSunbowl = require('../modules/freshbooks');
-  const formstackSunbowl = require('../modules/formstack');
-  const trelloSunbowl = require('../modules/trello');
-  const slackSunbowl = require('../modules/slack');
+  const moment = require("moment");
+  const utils = require("../modules/utils");
+  const freshbooksSunbowl = require("../modules/freshbooks");
+  const formstackSunbowl = require("../modules/formstack");
+  const trelloSunbowl = require("../modules/trello");
+  const slackSunbowl = require("../modules/slack");
+  const sunbowlFirebase = require("../modules/firebase");
 
   try {
     const trelloCardId = await formstackSunbowl.getTrelloCardId(channelName);
@@ -39,18 +41,35 @@ module.exports = async (
       userAssigningCycle,
       channelName,
       parseFloat(timeTakenToAssign),
-      'Discussions with client about cycle details. Made video for developer, organized cycle and assigned out.'
+      "Discussions with client about cycle details. Made video for developer, organized cycle and assigned out."
     );
 
     const timeLeft = projectBudget - billableHours - timeTakenToAssign;
 
     const goReviewMessage = {
-      response_type: 'in_channel',
+      response_type: "in_channel",
       text: `*${userAssignedCycleFirstName} has been assigned your next cycle.*
 Your cycle has been placed in the queue and will be worked on as soon as possible.
 Your New Bucket Balance: \`${timeLeft.toFixed(1)} hours\``,
       replace_original: false
     };
+
+    /*
+     Log this action of assigning out a task
+     And store in Firebase at the location
+      logs/user_name/YYYYMMDD/channel_name/
+
+      update the object
+      timeAssigned - new moment.valueOf() // https://momentjs.com/docs/#/displaying/unix-timestamp-milliseconds/
+     */
+
+    const thisMoment = new moment();
+
+    sunbowlFirebase.updateObject(
+      `logs/${userAssigningCycle}/${thisMoment.format("DDMMYYYY")}`,
+      channelName,
+      { timeAssigned: thisMoment.valueOf() }
+    );
 
     slackSunbowl.postToSlack(goReviewMessage, responseUrl);
   } catch (error) {
