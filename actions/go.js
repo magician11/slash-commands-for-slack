@@ -34,7 +34,7 @@ module.exports = async (
     const billableHours = await freshbooksSunbowl.getBillableHours(
       freshbooksProjectId
     );
-    const userAssignedCycleFirstName = await slackSunbowl.getFirstname(
+    const userAssignedCycleFirstName = await slackSunbowl.getName(
       userAssignedCycle.slice(1)
     );
     await freshbooksSunbowl.addTimeEntry(

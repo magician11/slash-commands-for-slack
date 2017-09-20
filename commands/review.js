@@ -140,7 +140,7 @@ module.exports = app => {
             clientName.substring(1)
           );
           sunbowlFirebase.writeObject('slash-commands/review', channel_name, {
-            first_name: recipientProfile.first_name,
+            real_name: recipientProfile.real_name,
             email: recipientProfile.email,
             review_requested_at: moment().valueOf(),
             channel_link: `https://${team_domain}.slack.com/messages/${channel_id}/`
