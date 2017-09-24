@@ -115,67 +115,69 @@ module.exports = app => {
           { timeWhenQueued: thisMoment.valueOf() }
         );
       } else if (queParameters[0] === "report") {
+        let dateToQuery;
+
         if (!queParameters[1]) {
-          throw "You need to specify a date in the format DDMMYYY. e.g. /que report 19092017";
+          dateToQuery = new moment();
         } else {
-          const dateToQuery = new moment(queParameters[1], "DDMMYYYY");
+          dateToQuery = new moment(queParameters[1], "DDMMYYYY");
           if (!dateToQuery.isValid()) {
             throw `Invalid date ${queParameters[1]}. It needs to be in the format DDMMYYYY. e.g. /que report 19092017`;
-          } else {
-            const cyclesAssignedOut = await sunbowlFirebase.readNode(
-              `logs/${user_name}/${queParameters[1]}`
-            );
-            if (cyclesAssignedOut === null) {
-              slackSunbowl.postToSlack(
-                {
-                  text: `No cycles were queued from you ${user_name} on ${dateToQuery.format(
-                    "Do MMM YYYY"
-                  )}`
-                },
-                response_url
-              );
-            } else {
-              const cyclesReport = {
-                text: `Cycles assigned out on ${dateToQuery.format(
-                  "Do MMMM YYYY"
-                )}`,
-                attachments: []
-              };
-              for (const [key, value] of Object.entries(cyclesAssignedOut)) {
-                const timeWhenQueued = new moment(value.timeWhenQueued);
-                const timeAssigned = new moment(value.timeAssigned);
-
-                const timeTakenToAssign =
-                  value.timeAssigned === undefined
-                    ? "not complete yet"
-                    : moment
-                        .duration(timeAssigned.diff(timeWhenQueued))
-                        .humanize();
-
-                cyclesReport.attachments.push({
-                  title: key,
-                  text: `Time taken to assign out: ${timeTakenToAssign}`,
-                  fields: [
-                    {
-                      title: "Time queued at",
-                      value: timeWhenQueued.format("LTS"),
-                      short: true
-                    },
-                    {
-                      title: "Time assigned at",
-                      value:
-                        value.timeAssigned === undefined
-                          ? "not assigned out yet"
-                          : timeAssigned.format("LTS"),
-                      short: true
-                    }
-                  ]
-                });
-              }
-
-              slackSunbowl.postToSlack(cyclesReport, response_url);
-            }
+            return;
           }
+        }
+
+        const cyclesAssignedOut = await sunbowlFirebase.readNode(
+          `logs/${user_name}/${dateToQuery.format("DDMMYYYY")}`
+        );
+        if (cyclesAssignedOut === null) {
+          slackSunbowl.postToSlack(
+            {
+              text: `No cycles were queued from you ${user_name} on ${dateToQuery.format(
+                "Do MMM YYYY"
+              )}`
+            },
+            response_url
+          );
+        } else {
+          const cyclesReport = {
+            text: `Cycles assigned out on ${dateToQuery.format(
+              "Do MMMM YYYY"
+            )}`,
+            attachments: []
+          };
+          for (const [key, value] of Object.entries(cyclesAssignedOut)) {
+            const timeWhenQueued = new moment(value.timeWhenQueued);
+            const timeAssigned = new moment(value.timeAssigned);
+
+            const timeTakenToAssign =
+              value.timeAssigned === undefined
+                ? "not complete yet"
+                : moment.duration(timeAssigned.diff(timeWhenQueued)).humanize();
+
+            cyclesReport.attachments.push({
+              title: key,
+              color: value.timeAssigned ? "good" : "danger",
+              text: `Time taken to assign out: ${timeTakenToAssign}`,
+              fields: [
+                {
+                  title: "Time queued at",
+                  value: timeWhenQueued.format("LTS"),
+                  short: true
+                },
+                {
+                  title: "Time assigned at",
+                  value:
+                    value.timeAssigned === undefined
+                      ? "not assigned out yet"
+                      : timeAssigned.format("LTS"),
+                  short: true
+                }
+              ]
+            });
+          }
+
+          slackSunbowl.postToSlack(cyclesReport, response_url);
         }
       }
     } catch (err) {

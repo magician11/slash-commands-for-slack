@@ -5,19 +5,19 @@ Buttons are added for them to confirm this cycle.
 */
 
 module.exports = app => {
-  const moment = require('moment');
-  const utils = require('../modules/utils');
-  const sunbowlFirebase = require('../modules/firebase');
-  const freshbooksSunbowl = require('../modules/freshbooks');
-  const formstackSunbowl = require('../modules/formstack');
-  const trelloSunbowl = require('../modules/trello');
-  const slackSunbowl = require('../modules/slack');
+  const moment = require("moment");
+  const utils = require("../modules/utils");
+  const sunbowlFirebase = require("../modules/firebase");
+  const freshbooksSunbowl = require("../modules/freshbooks");
+  const formstackSunbowl = require("../modules/formstack");
+  const trelloSunbowl = require("../modules/trello");
+  const slackSunbowl = require("../modules/slack");
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
   const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
-  app.post('/review', async (req, res) => {
+  app.post("/review", async (req, res) => {
     const {
       text,
       token,
@@ -27,18 +27,18 @@ module.exports = app => {
       channel_id,
       team_domain
     } = req.body;
-    const reviewArguments = text.split(' ');
+    const reviewArguments = text.split(" ");
 
     // check to see whether this script is being accessed from our slack apps
     if (
       token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
       token !== SUNBOWL_AI_VERIFICATION_TOKEN
     ) {
-      utils.respondWithError('Access denied.', res);
+      utils.respondWithError("Access denied.", res);
       return;
-    } else if (reviewArguments[0] !== '' && reviewArguments.length < 3) {
+    } else if (reviewArguments[0] !== "" && reviewArguments.length < 3) {
       utils.respondWithError(
-        'Usage: /review [time taken to assign] [dev name] [client name] [optional cc]',
+        "Usage: /review [time taken to assign] [dev name] [client name] [optional cc]",
         res
       );
       return;
@@ -51,18 +51,28 @@ module.exports = app => {
     const timeTakenToAssign = reviewArguments[0];
     const devName = reviewArguments[1];
     const clientName = reviewArguments[2];
-    const ccField = reviewArguments.length === 4
-      ? ` (cc: <${reviewArguments[3]}>)`
-      : '';
+    const ccField =
+      reviewArguments.length === 4 ? ` (cc: <${reviewArguments[3]}>)` : "";
 
     try {
       const trelloCardId = await formstackSunbowl.getTrelloCardId(channel_name);
+      const listNameItsOn = await trelloSunbowl.getListNameForCard(
+        trelloCardId
+      );
+
+      const listTheCardMustBeOn = "Pending to be assigned";
+
+      if (listNameItsOn !== listTheCardMustBeOn) {
+        throw `To review the tasks for this project, the card needs to be on the "${listTheCardMustBeOn}" list. It's currently on the "${listNameItsOn}" list.\nFirst do */que start*`;
+        return;
+      }
+
       const taskListId = await trelloSunbowl.getTaskListId(trelloCardId);
       const taskList = await trelloSunbowl.getTaskListItems(taskListId);
 
       if (taskList.length === 0) {
         slackSunbowl.postToSlack(
-          utils.constructErrorForSlack('No tasks were found.'),
+          utils.constructErrorForSlack("No tasks were found."),
           response_url
         );
       } else {
@@ -81,24 +91,24 @@ module.exports = app => {
 
         const reviewResponse = {};
 
-        if (reviewArguments[0] === '') {
+        if (reviewArguments[0] === "") {
           reviewResponse.text = `${utils.createBulletListFromArray(taskList)}`;
         } else {
           reviewResponse.text = `*Tasks awaiting your approval <${clientName}>${ccField}...*${utils.createBulletListFromArray(
             taskList
           )}`;
-          reviewResponse.response_type = 'in_channel';
+          reviewResponse.response_type = "in_channel";
           reviewResponse.attachments = [
             {
-              color: '#00bfff',
+              color: "#00bfff",
               fields: [
                 {
-                  title: 'Time Taken To Assign',
+                  title: "Time Taken To Assign",
                   value: `${user_name}: ${timeTakenToAssign}`,
                   short: true
                 },
                 {
-                  title: 'Cycle will be assigned to:',
+                  title: "Cycle will be assigned to:",
                   value: devName,
                   short: true
                 }
@@ -109,21 +119,21 @@ module.exports = app => {
             },
             {
               text: `*Please review the above cycle. Ready to proceed?*`,
-              mrkdwn_in: ['text'],
-              callback_id: 'review_tasks',
+              mrkdwn_in: ["text"],
+              callback_id: "review_tasks",
               actions: [
                 {
-                  name: 'review',
-                  text: 'Confirm',
-                  type: 'button',
-                  value: 'confirm',
-                  style: 'primary'
+                  name: "review",
+                  text: "Confirm",
+                  type: "button",
+                  value: "confirm",
+                  style: "primary"
                 },
                 {
-                  name: 'review',
-                  text: 'I have some changes',
-                  type: 'button',
-                  value: 'cancel'
+                  name: "review",
+                  text: "I have some changes",
+                  type: "button",
+                  value: "cancel"
                 }
               ]
             }
@@ -132,19 +142,36 @@ module.exports = app => {
           // move the card to the pending to be assigned list
           trelloSunbowl.moveTrelloCard(
             trelloCardId,
-            '537bc2cec1db170a09078963'
+            "537bc2cec1db170a09078963"
           );
 
           // set a flag that a review command was made
           const recipientProfile = await slackSunbowl.getUserProfile(
             clientName.substring(1)
           );
-          sunbowlFirebase.writeObject('slash-commands/review', channel_name, {
+          sunbowlFirebase.writeObject("slash-commands/review", channel_name, {
             real_name: recipientProfile.real_name,
             email: recipientProfile.email,
             review_requested_at: moment().valueOf(),
             channel_link: `https://${team_domain}.slack.com/messages/${channel_id}/`
           });
+
+          /*
+           Log this action of assigning out a task
+           And store in Firebase at the location
+            logs/user_name/YYYYMMDD/channel_name/
+
+            update the object
+            timeAssigned - new moment.valueOf() // https://momentjs.com/docs/#/displaying/unix-timestamp-milliseconds/
+           */
+
+          const thisMoment = new moment();
+
+          sunbowlFirebase.updateObject(
+            `logs/${user_name}/${thisMoment.format("DDMMYYYY")}`,
+            channel_name,
+            { timeAssigned: thisMoment.valueOf() }
+          );
         }
         slackSunbowl.postToSlack(reviewResponse, response_url);
       }
