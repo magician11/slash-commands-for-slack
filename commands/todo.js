@@ -4,7 +4,9 @@ Add a task to their trello card
 */
 
 module.exports = app => {
+  const moment = require("moment");
   const formstackSunbowl = require("../modules/formstack");
+  const sunbowlFirebase = require("../modules/firebase");
   const trelloSunbowl = require("../modules/trello");
   const slackSunbowl = require("../modules/slack");
   const utils = require("../modules/utils");
@@ -14,7 +16,7 @@ module.exports = app => {
     process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
   app.post("/todo", async (req, res) => {
-    const { text, token, channel_name, response_url } = req.body;
+    const { text, token, channel_name, response_url, user_name } = req.body;
     const task = text;
 
     // check to see whether this script is being accessed from our slack apps
@@ -50,13 +52,31 @@ module.exports = app => {
       }
 
       const taskListId = await trelloSunbowl.getTaskListId(trelloCardId);
+
+      /*
+        If this is the first task to be added, log this time.
+      */
+      const taskList = await trelloSunbowl.getTaskListItems(taskListId);
+      if (taskList.length === 0) {
+        const thisMoment = new moment();
+
+        sunbowlFirebase.updateObject(
+          `logs/${user_name}/${thisMoment.format("DDMMYYYY")}`,
+          channel_name,
+          { firstTodoAdded: thisMoment.valueOf() }
+        );
+      }
+
       await trelloSunbowl.addTask(taskListId, task);
       slackSunbowl.postToSlack(
         { text: `Great! Your task *${task}* was added.` },
         response_url
       );
     } catch (error) {
-      slackSunbowl.postToSlack(utils.constructErrorForSlack(error), response_url);
+      slackSunbowl.postToSlack(
+        utils.constructErrorForSlack(error),
+        response_url
+      );
     }
   });
 };
