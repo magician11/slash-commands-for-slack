@@ -148,6 +148,7 @@ module.exports = app => {
           };
           for (const [key, value] of Object.entries(cyclesAssignedOut)) {
             const timeWhenQueued = new moment(value.timeWhenQueued);
+            const timeWhenFirstTodoAdded = new moment(value.firstTodoAdded);
             const timeAssigned = new moment(value.timeAssigned);
 
             const timeTakenToAssign =
@@ -162,16 +163,21 @@ module.exports = app => {
               fields: [
                 {
                   title: "Time queued at",
-                  value: timeWhenQueued.format("LTS"),
-                  short: true
+                  value: timeWhenQueued.format("LTS")
+                },
+                {
+                  title: "Time first todo added",
+                  value:
+                    value.firstTodoAdded === undefined
+                      ? "no tasks added yet"
+                      : timeWhenFirstTodoAdded.format("LTS")
                 },
                 {
                   title: "Time assigned at",
                   value:
                     value.timeAssigned === undefined
                       ? "not assigned out yet"
-                      : timeAssigned.format("LTS"),
-                  short: true
+                      : timeAssigned.format("LTS")
                 }
               ]
             });
