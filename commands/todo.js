@@ -47,7 +47,22 @@ module.exports = app => {
       const listTheCardMustBeOn = "Pending to be assigned";
 
       if (listNameItsOn !== listTheCardMustBeOn) {
-        throw `To add tasks they need to be on the "${listTheCardMustBeOn}" list. It's currently on the "${listNameItsOn}" list.\nFirst do */que start*`;
+        slackSunbowl.postToSlack(
+          {
+            attachments: [
+              {
+                title:
+                  "Tisk Tisk, cards have to be queued first before you can use the todo command.",
+                text: "First do `/que start`",
+                image_url:
+                  "http://res.cloudinary.com/go-for-self/image/upload/v1506330193/horse-cart.jpg",
+                footer: `This card needs to be on the "${listTheCardMustBeOn}" list. It's currently on the "${listNameItsOn}" list.`,
+                mrkdwn_in: ["text"]
+              }
+            ]
+          },
+          response_url
+        );
         return;
       }
 
