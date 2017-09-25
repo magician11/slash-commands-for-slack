@@ -157,7 +157,7 @@ module.exports = app => {
                 : moment.duration(timeAssigned.diff(timeWhenQueued)).humanize();
 
             cyclesReport.attachments.push({
-              title: key,
+              pretext: `*Project: ${key}*`,
               color: value.timeAssigned ? "good" : "danger",
               text: `Time taken to assign out: ${timeTakenToAssign}`,
               fields: [
@@ -179,12 +179,15 @@ module.exports = app => {
                       ? "not assigned out yet"
                       : timeAssigned.format("LTS")
                 }
-              ]
+              ],
+              mrkdwn_in: ["pretext"]
             });
           }
 
           slackSunbowl.postToSlack(cyclesReport, response_url);
         }
+      } else {
+        throw `Sorry, I don't recognise the option "${queParameters[0]}" for the \`/que\` command.`;
       }
     } catch (err) {
       slackSunbowl.postToSlack(utils.constructErrorForSlack(err), response_url);
