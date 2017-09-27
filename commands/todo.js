@@ -4,17 +4,19 @@ Add a task to their trello card
 */
 
 module.exports = app => {
+  const moment = require("moment");
   const formstackSunbowl = require("../modules/formstack");
+  const sunbowlFirebase = require("../modules/firebase");
   const trelloSunbowl = require("../modules/trello");
-  const slackSunbowl = require('../modules/slack');
+  const slackSunbowl = require("../modules/slack");
   const utils = require("../modules/utils");
   const SUNBOWL_AI_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
   const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
     process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
 
-  app.post("/todo", (req, res) => {
-    const { text, token, channel_name, response_url } = req.body;
+  app.post("/todo", async (req, res) => {
+    const { text, token, channel_name, response_url, user_name } = req.body;
     const task = text;
 
     // check to see whether this script is being accessed from our slack apps
@@ -36,18 +38,60 @@ module.exports = app => {
       text: "Ok adding that for you now..."
     });
 
-    formstackSunbowl
-      .getTrelloCardId(channel_name)
-      .then(trelloSunbowl.getTaskListId)
-      .then(taskListId => trelloSunbowl.addTask(taskListId, task))
-      .then(() => {
+    try {
+      const trelloCardId = await formstackSunbowl.getTrelloCardId(channel_name);
+      const listNameItsOn = await trelloSunbowl.getListNameForCard(
+        trelloCardId
+      );
+
+      const listTheCardMustBeOn = "Pending to be assigned";
+
+      if (listNameItsOn !== listTheCardMustBeOn) {
         slackSunbowl.postToSlack(
-          { text: `Great! Your task *${task}* was added.` },
+          {
+            attachments: [
+              {
+                title:
+                  "Tisk Tisk, cards have to be queued first before you can use the todo command.",
+                text: "First do `/que start`",
+                image_url:
+                  "http://res.cloudinary.com/go-for-self/image/upload/v1506330193/horse-cart.jpg",
+                footer: `This card needs to be on the "${listTheCardMustBeOn}" list. It's currently on the "${listNameItsOn}" list.`,
+                mrkdwn_in: ["text"]
+              }
+            ]
+          },
           response_url
         );
-      })
-      .catch(error => {
-        utils.respondWithError(error, res);
-      });
+        return;
+      }
+
+      const taskListId = await trelloSunbowl.getTaskListId(trelloCardId);
+
+      /*
+        If this is the first task to be added, log this time.
+      */
+      const taskList = await trelloSunbowl.getTaskListItems(taskListId);
+      if (taskList.length === 0) {
+        const thisMoment = new moment();
+
+        sunbowlFirebase.updateObject(
+          `logs/${user_name}/${thisMoment.format("DDMMYYYY")}`,
+          channel_name,
+          { firstTodoAdded: thisMoment.valueOf() }
+        );
+      }
+
+      await trelloSunbowl.addTask(taskListId, task);
+      slackSunbowl.postToSlack(
+        { text: `Great! Your task *${task}* was added.` },
+        response_url
+      );
+    } catch (error) {
+      slackSunbowl.postToSlack(
+        utils.constructErrorForSlack(error),
+        response_url
+      );
+    }
   });
 };

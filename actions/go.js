@@ -14,7 +14,6 @@ module.exports = async (
   const formstackSunbowl = require("../modules/formstack");
   const trelloSunbowl = require("../modules/trello");
   const slackSunbowl = require("../modules/slack");
-  const sunbowlFirebase = require("../modules/firebase");
 
   try {
     const trelloCardId = await formstackSunbowl.getTrelloCardId(channelName);
@@ -53,23 +52,6 @@ Your cycle has been placed in the queue and will be worked on as soon as possibl
 Your New Bucket Balance: \`${timeLeft.toFixed(1)} hours\``,
       replace_original: false
     };
-
-    /*
-     Log this action of assigning out a task
-     And store in Firebase at the location
-      logs/user_name/YYYYMMDD/channel_name/
-
-      update the object
-      timeAssigned - new moment.valueOf() // https://momentjs.com/docs/#/displaying/unix-timestamp-milliseconds/
-     */
-
-    const thisMoment = new moment();
-
-    sunbowlFirebase.updateObject(
-      `logs/${userAssigningCycle}/${thisMoment.format("DDMMYYYY")}`,
-      channelName,
-      { timeAssigned: thisMoment.valueOf() }
-    );
 
     slackSunbowl.postToSlack(goReviewMessage, responseUrl);
   } catch (error) {
