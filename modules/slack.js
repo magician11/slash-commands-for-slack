@@ -3,6 +3,10 @@ const request = require("request");
 const rpn = require("request-promise-native");
 
 class SunbowlSlack {
+  constructor() {
+    this.pendingToBeAssignedListId = "537bc2cec1db170a09078963";
+  }
+  
   getName(userName) {
     return new Promise((resolve, reject) => {
       request.get(
