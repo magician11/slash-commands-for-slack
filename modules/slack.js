@@ -1,4 +1,5 @@
 const SLACK_TOKEN = process.env.SUNBOWL_SLACK_TOKEN;
+const BOT_USER_OAUTH_ACCESS_TOKEN = process.env.SUNBOWL_BOT_USER_OAUTH_ACCESS_TOKEN;
 const request = require("request");
 const rpn = require("request-promise-native");
 
@@ -6,7 +7,30 @@ class SunbowlSlack {
   constructor() {
     this.pendingToBeAssignedListId = "537bc2cec1db170a09078963";
   }
-  
+
+/*
+Sends a direct message to a specific user from the BOT
+*/
+  sendDM(userId, message) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const conversationRes = await rpn({
+          uri: `https://slack.com/api/conversations.open?token=${BOT_USER_OAUTH_ACCESS_TOKEN}&users=${userId}`,
+          json: true
+        });
+
+        const messageRes = await rpn({
+          uri: `https://slack.com/api/chat.postMessage?token=${BOT_USER_OAUTH_ACCESS_TOKEN}&channel=${conversationRes.channel.id}&text=${message}`,
+          json: true
+        });
+
+        resolve(messageRes);
+      } catch (error) {
+        reject(`Error sending a DM: ${error}`);
+      }
+    });
+  }
+
   getName(userName) {
     return new Promise((resolve, reject) => {
       request.get(

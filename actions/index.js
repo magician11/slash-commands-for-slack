@@ -96,7 +96,13 @@ module.exports = app => {
             { timeWhenQueued: thisMoment.valueOf() }
           );
 
-// notify the dev that this card was on
+          // notify the dev that this card was on
+          const response = await slackSunbowl.sendDM(
+            slackMessage.user.id,
+            `Hi! <@${slackMessage.user.id}> has moved the *${slackMessage.channel.name}* card to the Pending to be assigned list. It will most likely be re-assigned to you shortly.`
+          );
+
+          console.log(response);
 
           // slackSunbowl.postToSlack(
           //   {
