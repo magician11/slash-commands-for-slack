@@ -1,5 +1,6 @@
 const SLACK_TOKEN = process.env.SUNBOWL_SLACK_TOKEN;
-const BOT_USER_OAUTH_ACCESS_TOKEN = process.env.SUNBOWL_BOT_USER_OAUTH_ACCESS_TOKEN;
+const BOT_USER_OAUTH_ACCESS_TOKEN =
+  process.env.SUNBOWL_BOT_USER_OAUTH_ACCESS_TOKEN;
 const request = require("request");
 const rpn = require("request-promise-native");
 
@@ -8,7 +9,7 @@ class SunbowlSlack {
     this.pendingToBeAssignedListId = "537bc2cec1db170a09078963";
   }
 
-/*
+  /*
 Sends a direct message to a specific user from the BOT
 */
   sendDM(userId, message) {
@@ -20,7 +21,8 @@ Sends a direct message to a specific user from the BOT
         });
 
         const messageRes = await rpn({
-          uri: `https://slack.com/api/chat.postMessage?token=${BOT_USER_OAUTH_ACCESS_TOKEN}&channel=${conversationRes.channel.id}&text=${message}`,
+          uri: `https://slack.com/api/chat.postMessage?token=${BOT_USER_OAUTH_ACCESS_TOKEN}&channel=${conversationRes
+            .channel.id}&text=${message}`,
           json: true
         });
 
@@ -55,7 +57,7 @@ Sends a direct message to a specific user from the BOT
   }
 
   // argument of user without @
-  getUserProfile(userName) {
+  getUser(userName) {
     return new Promise(async (resolve, reject) => {
       try {
         const userList = await rpn({
@@ -64,7 +66,7 @@ Sends a direct message to a specific user from the BOT
         });
         for (const user of userList.members) {
           if (userName === user.name) {
-            resolve(user.profile);
+            resolve(user);
             return;
           }
         }
@@ -76,12 +78,25 @@ Sends a direct message to a specific user from the BOT
   }
 
   postToSlack(message, url) {
-    const options = {
-      uri: url,
-      json: message
-    };
+    return new Promise(async (resolve, reject) => {
+      try {
+        const postResponse = await rpn.post({
+          uri: url,
+          body: message,
+          json: true
+        });
 
-    request.post(options);
+        resolve(postResponse);
+      } catch (error) {
+        reject(`Error posting to Slack: ${error}`);
+      }
+    });
+    // const options = {
+    //   uri: url,
+    //   json: message
+    // };
+    //
+    // request.post(options);
   }
 
   postJobReport(jobReportData) {

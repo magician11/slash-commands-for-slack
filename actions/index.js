@@ -78,10 +78,18 @@ module.exports = app => {
 
         // if we are to action queueing this card, do a few things...
         if (actionQueue) {
-          //move the card
           const trelloCardId = await formstackSunbowl.getTrelloCardId(
             slackMessage.channel.name
           );
+
+          // find the user ID for the dev this card was assigned to
+          const devName = await trelloSunbowl.getListNameForCard(trelloCardId);
+          console.log(devName);
+          const dev = await slackSunbowl.getUser(devName.substring(1));
+
+          console.log(dev);
+
+          // move the card
           await trelloSunbowl.moveTrelloCard(
             trelloCardId,
             slackSunbowl.pendingToBeAssignedListId
@@ -98,8 +106,10 @@ module.exports = app => {
 
           // notify the dev that this card was on
           const response = await slackSunbowl.sendDM(
-            slackMessage.user.id,
-            `Hi! <@${slackMessage.user.id}> has moved the *${slackMessage.channel.name}* card to the Pending to be assigned list. It will most likely be re-assigned to you shortly.`
+            dev.id,
+            `Hi ${dev.profile.display_name}! <@${slackMessage.user.id}> has moved the *${slackMessage
+              .channel
+              .name}* card to the Pending to be assigned list. It will most likely be re-assigned to you shortly.`
           );
 
           console.log(response);

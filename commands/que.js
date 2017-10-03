@@ -87,7 +87,7 @@ module.exports = app => {
 
         // if the card is on a dev list, prompt the user if they really want to move it
         if (listName.startsWith("@")) {
-          slackSunbowl.postToSlack(
+          const moveResponse = await slackSunbowl.postToSlack(
             {
               text: `The ${channel_name} card is currently being worked on by ${listName}.`,
               attachments: [
@@ -114,6 +114,7 @@ module.exports = app => {
             },
             response_url
           );
+          console.log(moveResponse);
           return;
         }
         // throw `The ${channel_name} card is currently being worked on by ${listName}. So leaving it.`;
