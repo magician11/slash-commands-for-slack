@@ -4,10 +4,7 @@
 const request = require("request");
 const rpn = require("request-promise-native");
 
-const config = require("../auth.js").get(process.env.NODE_ENV);
-
-// console.log("slack config");
-// console.log(config);
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
 class SunbowlSlack {
   constructor() {

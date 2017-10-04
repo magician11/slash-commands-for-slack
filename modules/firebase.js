@@ -1,12 +1,13 @@
 /* Sunbowl AI Firebase account */
 const firebaseAdmin = require("firebase-admin");
-const firebasePrivateKey = require("../sunbowl-ai-firebase-adminsdk-n05vi-72b612beb0.json");
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
+const firebasePrivateKey = require(`../security/${config.firebase.privateKeyFilename}`);
 
 class SunbowlFirebase {
   constructor() {
     firebaseAdmin.initializeApp({
       credential: firebaseAdmin.credential.cert(firebasePrivateKey),
-      databaseURL: "https://sunbowl-ai.firebaseio.com/"
+      databaseURL: config.firebase.databaseURL
     });
 
     this.db = firebaseAdmin.database();
