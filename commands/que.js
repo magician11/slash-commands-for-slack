@@ -113,6 +113,7 @@ module.exports = app => {
           trelloCardId,
           slackSunbowl.pendingToBeAssignedListId
         );
+
         slackSunbowl.postToSlack(
           {
             text: `The ${channel_name} card has been moved to the Pending To Be Assigned list.`

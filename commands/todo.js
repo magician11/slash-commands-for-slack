@@ -64,6 +64,7 @@ module.exports = app => {
 
       /*
         If this is the first task to be added, log this time.
+        Also move this checklist to the top of the card
       */
       const taskList = await trelloSunbowl.getTaskListItems(taskListId);
       if (taskList.length === 0) {
@@ -74,6 +75,8 @@ module.exports = app => {
           channel_name,
           { firstTodoAdded: thisMoment.valueOf() }
         );
+
+        await trelloSunbowl.moveTaskListToTop(taskListId);
       }
 
       await trelloSunbowl.addTask(taskListId, task);

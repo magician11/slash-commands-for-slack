@@ -8,21 +8,14 @@ const utils = require("../modules/utils");
 const formstackSunbowl = require("../modules/formstack");
 const slackSunbowl = require("../modules/slack");
 const trelloSunbowl = require("../modules/trello");
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
 module.exports = app => {
-  const SUNBOWL_AI_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
-  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
-
   app.post("/action", async (req, res) => {
     const slackMessage = JSON.parse(req.body.payload);
 
     // check to see whether this script is being accessed from our slack apps
-    if (
-      slackMessage.token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
-      slackMessage.token !== SUNBOWL_AI_VERIFICATION_TOKEN
-    ) {
+    if (slackMessage.token !== config.slack.verificationToken) {
       utils.respondWithError("Access denied.", res);
       return;
     }
@@ -72,42 +65,60 @@ module.exports = app => {
         // give an initial response based on which button pressed
         res.json({
           text: actionQueue
-            ? "Ok we will will move this card for you now."
+            ? "Ok, actioning this all now for you."
             : "No prob. Leaving the card as is."
         });
 
         // if we are to action queueing this card, do a few things...
         if (actionQueue) {
-          const trelloCardId = await formstackSunbowl.getTrelloCardId(
-            slackMessage.channel.name
-          );
+          try {
+            const trelloCardId = await formstackSunbowl.getTrelloCardId(
+              slackMessage.channel.name
+            );
 
-          // find the user ID for the dev this card was assigned to
-          const devName = await trelloSunbowl.getListNameForCard(trelloCardId);
-          const dev = await slackSunbowl.getUser(devName.substring(1));
+            // find the user ID for the dev this card was assigned to
+            const devName = await trelloSunbowl.getListNameForCard(
+              trelloCardId
+            );
+            const dev = await slackSunbowl.getUser(devName.substring(1));
 
-          // move the card
-          await trelloSunbowl.moveTrelloCard(
-            trelloCardId,
-            slackSunbowl.pendingToBeAssignedListId
-          );
+            // move the card
+            await trelloSunbowl.moveTrelloCard(
+              trelloCardId,
+              slackSunbowl.pendingToBeAssignedListId
+            );
 
-          // log the queueing
-          const thisMoment = new moment();
+            // log the queueing
+            const thisMoment = new moment();
 
-          sunbowlFirebase.writeObject(
-            `logs/${slackMessage.user.name}/${thisMoment.format("DDMMYYYY")}`,
-            slackMessage.channel.name,
-            { timeWhenQueued: thisMoment.valueOf() }
-          );
+            sunbowlFirebase.writeObject(
+              `logs/${slackMessage.user.name}/${thisMoment.format("DDMMYYYY")}`,
+              slackMessage.channel.name,
+              { timeWhenQueued: thisMoment.valueOf() }
+            );
 
-          // notify the dev that this card was on
-          await slackSunbowl.sendDM(
-            dev.id,
-            `Hi ${dev.profile.real_name}! <@${slackMessage.user
-              .id}> has moved the *${slackMessage.channel
-              .name}* card to the Pending to be assigned list. It will most likely be re-assigned to you shortly.`
-          );
+            // notify the dev that this card was on
+            await slackSunbowl.sendDM(
+              dev.id,
+              `Hi ${dev.profile.real_name}! <@${slackMessage.user
+                .id}> has moved the *${slackMessage.channel
+                .name}* card to the Pending to be assigned list. It will most likely be re-assigned to you shortly.`
+            );
+
+            await slackSunbowl.postToSlack(
+              {
+                text: `The *${slackMessage.channel
+                  .name}* card was successfully moved to the Pending to be assigned list. And ${dev
+                  .profile.real_name} has been notified.`
+              },
+              slackMessage.response_url
+            );
+          } catch (err) {
+            slackSunbowl.postToSlack(
+              utils.constructErrorForSlack(err),
+              slackMessage.response_url
+            );
+          }
         }
 
         break;

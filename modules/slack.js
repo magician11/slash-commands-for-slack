@@ -72,7 +72,7 @@ class SunbowlSlack {
             return;
           }
         }
-        reject(`Could not find a profile for ${userName}.`);
+        reject(`We could not find a profile for ${userName}.`);
       } catch (error) {
         reject(`Error with finding the profile for ${userName}: ${error}`);
       }
