@@ -1,2 +1,3 @@
 # slash-commands-for-slack
-A node server to handle slash commands for Slack.
+
+A Node.js server to process slash commands from Slack for Sunbowl.
