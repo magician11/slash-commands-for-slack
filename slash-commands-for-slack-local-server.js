@@ -7,6 +7,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 console.log(app.get("env"));
 
+/*
+I could do something like
+https://stackoverflow.com/a/22927696/2813041
+to determine if to use conversationRes
+
+Can run like NODE_ENV=local node slash-commands-for-slack-local-server.js
+
+*/
+
 // import the routes
 require("./commands/bucket")(app);
 require("./commands/todo")(app);

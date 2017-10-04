@@ -27,7 +27,7 @@ module.exports = app => {
       return;
     }
 
-    console.log(JSON.stringify(slackMessage, null, 2));
+    // console.log(JSON.stringify(slackMessage, null, 2));
 
     switch (slackMessage.callback_id) {
       // on a client confirming a cycle or not
@@ -84,10 +84,7 @@ module.exports = app => {
 
           // find the user ID for the dev this card was assigned to
           const devName = await trelloSunbowl.getListNameForCard(trelloCardId);
-          console.log(devName);
           const dev = await slackSunbowl.getUser(devName.substring(1));
-
-          console.log(dev);
 
           // move the card
           await trelloSunbowl.moveTrelloCard(
@@ -105,21 +102,12 @@ module.exports = app => {
           );
 
           // notify the dev that this card was on
-          const response = await slackSunbowl.sendDM(
+          await slackSunbowl.sendDM(
             dev.id,
-            `Hi ${dev.profile.display_name}! <@${slackMessage.user.id}> has moved the *${slackMessage
-              .channel
+            `Hi ${dev.profile.real_name}! <@${slackMessage.user
+              .id}> has moved the *${slackMessage.channel
               .name}* card to the Pending to be assigned list. It will most likely be re-assigned to you shortly.`
           );
-
-          console.log(response);
-
-          // slackSunbowl.postToSlack(
-          //   {
-          //     text: `The ${slackMessage.channel.name} card has been moved to the Pending To Be Assigned list.`
-          //   },
-          //   response_url
-          // );
         }
 
         break;

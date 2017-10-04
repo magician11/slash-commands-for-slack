@@ -114,10 +114,8 @@ module.exports = app => {
             },
             response_url
           );
-          console.log(moveResponse);
           return;
         }
-        // throw `The ${channel_name} card is currently being worked on by ${listName}. So leaving it.`;
 
         await trelloSunbowl.moveTrelloCard(
           trelloCardId,
