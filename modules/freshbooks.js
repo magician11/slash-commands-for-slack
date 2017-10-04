@@ -1,7 +1,7 @@
-/* FRESHBOOKS */
+/* FreshBooks */
+
 const FreshBooks = require('freshbooks');
-const SUNBOWL_FRESHBOOKS_API_URL = process.env.SUNBOWL_FRESHBOOKS_URL;
-const SUNBOWL_FRESHBOOKS_AUTH_KEY = process.env.SUNBOWL_FRESHBOOKS_API_TOKEN;
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 const sunbowlFormstack = require('./formstack');
 
 /*
@@ -90,7 +90,7 @@ class SunbowlFreshbooks {
   }
 
   getProjectBudget(projectId) {
-    const freshbooks = new FreshBooks(SUNBOWL_FRESHBOOKS_API_URL, SUNBOWL_FRESHBOOKS_AUTH_KEY);
+    const freshbooks = new FreshBooks(config.freshbooks.url, config.freshbooks.token);
     return new Promise((resolve, reject) => {
       const projects = new freshbooks.Project();
       projects.get(projectId, (err, project) => {
@@ -114,7 +114,7 @@ class SunbowlFreshbooks {
     }
 
     return new Promise((resolve, reject) => {
-      const freshbooks = new FreshBooks(SUNBOWL_FRESHBOOKS_API_URL, SUNBOWL_FRESHBOOKS_AUTH_KEY);
+      const freshbooks = new FreshBooks(config.freshbooks.url, config.freshbooks.token);
       const timeEntries = new freshbooks.Time_Entry();
       let billableHours = 0;
       timeEntries.list({ project_id: projectId, per_page: 100 }, (err, times, options) => {

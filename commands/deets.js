@@ -3,25 +3,19 @@ Slash command for Sunbowl
 Get the description info for this channel's trello card.
 */
 
-module.exports = app => {
-  const utils = require('../modules/utils');
-  const formstackSunbowl = require('../modules/formstack');
-  const trelloSunbowl = require('../modules/trello');
-  const slackSunbowl = require('../modules/slack');
-  const SUNBOWL_AI_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
-  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
+const utils = require("../modules/utils");
+const formstackSunbowl = require("../modules/formstack");
+const trelloSunbowl = require("../modules/trello");
+const slackSunbowl = require("../modules/slack");
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
-  app.post('/deets', (req, res) => {
+module.exports = app => {
+  app.post("/deets", (req, res) => {
     const { token, user_name, channel_name, response_url } = req.body;
 
     // check to see whether this script is being accessed from our slack apps
-    if (
-      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
-      token !== SUNBOWL_AI_VERIFICATION_TOKEN
-    ) {
-      utils.respondWithError('Access denied.', res);
+    if (token !== config.slack.verificationToken) {
+      utils.respondWithError("Access denied.", res);
       return;
     }
 
@@ -42,7 +36,7 @@ module.exports = app => {
           text: `*Project Card Details*\n\`\`\`${descriptionData}\`\`\``,
           attachments: [
             {
-              title: 'Project Details',
+              title: "Project Details",
               title_link: `https://trello.com/c/${projectsTrelloCardId}`
             }
           ]

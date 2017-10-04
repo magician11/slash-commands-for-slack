@@ -3,27 +3,21 @@ Slash command for Sunbowl
 Get an overview of various jobs
 */
 
-module.exports = app => {
-  const moment = require("moment");
-  const utils = require("../modules/utils");
-  const trelloSunbowl = require("../modules/trello");
-  const sunbowlFirebase = require("../modules/firebase");
-  const formstackSunbowl = require("../modules/formstack");
-  const slackSunbowl = require("../modules/slack");
-  const SUNBOWL_AI_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
-  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
+const moment = require("moment");
+const utils = require("../modules/utils");
+const trelloSunbowl = require("../modules/trello");
+const sunbowlFirebase = require("../modules/firebase");
+const formstackSunbowl = require("../modules/formstack");
+const slackSunbowl = require("../modules/slack");
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
+module.exports = app => {
   app.post("/que", async (req, res) => {
     const { token, text, user_name, response_url, channel_name } = req.body;
     const queParameters = text.split(" ");
 
     // check to see whether this script is being accessed from our slack apps
-    if (
-      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
-      token !== SUNBOWL_AI_VERIFICATION_TOKEN
-    ) {
+    if (token !== config.slack.verificationToken) {
       utils.respondWithError("Access denied.", res);
       return;
     }
@@ -31,8 +25,6 @@ module.exports = app => {
     res.json({ text: `Let me look into this for you ${user_name}...` });
 
     try {
-      // const pendingToBeAssignedListId = "537bc2cec1db170a09078963";
-
       // if there is no argument, then show the projects in the pending to be assigned list
       if (queParameters[0] === "") {
         const pendingProjectsNames = await trelloSunbowl.getCardNamesFromList(

@@ -1,10 +1,8 @@
-/* TRELLO */
+/* Trello */
 
 const Trello = require("node-trello");
-const SUNBOWL_BOARD_ID = "d9ntWOEO";
-const TRELLO_APP_KEY = process.env.SUNBOWL_TRELLO_KEY;
-const TRELLO_USER_TOKEN = process.env.SUNBOWL_TRELLO_TOKEN;
-const trello = new Trello(TRELLO_APP_KEY, TRELLO_USER_TOKEN);
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
+const trello = new Trello(config.trello.key, config.trello.token);
 const utils = require("./utils");
 
 class SunbowlTrello {
@@ -108,7 +106,7 @@ class SunbowlTrello {
 
   findListId(listName) {
     return new Promise((resolve, reject) => {
-      trello.get(`/1/boards/${SUNBOWL_BOARD_ID}/lists`, (err, data) => {
+      trello.get(`/1/boards/${config.trello.sunbowlBoardId}/lists`, (err, data) => {
         if (err) {
           reject(err);
         } else {
@@ -190,7 +188,7 @@ class SunbowlTrello {
   // return an array of objects of the form {developer: numberOfCards}
   getDeveloperWorkloads() {
     return new Promise((resolve, reject) => {
-      trello.get(`/1/boards/${SUNBOWL_BOARD_ID}/lists`, (err, data) => {
+      trello.get(`/1/boards/${config.trello.sunbowlBoardId}/lists`, (err, data) => {
         if (err) {
           reject(err);
         } else {

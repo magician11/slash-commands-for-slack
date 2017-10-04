@@ -3,18 +3,15 @@ Slash command for Sunbowl
 Notify someone that a sprint for a channel is complete
 */
 
-module.exports = app => {
-  const utils = require('../modules/utils');
-  const trelloSunbowl = require('../modules/trello');
-  const freshbooksSunbowl = require('../modules/freshbooks');
-  const formstackSunbowl = require('../modules/formstack');
-  const slackSunbowl = require('../modules/slack');
-  const SUNBOWL_AI_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
-  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
+const utils = require("../modules/utils");
+const trelloSunbowl = require("../modules/trello");
+const freshbooksSunbowl = require("../modules/freshbooks");
+const formstackSunbowl = require("../modules/formstack");
+const slackSunbowl = require("../modules/slack");
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
-  app.post('/jobreport', (req, res) => {
+module.exports = app => {
+  app.post("/jobreport", (req, res) => {
     const {
       token,
       user_name,
@@ -24,17 +21,14 @@ module.exports = app => {
       response_url
     } = req.body;
 
-    const jobreportArguments = text.split(' ');
+    const jobreportArguments = text.split(" ");
 
     // check to see whether this script is being accessed from our slack apps
-    if (
-      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
-      token !== SUNBOWL_AI_VERIFICATION_TOKEN
-    ) {
-      utils.respondWithError('Access denied.', res);
+    if (token !== config.slack.verificationToken) {
+      utils.respondWithError("Access denied.", res);
       return;
     } else if (jobreportArguments.length !== 2) {
-      utils.respondWithError('Usage: /jobreport [time taken] [video url]', res);
+      utils.respondWithError("Usage: /jobreport [time taken] [video url]", res);
       return;
     }
 
@@ -42,7 +36,7 @@ module.exports = app => {
       text: `Thanks <@${user_name}>. Your job report has been submitted.`
     });
 
-    const finishedBlockListId = '522e91fe2c1df8cb25008ab2';
+    const finishedBlockListId = "522e91fe2c1df8cb25008ab2";
 
     const timeTaken = jobreportArguments[0];
     const videoUrl = jobreportArguments[1];
@@ -63,8 +57,9 @@ Trello card: https://trello.com/c/${trelloCardId}`
         });
         slackSunbowl.postToSlack(
           {
-            text: 'A job report has been submitted and your project is now in the review stage. We will update you as soon as possible when we are ready for your feedback.',
-            response_type: 'in_channel'
+            text:
+              "A job report has been submitted and your project is now in the review stage. We will update you as soon as possible when we are ready for your feedback.",
+            response_type: "in_channel"
           },
           response_url
         );

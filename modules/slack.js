@@ -1,22 +1,13 @@
-// const SLACK_TOKEN = process.env.SUNBOWL_SLACK_TOKEN;
-// const BOT_USER_OAUTH_ACCESS_TOKEN =
-//   process.env.SUNBOWL_BOT_USER_OAUTH_ACCESS_TOKEN;
 const request = require("request");
 const rpn = require("request-promise-native");
-
-const config = require("../auth.js").get(process.env.NODE_ENV);
-
-// console.log("slack config");
-// console.log(config);
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
 class SunbowlSlack {
   constructor() {
     this.pendingToBeAssignedListId = "537bc2cec1db170a09078963";
   }
 
-  /*
-Sends a direct message to a specific user from the BOT
-*/
+  // Sends a direct message to a specific user from the BOT
   sendDM(userId, message) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -40,6 +31,7 @@ Sends a direct message to a specific user from the BOT
     });
   }
 
+  // get the real name of a user
   getName(userName) {
     return new Promise((resolve, reject) => {
       request.get(
@@ -64,7 +56,7 @@ Sends a direct message to a specific user from the BOT
     });
   }
 
-  // argument of user without @
+  // argument of user without @, and return the full user object (including id and profile child object)
   getUser(userName) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -101,12 +93,6 @@ Sends a direct message to a specific user from the BOT
         reject(`Error posting to Slack: ${error}`);
       }
     });
-    // const options = {
-    //   uri: url,
-    //   json: message
-    // };
-    //
-    // request.post(options);
   }
 
   postJobReport(jobReportData) {
