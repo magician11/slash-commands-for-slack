@@ -31,12 +31,12 @@ module.exports = app => {
     res.json({ text: `Let me look into this for you ${user_name}...` });
 
     try {
-      const pendingToBeAssignedListId = "537bc2cec1db170a09078963";
+      // const pendingToBeAssignedListId = "537bc2cec1db170a09078963";
 
       // if there is no argument, then show the projects in the pending to be assigned list
       if (queParameters[0] === "") {
         const pendingProjectsNames = await trelloSunbowl.getCardNamesFromList(
-          pendingToBeAssignedListId
+          slackSunbowl.pendingToBeAssignedListId
         );
         const pendingProjects = {
           text: `Pending to be assigned projects`,
@@ -84,12 +84,42 @@ module.exports = app => {
 
         // find the list the card is currently on
         const listName = await trelloSunbowl.getListNameForCard(trelloCardId);
-        if (listName.startsWith("@"))
-          throw `The ${channel_name} card is currently being worked on by ${listName}. So leaving it.`;
+
+        // if the card is on a dev list, prompt the user if they really want to move it
+        if (listName.startsWith("@")) {
+          const moveResponse = await slackSunbowl.postToSlack(
+            {
+              text: `The ${channel_name} card is currently being worked on by ${listName}.`,
+              attachments: [
+                {
+                  text: `Do you wish to move this card to the \`Pending to be assigned\` list and notify ${listName}?`,
+                  mrkdwn_in: ["text"],
+                  callback_id: "force_queue",
+                  actions: [
+                    {
+                      name: "queue",
+                      text: "Yes, move the card and notify",
+                      type: "button",
+                      value: "confirm"
+                    },
+                    {
+                      name: "queue",
+                      text: "No, leave the card.",
+                      type: "button",
+                      value: "cancel"
+                    }
+                  ]
+                }
+              ]
+            },
+            response_url
+          );
+          return;
+        }
 
         await trelloSunbowl.moveTrelloCard(
           trelloCardId,
-          pendingToBeAssignedListId
+          slackSunbowl.pendingToBeAssignedListId
         );
         slackSunbowl.postToSlack(
           {

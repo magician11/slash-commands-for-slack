@@ -161,12 +161,12 @@ module.exports = app => {
           );
 
           // set a flag that a review command was made
-          const recipientProfile = await slackSunbowl.getUserProfile(
+          const recipient = await slackSunbowl.getUser(
             clientName.substring(1)
           );
           sunbowlFirebase.writeObject("slash-commands/review", channel_name, {
-            real_name: recipientProfile.real_name,
-            email: recipientProfile.email,
+            real_name: recipient.profile.real_name,
+            email: recipient.profile.email,
             review_requested_at: moment().valueOf(),
             channel_link: `https://${team_domain}.slack.com/messages/${channel_id}/`
           });
