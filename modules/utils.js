@@ -1,7 +1,6 @@
 /* utility functions */
 const nodemailer = require('nodemailer');
-const SUNBOWL_EMAIL_ADDRESS = process.env.SUNBOWL_EMAIL_ADDRESS;
-const SUNBOWL_EMAIL_PASSWORD = process.env.SUNBOWL_EMAIL_PASSWORD;
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
 class SunbowlUtils {
   constructErrorForSlack(err) {
@@ -24,12 +23,12 @@ class SunbowlUtils {
       const transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
-          user: SUNBOWL_EMAIL_ADDRESS,
-          pass: SUNBOWL_EMAIL_PASSWORD
+          user: config.google.emailAddress,
+          pass: config.google.password
         }
       });
 
-      const mailOptions = { from: SUNBOWL_EMAIL_ADDRESS, to, subject, html };
+      const mailOptions = { from: config.google.emailAddress, to, subject, html };
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -77,8 +76,7 @@ class SunbowlUtils {
   shortenUrl(urlToShorten) {
     return new Promise((resolve, reject) => {
       const request = require('request');
-      const GOOGLE_API_KEY = process.env.SUNBOWL_DEVELOPER_API_KEY;
-      const shortenerUrl = `https://www.googleapis.com/urlshortener/v1/url?key=${GOOGLE_API_KEY}`;
+      const shortenerUrl = `https://www.googleapis.com/urlshortener/v1/url?key=${config.google.apiKey}`;
 
       const options = {
         uri: shortenerUrl,
