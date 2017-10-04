@@ -3,27 +3,21 @@ Slash command for Sunbowl
 Add a task to their trello card
 */
 
-module.exports = app => {
-  const moment = require("moment");
-  const formstackSunbowl = require("../modules/formstack");
-  const sunbowlFirebase = require("../modules/firebase");
-  const trelloSunbowl = require("../modules/trello");
-  const slackSunbowl = require("../modules/slack");
-  const utils = require("../modules/utils");
-  const SUNBOWL_AI_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
-  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
+const moment = require("moment");
+const formstackSunbowl = require("../modules/formstack");
+const sunbowlFirebase = require("../modules/firebase");
+const trelloSunbowl = require("../modules/trello");
+const slackSunbowl = require("../modules/slack");
+const utils = require("../modules/utils");
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
+module.exports = app => {
   app.post("/todo", async (req, res) => {
     const { text, token, channel_name, response_url, user_name } = req.body;
     const task = text;
 
     // check to see whether this script is being accessed from our slack apps
-    if (
-      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
-      token !== SUNBOWL_AI_VERIFICATION_TOKEN
-    ) {
+    if (token !== config.slack.verificationToken) {
       utils.respondWithError("Access denied.", res);
       return;
     } else if (text === "") {

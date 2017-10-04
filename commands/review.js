@@ -4,19 +4,16 @@ Get all the tasks from this channel's trello card, and present them to a client 
 Buttons are added for them to confirm this cycle.
 */
 
-module.exports = app => {
-  const moment = require("moment");
-  const utils = require("../modules/utils");
-  const sunbowlFirebase = require("../modules/firebase");
-  const freshbooksSunbowl = require("../modules/freshbooks");
-  const formstackSunbowl = require("../modules/formstack");
-  const trelloSunbowl = require("../modules/trello");
-  const slackSunbowl = require("../modules/slack");
-  const SUNBOWL_AI_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_VERIFICATION_TOKEN;
-  const SUNBOWL_AI_DEV_VERIFICATION_TOKEN =
-    process.env.SUNBOWL_AI_DEV_VERIFICATION_TOKEN;
+const moment = require("moment");
+const utils = require("../modules/utils");
+const sunbowlFirebase = require("../modules/firebase");
+const freshbooksSunbowl = require("../modules/freshbooks");
+const formstackSunbowl = require("../modules/formstack");
+const trelloSunbowl = require("../modules/trello");
+const slackSunbowl = require("../modules/slack");
+const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
+module.exports = app => {
   app.post("/review", async (req, res) => {
     const {
       text,
@@ -30,10 +27,7 @@ module.exports = app => {
     const reviewArguments = text.split(" ");
 
     // check to see whether this script is being accessed from our slack apps
-    if (
-      token !== SUNBOWL_AI_DEV_VERIFICATION_TOKEN &&
-      token !== SUNBOWL_AI_VERIFICATION_TOKEN
-    ) {
+    if (token !== config.slack.verificationToken) {
       utils.respondWithError("Access denied.", res);
       return;
     } else if (reviewArguments[0] !== "" && reviewArguments.length < 3) {
@@ -161,9 +155,7 @@ module.exports = app => {
           );
 
           // set a flag that a review command was made
-          const recipient = await slackSunbowl.getUser(
-            clientName.substring(1)
-          );
+          const recipient = await slackSunbowl.getUser(clientName.substring(1));
           sunbowlFirebase.writeObject("slash-commands/review", channel_name, {
             real_name: recipient.profile.real_name,
             email: recipient.profile.email,
