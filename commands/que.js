@@ -1,6 +1,14 @@
 /*
 Slash command for Sunbowl
 Get an overview of various jobs
+
+the que command can do a lot.
+
+Just typing /que will show all cards listed on the pending to be assigned list.
+/que dev will show all cards that start with '@' and how many cards are on their list
+/que dev @magician11 will show all cards on that dev's list
+/que start will attempt to move the card for this channel to the pending to be assigned list
+/que end will move a card to the archive list
 */
 
 const moment = require("moment");
@@ -38,6 +46,30 @@ module.exports = app => {
         };
 
         slackSunbowl.postToSlack(pendingProjects, response_url);
+      } else if (queParameters[0] === "end") {
+        // first timestamp the assignedout time to now
+        const thisMoment = new moment();
+
+        sunbowlFirebase.updateObject(
+          `logs/${user_name}/${thisMoment.format("DDMMYYYY")}`,
+          channel_name,
+          { timeAssigned: thisMoment.valueOf() }
+        );
+        // then move the card to the archive list
+        // find the id of the card associated with this channel
+        const trelloCardId = await formstackSunbowl.getTrelloCardId(
+          channel_name
+        );
+
+        trelloSunbowl.moveTrelloCard(trelloCardId, trelloSunbowl.archiveListId);
+
+        // and the let the channel peeps know
+        slackSunbowl.postToSlack(
+          {
+            text: `The ${channel_name} card has been moved to the Archive list.`
+          },
+          response_url
+        );
 
         // else if the dev argument is used
       } else if (queParameters[0] === "dev") {
@@ -179,9 +211,20 @@ module.exports = app => {
                 ? "not complete yet"
                 : moment.duration(timeAssigned.diff(timeWhenQueued)).humanize();
 
+            let colourForReport;
+            if (value.timeAssigned) {
+              if (value.firstTodoAdded) {
+                colourForReport = "good";
+              } else {
+                colourForReport = "warning";
+              }
+            } else {
+              colourForReport = "danger";
+            }
+
             cyclesReport.attachments.push({
               pretext: `*Project: ${key}*`,
-              color: value.timeAssigned ? "good" : "danger",
+              color: colourForReport,
               text: `Time taken to assign out: ${timeTakenToAssign}`,
               fields: [
                 {

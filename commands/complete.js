@@ -85,7 +85,7 @@ ${videoUrl ? `*Cycle Review*: <${videoUrl}|:arrow_forward: Watch Video>` : ""}
       })
       .then(() => formstackSunbowl.getTrelloCardId(channel_name))
       .then(trelloCardId =>
-        trelloSunbowl.moveTrelloCard(trelloCardId, "54d100b15e38c58f717dd930")
+        trelloSunbowl.moveTrelloCard(trelloCardId, trelloSunbowl.archiveListId)
       ) // move to Archive list
       .catch(err => {
         slackSunbowl.postToSlack(

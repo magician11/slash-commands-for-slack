@@ -6,6 +6,11 @@ const trello = new Trello(config.trello.key, config.trello.token);
 const utils = require("./utils");
 
 class SunbowlTrello {
+  constructor() {
+    this.pendingToBeAssignedListId = "537bc2cec1db170a09078963";
+    this.archiveListId = "54d100b15e38c58f717dd930";
+  }
+
   // find out which checklist is called "Incoming" for the specified card ID
   getTaskListId(trelloCardId) {
     return new Promise((resolve, reject) => {
@@ -106,20 +111,23 @@ class SunbowlTrello {
 
   findListId(listName) {
     return new Promise((resolve, reject) => {
-      trello.get(`/1/boards/${config.trello.sunbowlBoardId}/lists`, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          for (const list of data) {
-            if (list.name === listName) {
-              resolve(list.id);
+      trello.get(
+        `/1/boards/${config.trello.sunbowlBoardId}/lists`,
+        (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            for (const list of data) {
+              if (list.name === listName) {
+                resolve(list.id);
+              }
             }
+            reject(
+              `Sorry, I couldn't find the list ${listName} on the Sunbowl board.`
+            );
           }
-          reject(
-            `Sorry, I couldn't find the list ${listName} on the Sunbowl board.`
-          );
         }
-      });
+      );
     });
   }
 
@@ -188,34 +196,37 @@ class SunbowlTrello {
   // return an array of objects of the form {developer: numberOfCards}
   getDeveloperWorkloads() {
     return new Promise((resolve, reject) => {
-      trello.get(`/1/boards/${config.trello.sunbowlBoardId}/lists`, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          const developers = [];
-          for (const list of data) {
-            if (list.name.startsWith("@")) {
-              developers.push(
-                new Promise(done => {
-                  trello.get(
-                    `/1/lists/${list.id}/cards`,
-                    (cardDataError, cardData) => {
-                      done({
-                        name: list.name,
-                        numberOfCards: cardData.length
-                      });
-                    }
-                  );
-                })
-              );
+      trello.get(
+        `/1/boards/${config.trello.sunbowlBoardId}/lists`,
+        (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            const developers = [];
+            for (const list of data) {
+              if (list.name.startsWith("@")) {
+                developers.push(
+                  new Promise(done => {
+                    trello.get(
+                      `/1/lists/${list.id}/cards`,
+                      (cardDataError, cardData) => {
+                        done({
+                          name: list.name,
+                          numberOfCards: cardData.length
+                        });
+                      }
+                    );
+                  })
+                );
+              }
             }
-          }
 
-          Promise.all(developers).then(developerWorkloads => {
-            resolve(developerWorkloads);
-          });
+            Promise.all(developers).then(developerWorkloads => {
+              resolve(developerWorkloads);
+            });
+          }
         }
-      });
+      );
     });
   }
 
