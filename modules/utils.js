@@ -18,6 +18,26 @@ class SunbowlUtils {
     return error;
   }
 
+/*
+ cart before horse.. basically a card needs to be queued before it
+ can have tasks added to it, or a review on it done
+ */
+constructCartBeforeHorseMessage(commandBeingUsed, listTheCardMustBeOn, listNameItsOn) {
+  return {
+    attachments: [
+    {
+      title:
+        `Tisk Tisk, cards have to be queued first before you can use the ${commandBeingUsed} command.`,
+      text: "First do `/que start`",
+      image_url:
+        "https://cdn.shopify.com/s/files/1/0359/6033/files/user-error.jpg?11209679155243697807",
+      footer: `This card needs to be on the "${listTheCardMustBeOn}" list. It's currently on the "${listNameItsOn}" list.`,
+      mrkdwn_in: ["text"]
+    }
+  ]
+}
+}
+
   sendEmail(to, subject, html) {
     return new Promise((resolve, reject) => {
       const transporter = nodemailer.createTransport({

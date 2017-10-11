@@ -58,19 +58,11 @@ module.exports = app => {
 
       if (listNameItsOn !== listTheCardMustBeOn) {
         slackSunbowl.postToSlack(
-          {
-            attachments: [
-              {
-                title:
-                  "Tisk Tisk, cards have to be queued first before you can use the review command.",
-                text: "First do `/que start`",
-                image_url:
-                  "http://res.cloudinary.com/go-for-self/image/upload/v1506330193/horse-cart.jpg",
-                footer: `This card needs to be on the "${listTheCardMustBeOn}" list. It's currently on the "${listNameItsOn}" list.`,
-                mrkdwn_in: ["text"]
-              }
-            ]
-          },
+          utils.constructCartBeforeHorseMessage(
+            "review",
+            listTheCardMustBeOn,
+            listNameItsOn
+          ),
           response_url
         );
         return;
