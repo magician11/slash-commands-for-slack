@@ -42,6 +42,13 @@ module.exports = async (
       "Discussions with client about cycle details. Made video for developer, organized cycle and assigned out."
     );
 
+    // notify dev of the new cycle
+    const devProfile = await slackSunbowl.getUser(userAssignedCycle.slice(1));
+    await slackSunbowl.sendDM(
+      devProfile.id,
+      `Hi ${devProfile.real_name}! You've just been assigned out a new cycle by ${userAssigningCycle}. It's for ${channelName}.`
+    );
+
     const timeLeft = projectBudget - billableHours - timeTakenToAssign;
 
     const goReviewMessage = {
