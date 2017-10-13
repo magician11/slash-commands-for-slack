@@ -88,6 +88,15 @@ module.exports = app => {
               slackSunbowl.pendingToBeAssignedListId
             );
 
+            // append " - hold" the latest list
+            const topChecklist = await trelloSunbowl.getTopCheckList(
+              trelloCardId
+            );
+            await trelloSunbowl.renameTasklist(
+              topChecklist.id,
+              `${topChecklist.name} - hold`
+            );
+
             // log the queueing
             const thisMoment = new moment();
 

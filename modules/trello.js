@@ -42,6 +42,21 @@ class SunbowlTrello {
     });
   }
 
+  // grab the checklist object for the top checklist on a card
+  getTopCheckList(trelloCardId) {
+    return new Promise((resolve, reject) => {
+      trello.get(`/1/cards/${trelloCardId}/checklists`, (err, data) => {
+        if (err) {
+          reject(err);
+        }
+
+        // sort the checklists to make sure we know the one that is on top
+        data.sort((a, b) => a.pos - b.pos);
+        resolve(data[0]);
+      });
+    });
+  }
+
   // add a task to the tasklist
   addTask(taskListId, task) {
     return new Promise((resolve, reject) => {
@@ -59,12 +74,11 @@ class SunbowlTrello {
     });
   }
 
-  renameTasklist(taskListId, assignee) {
+  renameTasklist(taskListId, newTitle) {
     return new Promise((resolve, reject) => {
-      const date = utils.formatDate(new Date());
       trello.put(
         `/1/checklists/${taskListId}/name`,
-        { value: `${assignee} - ${date}` },
+        { value: newTitle },
         (err, data) => {
           if (err) {
             reject(err);

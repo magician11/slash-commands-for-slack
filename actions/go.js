@@ -21,7 +21,12 @@ module.exports = async (
     await trelloSunbowl.moveTrelloCard(trelloCardId, trelloListId);
     await trelloSunbowl.setDueDate(trelloCardId);
     const taskListId = await trelloSunbowl.getTaskListId(trelloCardId);
-    await trelloSunbowl.renameTasklist(taskListId, userAssignedCycle);
+
+    const date = utils.formatDate(new Date());
+    await trelloSunbowl.renameTasklist(
+      taskListId,
+      `${userAssignedCycle} - ${date}`
+    );
     const tasks = await trelloSunbowl.getTaskListItems(taskListId);
     const freshbooksProjectId = await formstackSunbowl.getFreshbooksProjectId(
       channelName
