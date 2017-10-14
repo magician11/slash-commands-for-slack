@@ -27,7 +27,7 @@ module.exports = async (
       taskListId,
       `${userAssignedCycle} - ${date}`
     );
-    const tasks = await trelloSunbowl.getTaskListItems(taskListId);
+
     const freshbooksProjectId = await formstackSunbowl.getFreshbooksProjectId(
       channelName
     );
