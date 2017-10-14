@@ -11,25 +11,39 @@ class SunbowlTrello {
     this.archiveListId = "54d100b15e38c58f717dd930";
   }
 
-  // find out which checklist is called "Incoming" for the specified card ID
+  /*
+  Get the checklist that is on the card that for the current cycle.
+
+  First check if the top checklist has the word " - hold" appended to it.
+  In which case return this checklistid as it was being worked on by a dev previously.
+
+  Else look for the checklist that is called "Incoming".
+
+  Otherwise create an Incoming list before returning that ID.
+   */
   getTaskListId(trelloCardId) {
     return new Promise((resolve, reject) => {
       trello.get(`/1/cards/${trelloCardId}/checklists`, (err, data) => {
-        const CHECKLIST_NAME = "Incoming";
         let checklistId;
-        data.forEach(checklist => {
-          if (checklist.name === CHECKLIST_NAME) {
-            checklistId = checklist.id;
+
+        for (let checklist = 0; checklist < data.length; checklist += 1) {
+          const checklistTitle = data[checklist].name;
+
+          if (checklistTitle.includes("hold")) {
+            checklistId = data[checklist].id;
+            break;
+          } else if (checklistTitle === "Incoming") {
+            checklistId = data[checklist].id;
+            break;
           }
-        });
+        }
 
         if (checklistId) {
           resolve(checklistId);
         } else {
-          // if it doesn't exist, create the Incoming checklist and resolve with that ID
           trello.post(
             `/1/cards/${trelloCardId}/checklists`,
-            { name: CHECKLIST_NAME },
+            { name: "Incoming" },
             (error, incomingChecklist) => {
               if (error) {
                 reject(error);
