@@ -96,7 +96,7 @@ module.exports = app => {
               topChecklist.id,
               `${topChecklist.name} - hold`
             );
-            await trelloSunbowl.addTask(topChecklist.id, "_Important Update_");
+            await trelloSunbowl.addTask(topChecklist.id, "**Important Updates**");
 
             // log the queueing
             const thisMoment = new moment();
