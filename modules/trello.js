@@ -9,6 +9,7 @@ class SunbowlTrello {
   constructor() {
     this.pendingToBeAssignedListId = "537bc2cec1db170a09078963";
     this.archiveListId = "54d100b15e38c58f717dd930";
+    this.finishedBlockListId = "522e91fe2c1df8cb25008ab2";
   }
 
   /*

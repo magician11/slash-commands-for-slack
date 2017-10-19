@@ -85,7 +85,7 @@ module.exports = app => {
             // move the card
             await trelloSunbowl.moveTrelloCard(
               trelloCardId,
-              slackSunbowl.pendingToBeAssignedListId
+              trelloSunbowl.pendingToBeAssignedListId
             );
 
             // append " - hold" the latest list

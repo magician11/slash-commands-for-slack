@@ -36,7 +36,7 @@ module.exports = app => {
       // if there is no argument, then show the projects in the pending to be assigned list
       if (queParameters[0] === "") {
         const pendingProjectsNames = await trelloSunbowl.getCardNamesFromList(
-          slackSunbowl.pendingToBeAssignedListId
+          trelloSunbowl.pendingToBeAssignedListId
         );
         const pendingProjects = {
           text: `Pending to be assigned projects`,
@@ -143,7 +143,7 @@ module.exports = app => {
 
         await trelloSunbowl.moveTrelloCard(
           trelloCardId,
-          slackSunbowl.pendingToBeAssignedListId
+          trelloSunbowl.pendingToBeAssignedListId
         );
 
         slackSunbowl.postToSlack(

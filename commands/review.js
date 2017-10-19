@@ -20,6 +20,7 @@ module.exports = app => {
       token,
       channel_name,
       user_name,
+      user_id,
       response_url,
       channel_id,
       team_domain
@@ -155,22 +156,21 @@ module.exports = app => {
             channel_link: `https://${team_domain}.slack.com/messages/${channel_id}/`
           });
 
-          /*
-           Log this action of assigning out a task
-           And store in Firebase at the location
-            logs/user_name/YYYYMMDD/channel_name/
-
-            update the object
-            timeAssigned - new moment.valueOf() // https://momentjs.com/docs/#/displaying/unix-timestamp-milliseconds/
-           */
-
+          // log with a user when they assigned out this cycle.
           const thisMoment = new moment();
-
           sunbowlFirebase.updateObject(
             `logs/${user_name}/${thisMoment.format("DDMMYYYY")}`,
             channel_name,
             { timeAssigned: thisMoment.valueOf() }
           );
+
+          // then log for the channel, which user assigned out the cycle
+          sunbowlFirebase.updateObject("cycles", channel_name, {
+            projectManager: {
+              name: user_name,
+              id: user_id
+            }
+          });
         }
         slackSunbowl.postToSlack(reviewResponse, response_url);
       }
