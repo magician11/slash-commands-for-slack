@@ -3,10 +3,6 @@ const rpn = require("request-promise-native");
 const config = require("../security/auth.js").get(process.env.NODE_ENV);
 
 class SunbowlSlack {
-  // constructor() {
-  //   this.pendingToBeAssignedListId = "537bc2cec1db170a09078963";
-  // }
-
   // Sends a direct message to a specific user from our bot
   sendDM(userId, message) {
     return new Promise(async (resolve, reject) => {
@@ -17,12 +13,16 @@ class SunbowlSlack {
           json: true
         });
 
-        const messageRes = await rpn({
-          uri: `https://slack.com/api/chat.postMessage?token=${config.slack
-            .botUserOauthAccesstoken}&channel=${conversationRes.channel
-            .id}&text=${message}`,
-          json: true
-        });
+        const messageOptions = {
+          uri: "https://slack.com/api/chat.postMessage",
+          form: {
+            token: config.slack.botUserOauthAccesstoken,
+            channel: conversationRes.channel.id,
+            text: message
+          }
+        };
+
+        const messageRes = await rpn.post(messageOptions);
 
         resolve(messageRes);
       } catch (error) {
@@ -32,26 +32,19 @@ class SunbowlSlack {
   }
 
   // Sends a direct message to a specific channel from our bot
-  postToChannelFromBot(channelName, message) {
+  postToChannelFromBot(channelId, message) {
     return new Promise(async (resolve, reject) => {
       try {
-        // get the channelId given the name
-        // const channelId = await this.getChannelId(channelName);
-        // console.log(channelId);
-        //
-        // const conversationRes = await rpn({
-        //   uri: `https://slack.com/api/conversations.open?token=${config.slack
-        //     .botUserOauthAccesstoken}&channel=${channelId}`,
-        //   json: true
-        // });
-        //
-        // console.log(conversationRes);
+        const messageOptions = {
+          uri: "https://slack.com/api/chat.postMessage",
+          form: {
+            token: config.slack.botUserOauthAccesstoken,
+            channel: channelId,
+            text: message
+          }
+        };
 
-        const messageRes = await rpn({
-          uri: `https://slack.com/api/chat.postMessage?token=${config.slack
-            .botUserOauthAccesstoken}&channel=${channelName}&text=${message}`,
-          json: true
-        });
+        const messageRes = await rpn.post(messageOptions);
 
         resolve(messageRes);
       } catch (error) {
@@ -109,27 +102,27 @@ class SunbowlSlack {
   }
 
   // get channelId
-  // getChannelId(channelName) {
-  //   return new Promise(async (resolve, reject) => {
-  //     try {
-  //       const channelList = await rpn({
-  //         uri: `https://slack.com/api/channels.list?token=${config.slack
-  //           .oauthAccesstoken}`,
-  //         json: true
-  //       });
-  //
-  //       for (const channel of channelList.channels) {
-  //         if (channelName === channel.name) {
-  //           resolve(channel.id);
-  //           return;
-  //         }
-  //       }
-  //       reject(`We could not find ${channelName} in the list of channels.`);
-  //     } catch (error) {
-  //       reject(`Error with finding the channelId for ${channelName}: ${error}`);
-  //     }
-  //   });
-  // }
+  getChannelId(channelName) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const channelList = await rpn({
+          uri: `https://slack.com/api/channels.list?token=${config.slack
+            .oauthAccesstoken}`,
+          json: true
+        });
+
+        for (const channel of channelList.channels) {
+          if (channelName === channel.name) {
+            resolve(channel.id);
+            return;
+          }
+        }
+        reject(`We could not find ${channelName} in the list of channels.`);
+      } catch (error) {
+        reject(`Error with finding the channelId for ${channelName}: ${error}`);
+      }
+    });
+  }
 
   // given a message, send it back to the response URL
   postToSlack(message, url) {
@@ -147,22 +140,6 @@ class SunbowlSlack {
       }
     });
   }
-
-  // postJobReport(jobReportData) {
-  //   const dataToSendToSlack = jobReportData;
-  //   dataToSendToSlack.channel = "#jobreports";
-  //   dataToSendToSlack.response_type = "in_channel";
-  //   dataToSendToSlack.token = config.slack.oauthAccesstoken;
-  //   dataToSendToSlack.username = "From a Sunbowl dev";
-  //   dataToSendToSlack.icon_emoji = ":desktop_computer:";
-  //
-  //   const options = {
-  //     url: "https://slack.com/api/chat.postMessage",
-  //     form: dataToSendToSlack
-  //   };
-  //
-  //   request.post(options);
-  // }
 }
 
 module.exports = new SunbowlSlack();

@@ -54,10 +54,12 @@ module.exports = app => {
       );
 
       // send a message to the jobreports channel to show the job report
+      const jobReportsChannelId = await slackSunbowl.getChannelId("jobreports");
+      const cycleChannelId = await slackSunbowl.getChannelId(channel_name);
       await slackSunbowl.postToChannelFromBot(
-        "jobreports",
+        jobReportsChannelId,
         `Hi team,
-<@${user_name}> just finished a sprint for ${channel_name}
+<@${user_name}> just finished a sprint for <#${cycleChannelId}>
 Time it took: \`${timeTaken} hrs\`
 Video review: ${videoUrl}
 Trello card: https://trello.com/c/${trelloCardId}`
@@ -80,7 +82,7 @@ Trello card: https://trello.com/c/${trelloCardId}`
       slackSunbowl.sendDM(
         assignedOutDetails.projectManager.id,
         `Hey ${assignedOutDetails.projectManager
-          .name}. ${user_name} just submitted a job report. Check it out in the jobreports channel.`
+          .name}. ${user_name} just submitted a job report. Check it out in the <#${jobReportsChannelId}> channel.`
       );
     } catch (err) {
       slackSunbowl.postToSlack(utils.constructErrorForSlack(err), response_url);
