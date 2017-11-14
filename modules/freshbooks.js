@@ -1,7 +1,7 @@
 /* FreshBooks */
 
 const FreshBooks = require('freshbooks');
-const config = require("../security/auth.js").get(process.env.NODE_ENV);
+const config = require('../security/auth.js').get(process.env.NODE_ENV);
 const sunbowlFormstack = require('./formstack');
 
 /*
@@ -11,7 +11,7 @@ and then return the associated project Id
 function getFreshbooksProjectIdFromFreshbooks(freshbooksObj, projectName) {
   function findProjectId(projectList, nameOfProject) {
     let foundProjectId = 0;
-    projectList.forEach((project) => {
+    projectList.forEach(project => {
       if (project.name.toLowerCase() === nameOfProject.toLowerCase()) {
         foundProjectId = project.project_id;
       }
@@ -32,23 +32,30 @@ function getFreshbooksProjectIdFromFreshbooks(freshbooksObj, projectName) {
         } else if (options.pages > 1) {
           const pagesToProcess = [];
           for (let i = 2; i <= options.pages; i++) {
-            pagesToProcess.push(new Promise((done) => {
-              projects.list({ per_page: 100, page: i }, (err, extraProjectList) => {
-                done(findProjectId(extraProjectList, projectName));
-              });
-            }));
+            pagesToProcess.push(
+              new Promise(done => {
+                projects.list(
+                  { per_page: 100, page: i },
+                  (err, extraProjectList) => {
+                    done(findProjectId(extraProjectList, projectName));
+                  }
+                );
+              })
+            );
           }
 
           let foundProjectId = false;
-          Promise.all(pagesToProcess).then((projectIds) => {
-            projectIds.forEach((projectIdFromExtraPages) => {
+          Promise.all(pagesToProcess).then(projectIds => {
+            projectIds.forEach(projectIdFromExtraPages => {
               if (projectIdFromExtraPages > 0) {
                 resolve(projectIdFromExtraPages);
                 foundProjectId = true;
               }
             });
             if (!foundProjectId) {
-              reject(`Could not find a project Id in Freshbooks for ${projectName}`);
+              reject(
+                `Could not find a project Id in Freshbooks for ${projectName}`
+              );
             }
           });
         }
@@ -63,41 +70,70 @@ class SunbowlFreshbooks {
       let freshbooks;
       let freshbooksDetailsForUser;
 
-      sunbowlFormstack.getUsersFreshbooksDetails(userName)
-      .then((usersFreshbooksDetails) => {
-        freshbooksDetailsForUser = usersFreshbooksDetails;
-        freshbooks = new FreshBooks(freshbooksDetailsForUser.usersAPIurl, freshbooksDetailsForUser.usersAuthKey);
-        return getFreshbooksProjectIdFromFreshbooks(freshbooks, projectName);
-      })
-      .then((projectId) => {
-        const timeEntry = new freshbooks.Time_Entry();
-        timeEntry.project_id = projectId;
-        timeEntry.task_id = freshbooksDetailsForUser.taskId;
-        timeEntry.hours = hours;
-        timeEntry.notes = notes.replace("'", "\'");
-        timeEntry.create((err, time) => {
-          if (err) {
-            reject(`Error adding time entry: ${err}`);
-          } else {
-            resolve(time);
-          }
+      sunbowlFormstack
+        .getUsersFreshbooksDetails(userName)
+        .then(usersFreshbooksDetails => {
+          freshbooksDetailsForUser = usersFreshbooksDetails;
+          freshbooks = new FreshBooks(
+            freshbooksDetailsForUser.usersAPIurl,
+            freshbooksDetailsForUser.usersAuthKey
+          );
+          return getFreshbooksProjectIdFromFreshbooks(freshbooks, projectName);
+        })
+        .then(projectId => {
+          const timeEntry = new freshbooks.Time_Entry();
+          timeEntry.project_id = projectId;
+          timeEntry.task_id = freshbooksDetailsForUser.taskId;
+          timeEntry.hours = hours;
+          timeEntry.notes = notes.replace("'", "'");
+          timeEntry.create((err, time) => {
+            if (err) {
+              reject(`Error adding time entry: ${err}`);
+            } else {
+              resolve(time);
+            }
+          });
+        })
+        .catch(error => {
+          reject(error);
         });
-      })
-      .catch((error) => {
-        reject(error);
-      });
     });
   }
 
   getProjectBudget(projectId) {
-    const freshbooks = new FreshBooks(config.freshbooks.url, config.freshbooks.token);
+    const freshbooks = new FreshBooks(
+      config.freshbooks.url,
+      config.freshbooks.token
+    );
     return new Promise((resolve, reject) => {
       const projects = new freshbooks.Project();
       projects.get(projectId, (err, project) => {
         if (err) {
-          reject('Could not find a project setup for this channel in Freshbooks.');
+          reject(
+            'Could not find a project setup for this channel in Freshbooks.'
+          );
         } else {
           resolve(parseInt(project.budget, 10));
+        }
+      });
+    });
+  }
+
+  adjustProjectBudget(projectId, adjustment) {
+    return new Promise(async (resolve, reject) => {
+      const currentProjectBudget = await this.getProjectBudget(projectId);
+      const freshbooks = new FreshBooks(
+        config.freshbooks.url,
+        config.freshbooks.token
+      );
+      const project = new freshbooks.Project();
+      project.project_id = projectId;
+      project.hour_budget = currentProjectBudget + adjustment;
+      project.update((err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
         }
       });
     });
@@ -114,38 +150,50 @@ class SunbowlFreshbooks {
     }
 
     return new Promise((resolve, reject) => {
-      const freshbooks = new FreshBooks(config.freshbooks.url, config.freshbooks.token);
+      const freshbooks = new FreshBooks(
+        config.freshbooks.url,
+        config.freshbooks.token
+      );
       const timeEntries = new freshbooks.Time_Entry();
       let billableHours = 0;
-      timeEntries.list({ project_id: projectId, per_page: 100 }, (err, times, options) => {
-        if (err) {
-          reject(err);
-        } else {
-          // grab the first page of times
-          billableHours = sumTimes(times);
-
-          // if there are more pages to process, get those...
-          if (options.pages > 1) {
-            const pagesToProcess = [];
-            for (let i = 2; i <= options.pages; i++) {
-              pagesToProcess.push(new Promise((done) => {
-                timeEntries.list({ project_id: projectId, per_page: 100, page: i }, (error, moreTimes) => {
-                  const extraHours = sumTimes(moreTimes);
-
-                  done(extraHours);
-                });
-              }));
-            }
-
-            Promise.all(pagesToProcess).then((extraTimes) => {
-              billableHours = billableHours + extraTimes.reduce((a, b) => a + b);
-              resolve(billableHours);
-            });
+      timeEntries.list(
+        { project_id: projectId, per_page: 100 },
+        (err, times, options) => {
+          if (err) {
+            reject(err);
           } else {
-            resolve(billableHours);
+            // grab the first page of times
+            billableHours = sumTimes(times);
+
+            // if there are more pages to process, get those...
+            if (options.pages > 1) {
+              const pagesToProcess = [];
+              for (let i = 2; i <= options.pages; i++) {
+                pagesToProcess.push(
+                  new Promise(done => {
+                    timeEntries.list(
+                      { project_id: projectId, per_page: 100, page: i },
+                      (error, moreTimes) => {
+                        const extraHours = sumTimes(moreTimes);
+
+                        done(extraHours);
+                      }
+                    );
+                  })
+                );
+              }
+
+              Promise.all(pagesToProcess).then(extraTimes => {
+                billableHours =
+                  billableHours + extraTimes.reduce((a, b) => a + b);
+                resolve(billableHours);
+              });
+            } else {
+              resolve(billableHours);
+            }
           }
         }
-      });
+      );
     });
   }
 }
