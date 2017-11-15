@@ -1,11 +1,11 @@
 /* utility functions */
 const nodemailer = require('nodemailer');
-const config = require("../security/auth.js").get(process.env.NODE_ENV);
+const config = require('../security/auth.js').get(process.env.NODE_ENV);
 
 class SunbowlUtils {
   constructErrorForSlack(err) {
     const error = {
-      text: 'Whoops... looks like there was a problem.',
+      text: 'Whoops... looks like something went wrong...',
       attachments: [
         {
           color: 'danger',
@@ -18,25 +18,32 @@ class SunbowlUtils {
     return error;
   }
 
-/*
+  /*
  cart before horse.. basically a card needs to be queued before it
  can have tasks added to it, or a review on it done
  */
-constructCartBeforeHorseMessage(commandBeingUsed, listTheCardMustBeOn, listNameItsOn) {
-  return {
-    attachments: [
-    {
-      title:
-        `Tisk Tisk, cards have to be queued first before you can use the ${commandBeingUsed} command.`,
-      text: "First do `/que start`",
-      image_url:
-        "https://cdn.shopify.com/s/files/1/0359/6033/files/user-error.jpg?11209679155243697807",
-      footer: `This card needs to be on the "${listTheCardMustBeOn}" list. It's currently on the "${listNameItsOn}" list.`,
-      mrkdwn_in: ["text"]
-    }
-  ]
-}
-}
+  constructCartBeforeHorseMessage(
+    commandBeingUsed,
+    listTheCardMustBeOn,
+    listNameItsOn
+  ) {
+    return {
+      attachments: [
+        {
+          title: `Tisk Tisk, cards have to be queued first before you can use the ${
+            commandBeingUsed
+          } command.`,
+          text: 'First do `/que start`',
+          image_url:
+            'https://cdn.shopify.com/s/files/1/0359/6033/files/user-error.jpg?11209679155243697807',
+          footer: `This card needs to be on the "${
+            listTheCardMustBeOn
+          }" list. It's currently on the "${listNameItsOn}" list.`,
+          mrkdwn_in: ['text']
+        }
+      ]
+    };
+  }
 
   sendEmail(to, subject, html) {
     return new Promise((resolve, reject) => {
@@ -48,7 +55,12 @@ constructCartBeforeHorseMessage(commandBeingUsed, listTheCardMustBeOn, listNameI
         }
       });
 
-      const mailOptions = { from: config.google.emailAddress, to, subject, html };
+      const mailOptions = {
+        from: config.google.emailAddress,
+        to,
+        subject,
+        html
+      };
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -90,13 +102,19 @@ constructCartBeforeHorseMessage(commandBeingUsed, listTheCardMustBeOn, listNameI
   }
 
   formatDate(date) {
-    return date.toString().split(' ').slice(0, 4).join(' ');
+    return date
+      .toString()
+      .split(' ')
+      .slice(0, 4)
+      .join(' ');
   }
 
   shortenUrl(urlToShorten) {
     return new Promise((resolve, reject) => {
       const request = require('request');
-      const shortenerUrl = `https://www.googleapis.com/urlshortener/v1/url?key=${config.google.apiKey}`;
+      const shortenerUrl = `https://www.googleapis.com/urlshortener/v1/url?key=${
+        config.google.apiKey
+      }`;
 
       const options = {
         uri: shortenerUrl,

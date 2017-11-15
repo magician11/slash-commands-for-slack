@@ -119,6 +119,7 @@ class SunbowlFreshbooks {
     });
   }
 
+  // update a project's bucket balance
   adjustProjectBudget(projectId, adjustment) {
     return new Promise(async (resolve, reject) => {
       const currentProjectBudget = await this.getProjectBudget(projectId);
