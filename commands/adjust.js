@@ -4,7 +4,7 @@ const utils = require('../modules/utils');
 const freshbooksSunbowl = require('../modules/freshbooks');
 const formstackSunbowl = require('../modules/formstack');
 const slackSunbowl = require('../modules/slack');
-// const firebaseSunbowl = require('../modules/firebase');
+const firebaseSunbowl = require('../modules/firebase');
 const config = require('../security/auth.js').get(process.env.NODE_ENV);
 
 module.exports = app => {
@@ -25,51 +25,63 @@ module.exports = app => {
     if (token !== config.slack.verificationToken) {
       utils.respondWithError('Access denied.', res);
       return;
-    } else if (adjustArguments.length < 2) {
+    } else if (adjustArguments.length < 3) {
       utils.respondWithError(
-        'Usage for the *adjust* command is `/adjust [amount] [reason]`.',
+        'Usage for the *adjust* command is `/adjust [amount] [person to review] [reason]`.',
         res
       );
       return;
     }
     const adjustmentAmount = parseInt(adjustArguments[0], 10);
-    const reason = adjustArguments.slice(1).join(' ');
-    res.json({ text: 'Ok.. bucket balance adjustment.. one sec...' });
+    const personToReview = adjustArguments[1];
+    const reason = adjustArguments.slice(2).join(' ');
+
+    const dataToSave = {
+      adjustmentAmount,
+      channelId: channel_id,
+      personToReview,
+      reason,
+      personRequestingAdjustment: user_id
+    };
+
     try {
-      const projectId = await formstackSunbowl.getFreshbooksProjectId(
-        channel_name
+      const personToReviewProfile = await slackSunbowl.getUser(
+        personToReview.substring(1)
       );
 
-      // adjust the bucket balance
-      const freshbooksResponse = await freshbooksSunbowl.adjustProjectBudget(
-        projectId,
-        adjustmentAmount
-      );
-      const newBucketBalance = await freshbooksSunbowl.getProjectBudget(
-        projectId
-      );
+      res.json({
+        text: `Sure thing ${user_name}. I'll send a message to ${
+          personToReviewProfile.real_name
+        } now asking them to approve your request.`
+      });
 
-      // let the person executing it know it was updated
-      slackSunbowl.postToSlack(
-        {
-          text: `All done ${user_name}. The bucket balance for \`${
-            channel_name
-          }\` has been updated to \`${newBucketBalance}\` hours.`
-        },
-        response_url
-      );
-
-      // let Jody know this was done
-      const userToNotify = await slackSunbowl.getUser('magician11');
       slackSunbowl.sendDM(
-        userToNotify.id,
-        `Hi Jody. <@${user_id}> has adjusted the bucket balance for ${
+        personToReviewProfile.id,
+        `Hi ${personToReviewProfile.real_name}. <@${
+          user_id
+        }> wants to adjust the bucket balance for ${
           channel_name
         } by an adjustment of \`${
           adjustmentAmount
-        }\` to give a new balance of \`${
-          newBucketBalance
-        }\` hours. The reason for the change was "${reason}".`
+        }\`. The reason for the change is "${reason}".`,
+        {
+          text: 'They need your approval. Do you agree?',
+          callback_id: 'adjust_bucket_balance',
+          actions: [
+            {
+              name: channel_id,
+              text: 'Yes I approve',
+              type: 'button',
+              value: 'approved'
+            },
+            {
+              name: channel_id,
+              text: 'No, I disagree',
+              type: 'button',
+              value: 'denied'
+            }
+          ]
+        }
       );
     } catch (error) {
       slackSunbowl.postToSlack(
