@@ -32,7 +32,7 @@ module.exports = app => {
       );
       return;
     }
-    const adjustmentAmount = parseInt(adjustArguments[0], 10);
+    const adjustmentAmount = adjustArguments[0];
     const personToReview = adjustArguments[1];
     const reason = adjustArguments.slice(2).join(' ');
 
@@ -57,26 +57,39 @@ module.exports = app => {
 
       slackSunbowl.sendDM(
         personToReviewProfile.id,
-        `Hi ${personToReviewProfile.real_name}. <@${
-          user_id
-        }> wants to adjust the bucket balance for ${
-          channel_name
-        } by an adjustment of \`${
-          adjustmentAmount
-        }\`. The reason for the change is "${reason}".`,
+        `Hi ${
+          personToReviewProfile.real_name
+        }. A bucket balance adjustment for ${channel_name} has been requested.`,
         {
-          text: 'They need your approval. Do you agree?',
+          text: 'It needs your approval.',
           callback_id: 'adjust_bucket_balance',
+          fields: [
+            {
+              title: 'Adjustment amount requested',
+              value: `${adjustmentAmount} hours`,
+              short: true
+            },
+            {
+              title: 'Approval requested by',
+              value: `<@${user_id}>`,
+              short: true
+            },
+            {
+              title: 'Reason',
+              value: reason,
+              short: false
+            }
+          ],
           actions: [
             {
-              name: channel_id,
+              name: channel_name,
               text: 'Yes I approve',
               type: 'button',
               value: 'approved'
             },
             {
-              name: channel_id,
-              text: 'No, I disagree',
+              name: channel_name,
+              text: 'No, I do not approve',
               type: 'button',
               value: 'denied'
             }
