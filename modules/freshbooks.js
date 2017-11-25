@@ -113,7 +113,7 @@ class SunbowlFreshbooks {
             'Could not find a project setup for this channel in Freshbooks.'
           );
         } else {
-          resolve(parseInt(project.budget, 10));
+          resolve(parseFloat(project.budget));
         }
       });
     });

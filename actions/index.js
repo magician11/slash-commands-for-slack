@@ -1,22 +1,23 @@
 /*
 Process incoming interactions from the slack channel, like buttons
 */
-const moment = require("moment");
-const assignCycle = require("./go");
-const sunbowlFirebase = require("../modules/firebase");
-const utils = require("../modules/utils");
-const formstackSunbowl = require("../modules/formstack");
-const slackSunbowl = require("../modules/slack");
-const trelloSunbowl = require("../modules/trello");
-const config = require("../security/auth.js").get(process.env.NODE_ENV);
+const moment = require('moment');
+const assignCycle = require('./go');
+const authoriseApproval = require('./adjust-bucket-balance');
+const sunbowlFirebase = require('../modules/firebase');
+const utils = require('../modules/utils');
+const formstackSunbowl = require('../modules/formstack');
+const slackSunbowl = require('../modules/slack');
+const trelloSunbowl = require('../modules/trello');
+const config = require('../security/auth.js').get(process.env.NODE_ENV);
 
 module.exports = app => {
-  app.post("/action", async (req, res) => {
+  app.post('/action', async (req, res) => {
     const slackMessage = JSON.parse(req.body.payload);
 
     // check to see whether this script is being accessed from our slack apps
     if (slackMessage.token !== config.slack.verificationToken) {
-      utils.respondWithError("Access denied.", res);
+      utils.respondWithError('Access denied.', res);
       return;
     }
 
@@ -24,17 +25,17 @@ module.exports = app => {
 
     switch (slackMessage.callback_id) {
       // on a client confirming a cycle or not
-      case "review_tasks": {
-        const actionCycle = slackMessage.actions[0].value === "confirm";
+      case 'review_tasks': {
+        const actionCycle = slackMessage.actions[0].value === 'confirm';
         res.json({
           text: slackMessage.original_message.text,
           attachments: [
             slackMessage.original_message.attachments[0],
             {
               text: actionCycle
-                ? "Ok, great. We will action this cycle now for you."
-                : "Ok, no prob. Let us know what you want changed.",
-              color: actionCycle ? "good" : "warning"
+                ? 'Ok, great. We will action this cycle now for you.'
+                : 'Ok, no prob. Let us know what you want changed.',
+              color: actionCycle ? 'good' : 'warning'
             }
           ]
         });
@@ -42,7 +43,7 @@ module.exports = app => {
         if (actionCycle) {
           // split something like 'nic: 0.3'
           const assignedOutDetails = slackMessage.original_message.attachments[0].fields[0].value.split(
-            ": "
+            ': '
           );
           assignCycle(
             assignedOutDetails[0],
@@ -60,13 +61,54 @@ module.exports = app => {
         break;
       }
       // in response to a user forcing a card to the "Pending to be assigned" list from the /que command
-      case "force_queue": {
-        const actionQueue = slackMessage.actions[0].value === "confirm";
+      case 'adjust_bucket_balance': {
+        const actionAdjustment = slackMessage.actions[0].value === 'approved';
+        // give an initial response based on which button pressed
+        res.json({
+          text: actionAdjustment
+            ? "Great! I'll make the adjustment to that bucket balance now."
+            : `No prob. I'll let ${
+                slackMessage.original_message.attachments[0].fields[1].value
+              } know.`
+        });
+
+        const userIdOfPersonRequestingChange = slackMessage.original_message.attachments[0].fields[1].value.substring(
+          2,
+          11
+        );
+
+        if (actionAdjustment) {
+          authoriseApproval(
+            slackMessage.actions[0].name, // channel_name
+            parseFloat(
+              slackMessage.original_message.attachments[0].fields[0].value
+            ), // adjustmentAmount
+            userIdOfPersonRequestingChange, // user_id of person requesting the change
+            slackMessage.original_message.attachments[0].fields[2].value,
+            slackMessage.user.id, // user id of person approving it
+            slackMessage.response_url // response url for errors if needed
+          );
+        } else {
+          // let the original requester know the request was denied
+          slackSunbowl.sendDM(
+            userIdOfPersonRequestingChange,
+            `Sorry, but <@${
+              slackMessage.user.id
+            }> has denied your request to change the bucket balance for ${
+              slackMessage.actions[0].name
+            }.`
+          );
+        }
+        break;
+      }
+      // in response to a user forcing a card to the "Pending to be assigned" list from the /que command
+      case 'force_queue': {
+        const actionQueue = slackMessage.actions[0].value === 'confirm';
         // give an initial response based on which button pressed
         res.json({
           text: actionQueue
-            ? "Ok, actioning this all now for you."
-            : "No prob. Leaving the card as is."
+            ? 'Ok, actioning this all now for you.'
+            : 'No prob. Leaving the card as is.'
         });
 
         // if we are to action queueing this card, do a few things...
@@ -96,13 +138,16 @@ module.exports = app => {
               topChecklist.id,
               `${topChecklist.name} - hold`
             );
-            await trelloSunbowl.addTask(topChecklist.id, "**Important Updates**");
+            await trelloSunbowl.addTask(
+              topChecklist.id,
+              '**Important Updates**'
+            );
 
             // log the queueing
             const thisMoment = new moment();
 
             sunbowlFirebase.writeObject(
-              `logs/${slackMessage.user.name}/${thisMoment.format("DDMMYYYY")}`,
+              `logs/${slackMessage.user.name}/${thisMoment.format('DDMMYYYY')}`,
               slackMessage.channel.name,
               { timeWhenQueued: thisMoment.valueOf() }
             );
@@ -110,16 +155,20 @@ module.exports = app => {
             // notify the dev that this card was on
             await slackSunbowl.sendDM(
               dev.id,
-              `Hi ${dev.profile.real_name}! <@${slackMessage.user
-                .id}> has moved the *${slackMessage.channel
-                .name}* card to the Pending to be assigned list. It will most likely be re-assigned to you shortly.`
+              `Hi ${dev.profile.real_name}! <@${
+                slackMessage.user.id
+              }> has moved the *${
+                slackMessage.channel.name
+              }* card to the Pending to be assigned list. It will most likely be re-assigned to you shortly.`
             );
 
             await slackSunbowl.postToSlack(
               {
-                text: `The *${slackMessage.channel
-                  .name}* card was successfully moved to the Pending to be assigned list. And ${dev
-                  .profile.real_name} has been notified.`
+                text: `The *${
+                  slackMessage.channel.name
+                }* card was successfully moved to the Pending to be assigned list. And ${
+                  dev.profile.real_name
+                } has been notified.`
               },
               slackMessage.response_url
             );
@@ -134,7 +183,7 @@ module.exports = app => {
         break;
       }
       default: {
-        utils.respondWithError("This interaction is not known.", res);
+        utils.respondWithError('This interaction is not known.', res);
       }
     }
   });

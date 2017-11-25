@@ -1,24 +1,26 @@
-const request = require("request");
-const rpn = require("request-promise-native");
-const config = require("../security/auth.js").get(process.env.NODE_ENV);
+const request = require('request');
+const rpn = require('request-promise-native');
+const config = require('../security/auth.js').get(process.env.NODE_ENV);
 
 class SunbowlSlack {
   // Sends a direct message to a specific user from our bot
-  sendDM(userId, message) {
+  sendDM(userId, message, attachments) {
     return new Promise(async (resolve, reject) => {
       try {
         const conversationRes = await rpn({
-          uri: `https://slack.com/api/conversations.open?token=${config.slack
-            .botUserOauthAccesstoken}&users=${userId}`,
+          uri: `https://slack.com/api/conversations.open?token=${
+            config.slack.botUserOauthAccesstoken
+          }&users=${userId}`,
           json: true
         });
 
         const messageOptions = {
-          uri: "https://slack.com/api/chat.postMessage",
+          uri: 'https://slack.com/api/chat.postMessage',
           form: {
             token: config.slack.botUserOauthAccesstoken,
             channel: conversationRes.channel.id,
-            text: message
+            text: message,
+            attachments: JSON.stringify([attachments])
           }
         };
 
@@ -36,7 +38,7 @@ class SunbowlSlack {
     return new Promise(async (resolve, reject) => {
       try {
         const messageOptions = {
-          uri: "https://slack.com/api/chat.postMessage",
+          uri: 'https://slack.com/api/chat.postMessage',
           form: {
             token: config.slack.botUserOauthAccesstoken,
             channel: channelId,
@@ -58,8 +60,9 @@ class SunbowlSlack {
     return new Promise((resolve, reject) => {
       request.get(
         {
-          url: `https://slack.com/api/users.list?token=${config.slack
-            .oauthAccesstoken}`,
+          url: `https://slack.com/api/users.list?token=${
+            config.slack.oauthAccesstoken
+          }`,
           json: true
         },
         (error, response, data) => {
@@ -83,8 +86,9 @@ class SunbowlSlack {
     return new Promise(async (resolve, reject) => {
       try {
         const userList = await rpn({
-          uri: `https://slack.com/api/users.list?token=${config.slack
-            .oauthAccesstoken}`,
+          uri: `https://slack.com/api/users.list?token=${
+            config.slack.oauthAccesstoken
+          }`,
           json: true
         });
 
@@ -106,8 +110,9 @@ class SunbowlSlack {
     return new Promise(async (resolve, reject) => {
       try {
         const channelList = await rpn({
-          uri: `https://slack.com/api/channels.list?token=${config.slack
-            .oauthAccesstoken}`,
+          uri: `https://slack.com/api/channels.list?token=${
+            config.slack.oauthAccesstoken
+          }`,
           json: true
         });
 
