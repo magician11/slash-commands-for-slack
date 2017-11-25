@@ -36,6 +36,12 @@ module.exports = app => {
     const personToReview = adjustArguments[1];
     const reason = adjustArguments.slice(2).join(' ');
 
+    res.json({
+      text: `Sure thing ${user_name}. I'll send a message to ${
+        personToReview
+      } now asking them to approve your request.`
+    });
+
     const dataToSave = {
       adjustmentAmount,
       channelId: channel_id,
@@ -48,12 +54,6 @@ module.exports = app => {
       const personToReviewProfile = await slackSunbowl.getUser(
         personToReview.substring(1)
       );
-
-      res.json({
-        text: `Sure thing ${user_name}. I'll send a message to ${
-          personToReviewProfile.real_name
-        } now asking them to approve your request.`
-      });
 
       slackSunbowl.sendDM(
         personToReviewProfile.id,
