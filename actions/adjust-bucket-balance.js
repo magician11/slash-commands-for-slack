@@ -36,7 +36,7 @@ module.exports = async (
     );
 
     // let Jody know this was done
-    const userToNotify = await slackSunbowl.getUser('magician11');
+    const userToNotify = await slackSunbowl.getUser('jody');
     slackSunbowl.sendDM(
       userToNotify.id,
       `Hi Jody. <@${user_id}> has adjusted the bucket balance for ${
