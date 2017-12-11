@@ -60,41 +60,43 @@ module.exports = app => {
         `Hi ${
           personToReviewProfile.real_name
         }. A bucket balance adjustment for ${channel_name} has been requested.`,
-        {
-          text: 'It needs your approval.',
-          callback_id: 'adjust_bucket_balance',
-          fields: [
-            {
-              title: 'Adjustment amount requested',
-              value: `${adjustmentAmount} hours`,
-              short: true
-            },
-            {
-              title: 'Approval requested by',
-              value: `<@${user_id}>`,
-              short: true
-            },
-            {
-              title: 'Reason',
-              value: reason,
-              short: false
-            }
-          ],
-          actions: [
-            {
-              name: channel_name,
-              text: 'Yes I approve',
-              type: 'button',
-              value: 'approved'
-            },
-            {
-              name: channel_name,
-              text: 'No, I do not approve',
-              type: 'button',
-              value: 'denied'
-            }
-          ]
-        }
+        [
+          {
+            text: 'It needs your approval.',
+            callback_id: 'adjust_bucket_balance',
+            fields: [
+              {
+                title: 'Adjustment amount requested',
+                value: `${adjustmentAmount} hours`,
+                short: true
+              },
+              {
+                title: 'Approval requested by',
+                value: `<@${user_id}>`,
+                short: true
+              },
+              {
+                title: 'Reason',
+                value: reason,
+                short: false
+              }
+            ],
+            actions: [
+              {
+                name: channel_name,
+                text: 'Yes I approve',
+                type: 'button',
+                value: 'approved'
+              },
+              {
+                name: channel_name,
+                text: 'No, I do not approve',
+                type: 'button',
+                value: 'denied'
+              }
+            ]
+          }
+        ]
       );
     } catch (error) {
       slackSunbowl.postToSlack(

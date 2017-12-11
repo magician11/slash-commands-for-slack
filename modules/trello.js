@@ -1,15 +1,15 @@
 /* Trello */
 
-const Trello = require("node-trello");
-const config = require("../security/auth.js").get(process.env.NODE_ENV);
+const Trello = require('node-trello');
+const config = require('../security/auth.js').get(process.env.NODE_ENV);
 const trello = new Trello(config.trello.key, config.trello.token);
-const utils = require("./utils");
+const utils = require('./utils');
 
 class SunbowlTrello {
   constructor() {
-    this.pendingToBeAssignedListId = "537bc2cec1db170a09078963";
-    this.archiveListId = "54d100b15e38c58f717dd930";
-    this.finishedBlockListId = "522e91fe2c1df8cb25008ab2";
+    this.pendingToBeAssignedListId = '537bc2cec1db170a09078963';
+    this.archiveListId = '54d100b15e38c58f717dd930';
+    this.finishedBlockListId = '522e91fe2c1df8cb25008ab2';
   }
 
   /*
@@ -30,10 +30,10 @@ class SunbowlTrello {
         for (let checklist = 0; checklist < data.length; checklist += 1) {
           const checklistTitle = data[checklist].name;
 
-          if (checklistTitle.includes("hold")) {
+          if (checklistTitle.includes('hold')) {
             checklistId = data[checklist].id;
             break;
-          } else if (checklistTitle === "Incoming") {
+          } else if (checklistTitle === 'Incoming') {
             checklistId = data[checklist].id;
             break;
           }
@@ -44,7 +44,7 @@ class SunbowlTrello {
         } else {
           trello.post(
             `/1/cards/${trelloCardId}/checklists`,
-            { name: "Incoming" },
+            { name: 'Incoming' },
             (error, incomingChecklist) => {
               if (error) {
                 reject(error);
@@ -109,7 +109,7 @@ class SunbowlTrello {
     return new Promise((resolve, reject) => {
       trello.put(
         `/1/checklists/${taskListId}/pos`,
-        { value: "top" },
+        { value: 'top' },
         (err, data) => {
           if (err) {
             reject(err);
@@ -118,6 +118,18 @@ class SunbowlTrello {
           }
         }
       );
+    });
+  }
+
+  getDueDate(trelloCardId) {
+    return new Promise((resolve, reject) => {
+      trello.get(`/1/cards/${trelloCardId}/due`, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(new Date(data._value));
+        }
+      });
     });
   }
 
@@ -152,7 +164,9 @@ class SunbowlTrello {
               }
             }
             reject(
-              `Sorry, I couldn't find the list ${listName} on the Sunbowl board.`
+              `Sorry, I couldn't find the list ${
+                listName
+              } on the Sunbowl board.`
             );
           }
         }
@@ -233,7 +247,7 @@ class SunbowlTrello {
           } else {
             const developers = [];
             for (const list of data) {
-              if (list.name.startsWith("@")) {
+              if (list.name.startsWith('@')) {
                 developers.push(
                   new Promise(done => {
                     trello.get(

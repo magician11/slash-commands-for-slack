@@ -20,7 +20,7 @@ class SunbowlSlack {
             token: config.slack.botUserOauthAccesstoken,
             channel: conversationRes.channel.id,
             text: message,
-            attachments: JSON.stringify([attachments])
+            attachments: JSON.stringify(attachments)
           }
         };
 

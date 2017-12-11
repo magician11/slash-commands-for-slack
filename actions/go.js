@@ -1,3 +1,10 @@
+const moment = require('moment');
+const utils = require('../modules/utils');
+const freshbooksSunbowl = require('../modules/freshbooks');
+const formstackSunbowl = require('../modules/formstack');
+const trelloSunbowl = require('../modules/trello');
+const slackSunbowl = require('../modules/slack');
+
 /*
 Assign this cycle for this channel to a dev.
 */
@@ -8,13 +15,6 @@ module.exports = async (
   channelName,
   responseUrl
 ) => {
-  const moment = require("moment");
-  const utils = require("../modules/utils");
-  const freshbooksSunbowl = require("../modules/freshbooks");
-  const formstackSunbowl = require("../modules/formstack");
-  const trelloSunbowl = require("../modules/trello");
-  const slackSunbowl = require("../modules/slack");
-
   try {
     const trelloCardId = await formstackSunbowl.getTrelloCardId(channelName);
     const trelloListId = await trelloSunbowl.findListId(userAssignedCycle);
@@ -44,20 +44,40 @@ module.exports = async (
       userAssigningCycle,
       channelName,
       parseFloat(timeTakenToAssign),
-      "Discussions with client about cycle details. Made video for developer, organized cycle and assigned out."
+      'Discussions with client about cycle details. Made video for developer, organized cycle and assigned out.'
     );
 
     // notify dev of the new cycle
     const devProfile = await slackSunbowl.getUser(userAssignedCycle.slice(1));
-    await slackSunbowl.sendDM(
+    const dueDate = await trelloSunbowl.getDueDate(trelloCardId);
+    const topChecklist = await trelloSunbowl.getTopCheckList(trelloCardId);
+    const res = await slackSunbowl.sendDM(
       devProfile.id,
-      `Hi ${devProfile.real_name}! You've just been assigned out a new cycle by ${userAssigningCycle}. It's for ${channelName}.`
+      `Hi ${
+        devProfile.real_name
+      }! You've just been assigned out a new cycle by ${
+        userAssigningCycle
+      }. It's for ${channelName}, and is due on ${moment(dueDate).format(
+        'dddd (Do MMM) [at] h:mma'
+      )}.\nThe tasks are...`,
+      topChecklist.checkItems.map(task => ({
+        text: task.name,
+        mrkdwn_in: ['text']
+      }))
     );
+    // await slackSunbowl.sendDM(
+    //   devProfile.id,
+    //   `Hi ${
+    //     devProfile.real_name
+    //   }! You've just been assigned out a new cycle by ${
+    //     userAssigningCycle
+    //   }. It's for ${channelName}.`
+    // );
 
     const timeLeft = projectBudget - billableHours - timeTakenToAssign;
 
     const goReviewMessage = {
-      response_type: "in_channel",
+      response_type: 'in_channel',
       text: `*${userAssignedCycleFirstName} has been assigned your next cycle.*
 Your cycle has been placed in the queue and will be worked on as soon as possible.
 Your New Bucket Balance: \`${timeLeft.toFixed(1)} hours\``,
